@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TITAN PRO.13</title>
+    <style>
+        :root {
+            --neon-green: #00ffa3;
+            --neon-gold: #ffcf33;
+            --bg-dark: #0a0c10;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #e0e0e0;
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            -webkit-user-select: none;
+        }
+
+        /* UI Glassmorphism & Effects */
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 15px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .header {
+            text-align: center;
+            padding: 25px 15px;
+            background: rgba(0,0,0,0.6);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* Signal Strength Indicator */
+        .signal-dots { display: flex; gap: 3px; align-items: center; }
+        .dot { width: 4px; height: 10px; background: #333; border-radius: 2px; }
+        .dot.active { background: var(--neon-green); box-shadow: 0 0 10px var(--neon-green); }
+
+        /* Login Screen */
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: radial-gradient(circle at center, #1a202c 0%, #0a0c10 100%);
+        }
+
+        input {
+            width: 80%;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus { border-color: var(--neon-green); background: rgba(255,255,255,0.1); }
+
+        button {
+            width: 85%;
+            padding: 15px;
+            background: var(--neon-green);
+            color: black;
+            border: none;
+            border-radius: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:active { transform: scale(0.98); opacity: 0.8; }
+
+        /* Navigation Grid */
+        .nav-menu {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 15px;
+        }
+
+        .nav-btn {
+            font-size: 10px;
+            padding: 12px 5px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: #aaa;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .nav-btn.active-tab {
+            background: rgba(0, 255, 163, 0.1);
+            color: var(--neon-green);
+            border-color: var(--neon-green);
+        }
+
+        /* Coin Cards */
+        .coin-card {
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .strat-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 9px;
+            padding: 3px 8px;
+            border-radius: 20px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--neon-green);
+        }
+
+        .indicator-view {
+            font-size: 11px;
+            color: #888;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .ready-text { color: var(--neon-green); animation: pulse 1.5s infinite; font-weight: bold; }
+
+        #app-content { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: var(--neon-green); margin:0; font-size: 2.5em; letter-spacing: 2px;">OM MARSEL</h1>
+            <p style="color: #666; letter-spacing: 3px; font-size: 0.8em;">MAHADEWA AI SYSTEM</p>
+        </div>
+        <input type="text" id="username" placeholder="ID Member / Master">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="handleLogin()">AUTHENTICATION</button>
+        <p style="color: #444; font-size: 10px; margin-top: 20px;">V3.0.0 PREMIUM ACCESS</p>
+    </div>
+
+    <div id="app-content">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div class="signal-dots">
+                    <div class="dot active"></div><div class="dot active"></div><div class="dot active"></div><div class="dot active"></div><div class="dot"></div>
+                    <span style="font-size: 10px; margin-left: 5px; color: var(--neon-green);">LIVE MARKET</span>
+                </div>
+                <button onclick="toggleLang()" style="width: auto; padding: 5px 10px; font-size: 10px; background: transparent; border: 1px solid #444; color: white;">🇮🇩 ID | Rp</button>
+            </div>
+            <h2 id="user-display" style="margin:0; font-size: 1.2em;">Master Marsel</h2>
+            <div id="display-mode" style="font-size: 10px; color: #666; margin-top: 5px;">ASISTEN TRAINING MODE</div>
+        </div>
+
+        <div class="nav-menu">
+            <div class="nav-btn active-tab" id="tab-active" onclick="showView('active')">AKTIF</div>
+            <div class="nav-btn" id="tab-execute" style="border-color: var(--neon-gold); color: var(--neon-gold);" onclick="showView('execute')">EXECUTE</div>
+            <div class="nav-btn" id="tab-scalp" onclick="showView('scalp')">SCALP</div>
+            <div class="nav-btn" id="tab-smart" onclick="showView('smart')">SMART</div>
+            <div class="nav-btn" id="tab-moon" onclick="showView('moon')">MOON</div>
+            <div class="nav-btn" id="tab-history" onclick="showView('history')">HISTORY</div>
+            <div class="nav-btn" onclick="window.open('https://t.me/+8uJ78T4VDHJkOTRl')">TELE</div>
+            <div class="nav-btn" id="tab-tutor" onclick="showView('tutor')">TUTOR</div>
+        </div>
+
+        <div class="glass-card" style="margin-top: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 12px; color: #888;">Locked Capital</span>
+                <span id="lock-timer" style="font-size: 10px; color: #ff4b4b;"></span>
+            </div>
+            <h2 id="balance-display" style="margin: 10px 0; color: var(--neon-green);">Rp 0</h2>
+            
+            <div id="modal-input-area">
+                <input type="number" id="input-modal" placeholder="Minimal Rp 1.000.000">
+                <button onclick="lockCapital()">KONFIRMASI & KUNCI</button>
+            </div>
+
+            <div id="allocation-stats" style="display: none; font-size: 11px; color: #666; margin-top: 10px; border-top: 1px solid #222; padding-top: 10px;">
+                <span>S: 40% | SM: 39% | M: 21%</span>
+            </div>
+        </div>
+
+        <div id="main-view"></div>
+
+        <div style="padding: 20px; text-align: center;">
+            <button id="switch-mode-btn" style="background: #1a1d23; color: white; border: 1px solid #333;" onclick="toggleMode()">ASISTEN TRAINING MODE ⮕ REAL</button>
+            <div style="margin-top: 20px;">
+                <button style="background: transparent; color: #ff4b4b; width: 40%; font-size: 12px;" onclick="logout()">LOGOUT</button>
+                <button style="background: transparent; color: #666; width: 40%; font-size: 12px;" onclick="showView('tutor')">TUTORIAL</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- MAHADEWA LOGIC ENGINE ---
+        const CONFIG = {
+            TELE_TOKEN: "8295607704:AAFdy_U8bFL-x2Ol90n8f2KDOHXztybcuj4",
+            CHAT_ID: "-1003254379333"
+        };
+
+        let state = JSON.parse(localStorage.getItem('marsel_state')) || {
+            user: '',
+            isMaster: false,
+            mode: 'Training',
+            balance: 0,
+            locked: 0,
+            portfolio: [],
+            history: [],
+            daysCompleted: 0,
+            lastLockDate: null
+        };
+
+        function saveState() {
+            localStorage.setItem('marsel_state', JSON.stringify(state));
+        }
+
+        // --- AUTH ---
+        function handleLogin() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+
+            if (u === 'master' && p === 'mahadewa') {
+                state.user = 'MASTER';
+                state.isMaster = true;
+                initApp();
+            } else if (u.startsWith('MEM') && p === '123') {
+                state.user = u;
+                state.isMaster = false;
+                initApp();
+            } else {
+                alert("Akses Mahadewa Ditolak!");
+            }
+        }
+
+        function initApp() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+            document.getElementById('user-display').innerText = state.user;
+            updateBalanceUI();
+            showView('active');
+            saveState();
+        }
+
+        function logout() {
+            localStorage.removeItem('marsel_state');
+            location.reload();
+        }
+
+        // --- CAPITAL MANAGEMENT ---
+        function lockCapital() {
+            const val = parseInt(document.getElementById('input-modal').value);
+            if (val >= 1000000 && val <= 1000000000) {
+                state.locked = val;
+                state.balance = val;
+                state.lastLockDate = new Date().toLocaleDateString();
+                updateBalanceUI();
+                alert("Modal Mahadewa Terkunci! Terbagi otomatis ke Scalp, Smart, dan Moon.");
+                saveState();
+            } else {
+                alert("Modal minimal Rp 1.000.000");
+            }
+        }
+
+        function updateBalanceUI() {
+            document.getElementById('balance-display').innerText = 'Rp ' + state.balance.toLocaleString('id-ID');
+            if (state.locked > 0) {
+                document.getElementById('modal-input-area').style.display = 'none';
+                document.getElementById('allocation-stats').style.display = 'block';
+                document.getElementById('lock-timer').innerText = "LOCKED UNTIL 00:00";
+            }
+        }
+
+        // --- VIEWS ---
+        function showView(view) {
+            const container = document.getElementById('main-view');
+            container.innerHTML = '';
+            
+            // UI Tab Active State
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-tab'));
+            const activeTab = document.getElementById('tab-' + view);
+            if(activeTab) activeTab.classList.add('active-tab');
+
+            if (view === 'active') {
+                container.innerHTML = `<h4 style="margin: 15px 20px;">Open Positions (Buy)</h4>`;
+                if(state.portfolio.length === 0) container.innerHTML += `<p style="text-align:center; color:#555; margin:30px;">Tidak ada koin aktif.</p>`;
+                state.portfolio.forEach(p => {
+                    container.innerHTML += `
+                    <div class="glass-card coin-card">
+                        <span class="strat-badge">${p.strat}</span>
+                        <div style="font-weight:bold; font-size: 1.1em; color: var(--neon-green);">${p.coin}</div>
+                        <div style="font-size:11px; margin-top:5px;">Buy: Rp ${p.buyPrice.toLocaleString()} | Lot: ${p.lot}</div>
+                        <div class="indicator-view">
+                            <span>Indicator: Monitoring...</span>
+                            <span class="ready-text">STATUS: HOLDING</span>
+                        </div>
+                    </div>`;
+                });
+            } 
+            else if (view === 'execute') {
+                container.innerHTML = `<h4 style="margin: 15px 20px; color: var(--neon-gold);">Ready to Profit</h4>`;
+                let readyCount = 0;
+                state.portfolio.forEach((p, index) => {
+                    // Logika: Tampilkan koin yang sudah mencapai moment profit (simulasi)
+                    const currentProfit = (Math.random() * 5 + 1).toFixed(2);
+                    readyCount++;
+                    container.innerHTML += `
+                    <div class="glass-card coin-card" style="border-color: var(--neon-gold);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <b>${p.coin}</b>
+                            <span style="color:var(--neon-green); font-weight:bold;">+${currentProfit}%</span>
+                        </div>
+                        <p style="font-size:10px; color:#888; margin: 10px 0;">Sistem mendeteksi moment profit optimal.</p>
+                        <button class="execute-btn" onclick="executeSell(${index}, ${currentProfit})">EXECUTE SELL</button>
+                    </div>`;
+                });
+                if(readyCount === 0) container.innerHTML = `<p style="text-align:center; color:#555; margin:30px;">Menunggu Moment Profit...</p>`;
+            }
+            else if (['scalp', 'smart', 'moon'].includes(view)) {
+                const stratInfo = {
+                    scalp: { name: 'SCALPING', ind: 'Bollinger Bands', desc: 'Fokus Volatilitas Tinggi' },
+                    smart: { name: 'SMART', ind: 'Moving Averages', desc: 'Tren Jangka Menengah' },
+                    moon: { name: 'MOONSHOT', ind: 'RSI Oversold', desc: 'Pantauan Koin Rebound' }
+                }[view];
+                
+                container.innerHTML = `<h4 style="margin: 15px 20px;">${stratInfo.name} MONITOR</h4>`;
+                ['BTC/IDR', 'SOL/IDR', 'PEPE/IDR'].forEach(coin => {
+                    container.innerHTML += `
+                    <div class="glass-card coin-card">
+                        <div style="display:flex; justify-content:space-between;">
+                            <b>${coin}</b>
+                            <span style="color: var(--neon-green); font-size:12px;">LIVE</span>
+                        </div>
+                        <div class="indicator-view">
+                            <span>AI Ind: ${stratInfo.ind}</span>
+                            <span style="color:white">Signal: READY</span>
+                        </div>
+                        <button onclick="buyCoin('${coin}', '${stratInfo.name}')" style="margin-top:15px; background:rgba(0,255,163,0.1); color:var(--neon-green); border:1px solid var(--neon-green);">OPEN BUY</button>
+                    </div>`;
+                });
+            }
+            else if (view === 'history') {
+                container.innerHTML = `<h4 style="margin: 15px 20px;">Profit/Loss History</h4>`;
+                state.history.forEach(h => {
+                    container.innerHTML += `
+                    <div class="glass-card" style="padding: 12px; margin-bottom: 8px;">
+                        <div style="display:flex; justify-content:space-between; font-size:12px;">
+                            <span><b>${h.coin}</b> <small>${h.date}</small></span>
+                            <span style="color:var(--neon-green)">+${h.profit}%</span>
+                        </div>
+                    </div>`;
+                });
+            }
+            else if (view === 'tutor') {
+                container.innerHTML = `
+                <div class="glass-card">
+                    <h4>Mekanisme Mahadewa</h4>
+                    <p style="font-size:12px; color:#888; line-height:1.6;">
+                        1. <b>Input Modal</b>: Modal minimal 1jt. Terkunci otomatis sampai 00:00.<br><br>
+                        2. <b>Aktif</b>: Menu untuk melihat koin yang sudah dibeli.<br><br>
+                        3. <b>Execute</b>: Menu khusus eksekusi jual. Kartu hanya muncul saat sistem mendeteksi moment profit.<br><br>
+                        4. <b>Misi</b>: Selesaikan 7 hari training dengan profit harian minimal 10% untuk akses Mode Real.
+                    </p>
+                </div>`;
+            }
+        }
+
+        // --- TRADING ENGINE ---
+        function buyCoin(coin, strat) {
+            if (state.locked === 0) return alert("Kunci modal dulu!");
+            
+            // Cek Alokasi (Simplified logic)
+            let lot = 0;
+            if(strat === 'SCALPING') lot = state.locked * 0.4 / 10;
+            else if(strat === 'SMART') lot = state.locked * 0.39 / 3;
+            else lot = state.locked * 0.21;
+
+            if(state.balance < lot) return alert("Saldo Alokasi Habis!");
+
+            state.balance -= lot;
+            state.portfolio.push({
+                coin: coin, 
+                strat: strat, 
+                buyPrice: Math.floor(Math.random() * 1000000), 
+                lot: lot,
+                time: new Date().toLocaleTimeString()
+            });
+
+            alert(`Berhasil Buy ${coin}! Koin masuk ke menu AKTIF.`);
+            updateBalanceUI();
+            showView('active');
+            saveState();
+        }
+
+        function executeSell(index, profit) {
+            const p = state.portfolio[index];
+            const profitRp = p.lot * (profit / 100);
+            
+            // Haptic & Voice Alert
+            if (window.navigator.vibrate) window.navigator.vibrate(50);
+            const msg = new SpeechSynthesisUtterance("Order Executed. Profit Secured.");
+            window.speechSynthesis.speak(msg);
+
+            state.balance += (p.lot + profitRp);
+            state.history.unshift({
+                coin: p.coin,
+                profit: profit,
+                date: new Date().toLocaleString()
+            });
+
+            // Telegram Notification (Real Mode Only)
+            if (state.mode === 'Real') {
+                fetch(`https://api.telegram.org/bot${CONFIG.TELE_TOKEN}/sendMessage?chat_id=${CONFIG.CHAT_ID}&text=💰 *PROFIT SECURED*\nCoin: ${p.coin}\nProfit: ${profit}%\nStatus: Mahadewa Real Mode&parse_mode=markdown`);
+            }
+
+            state.portfolio.splice(index, 1);
+            updateBalanceUI();
+            alert(`Eksekusi Berhasil! Profit Rp ${profitRp.toLocaleString()} diamankan.`);
+            showView('execute');
+            saveState();
+        }
+
+        function toggleMode() {
+            if (state.isMaster || state.daysCompleted >= 7) {
+                state.mode = state.mode === 'Training' ? 'Real' : 'Training';
+                document.getElementById('display-mode').innerText = state.mode === 'Real' ? 'ASISTEN TRAINING REAL' : 'ASISTEN TRAINING MODE';
+                document.getElementById('switch-mode-btn').innerText = state.mode === 'Real' ? 'REAL MODE ACTIVE' : 'ASISTEN TRAINING MODE ⮕ REAL';
+                document.getElementById('switch-mode-btn').style.background = state.mode === 'Real' ? 'var(--neon-green)' : '#1a1d23';
+                document.getElementById('switch-mode-btn').style.color = state.mode === 'Real' ? 'black' : 'white';
+                saveState();
+            } else {
+                alert("Misi 7 Hari Belum Selesai!");
+            }
+        }
+
+        // Auto Load if state exists
+        if(state.user) initApp();
+    </script>
+</body>
+</html>
