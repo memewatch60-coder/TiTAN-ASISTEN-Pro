@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TITAN V13 - MAHADHARE GOLD</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;500;700&display=swap');
@@ -13,11 +12,9 @@
         body { background: #020308; color: #e2e8f0; font-family: 'Space Grotesk', sans-serif; overflow: hidden; height: 100vh; }
         .titan-font { font-family: 'Orbitron', sans-serif; }
         .glass-premium { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(255,215,0,0.1); border-radius: 1.5rem; }
-        .hot-glow { box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); border: 1px solid var(--gold) !important; }
-        .signal-pulse { animation: pulse-border 1.5s infinite; }
-        @keyframes pulse-border { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .currency-flag { width: 20px; height: 14px; display: inline-block; margin-right: 5px; }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="p-0 m-0">
@@ -29,106 +26,70 @@
                 <span id="mode-text" class="titan-font text-[10px] font-bold tracking-tighter">ASISTEN TRAINING MODE</span>
                 <i class="fa-solid fa-right-left text-[10px] opacity-50"></i>
             </div>
-            <div class="text-[9px] opacity-50"><i class="fa-solid fa-signal text-emerald-500"></i> <span id="conn-status">SECURE CONNECTION</span></div>
         </div>
         <div class="flex items-center gap-4">
-            <button onclick="toggleLang()" id="lang-btn" class="text-xs bg-white/5 px-3 py-1 rounded-full border border-white/10">🇮🇩 IDR</button>
-            <button onclick="showTutor()" class="text-white/60 hover:text-white"><i class="fa-solid fa-circle-info text-xl"></i></button>
-            <button onclick="lOut()" class="text-rose-500/80"><i class="fa-solid fa-power-off text-xl"></i></button>
+            <button class="text-xs bg-white/5 px-3 py-1 rounded-full border border-white/10">🇮🇩 IDR</button>
+            <button onclick="localStorage.clear(); location.reload();" class="text-rose-500/80"><i class="fa-solid fa-power-off text-xl"></i></button>
         </div>
     </header>
 
     <main id="app" class="h-full flex flex-col pb-32">
         <section class="p-6">
-            <div class="glass-premium p-5 relative overflow-hidden">
+            <div class="glass-premium p-5">
                 <div class="flex justify-between items-start mb-4">
                     <div>
                         <p class="text-[9px] uppercase font-black opacity-50 tracking-[3px]">Capital Management</p>
-                        <h2 id="display-balance" class="titan-font text-2xl text-yellow-500 font-black">Rp 1,000,000</h2>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[9px] uppercase font-black opacity-50">Locked Until</p>
-                        <p id="lock-timer" class="text-xs font-bold text-rose-500 italic">00:00:00</p>
+                        <h2 id="display-balance" class="titan-font text-2xl text-yellow-500 font-black">Rp 0</h2>
                     </div>
                 </div>
-                
                 <div class="grid grid-cols-3 gap-2 mt-4">
                     <div class="bg-white/5 p-2 rounded-xl border-l-2 border-emerald-500">
                         <p class="text-[7px] opacity-60">SCALP (40%)</p>
-                        <p id="cap-scalp" class="text-[10px] font-bold">Rp 400.000</p>
+                        <p id="cap-scalp" class="text-[10px] font-bold">Rp 0</p>
                     </div>
                     <div class="bg-white/5 p-2 rounded-xl border-l-2 border-blue-500">
                         <p class="text-[7px] opacity-60">SMART (39%)</p>
-                        <p id="cap-smart" class="text-[10px] font-bold">Rp 390.000</p>
+                        <p id="cap-smart" class="text-[10px] font-bold">Rp 0</p>
                     </div>
                     <div class="bg-white/5 p-2 rounded-xl border-l-2 border-violet-500">
                         <p class="text-[7px] opacity-60">MOON (21%)</p>
-                        <p id="cap-moon" class="text-[10px] font-bold">Rp 210.000</p>
+                        <p id="cap-moon" class="text-[10px] font-bold">Rp 0</p>
                     </div>
                 </div>
             </div>
         </section>
 
         <nav class="px-6 flex gap-1 overflow-x-auto no-scrollbar mb-4">
-            <button onclick="setTab('active')" id="tab-active" class="px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-yellow-500 text-black shadow-lg">ACTIVE</button>
-            <button onclick="setTab('execute')" id="tab-execute" class="px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-white/5 border border-white/10">EXECUTE</button>
-            <button onclick="setTab('scalp')" id="tab-scalp" class="px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-white/5 border border-white/10">SCALP</button>
-            <button onclick="setTab('smart')" id="tab-smart" class="px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-white/5 border border-white/10">SMART</button>
-            <button onclick="setTab('moon')" id="tab-moon" class="px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-white/5 border border-white/10">MOON</button>
+            <button onclick="setTab('active')" id="tab-active" class="px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-yellow-500 text-black">ACTIVE</button>
+            <button onclick="setTab('execute')" id="tab-execute" class="px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-white/5">EXECUTE</button>
+            <button onclick="setTab('scalp')" id="tab-scalp" class="px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-white/5">SCALP</button>
         </nav>
 
-        <div id="card-container" class="flex-1 overflow-y-auto px-6 space-y-4 no-scrollbar">
-            </div>
+        <div id="card-container" class="flex-1 overflow-y-auto px-6 space-y-4 no-scrollbar"></div>
     </main>
 
     <div id="modal-capital" class="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-8 hidden">
         <div class="glass-premium p-8 w-full max-w-sm border-yellow-500/50">
             <h3 class="titan-font text-xl text-yellow-500 mb-2">INITIAL CAPITAL</h3>
-            <p class="text-[10px] opacity-60 mb-6 uppercase">Minimum Rp 1,000,000 | Locked for 24H</p>
-            <input type="number" id="input-cap" value="1000000" class="w-full bg-white/10 p-4 rounded-2xl mb-6 titan-font text-xl text-center">
+            <p class="text-[10px] opacity-60 mb-6">MIN Rp 1,000,000 | LOCK 24H</p>
+            <input type="number" id="input-cap" value="1000000" class="w-full bg-white/10 p-4 rounded-2xl mb-6 titan-font text-xl text-center text-white outline-none border border-white/10">
             <button onclick="confirmCapital()" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl titan-font">CONFIRM & LOCK</button>
         </div>
     </div>
 
-    <footer class="fixed bottom-0 left-0 right-0 bg-black/90 border-t border-white/5 p-4 flex justify-around items-center backdrop-blur-xl">
-        <button onclick="window.open('https://t.me/+8uJ78T4VDHJkOTRl')" class="flex flex-col items-center opacity-60">
-            <i class="fa-brands fa-telegram text-xl"></i><span class="text-[8px] mt-1">TELEGRAM</span>
-        </button>
-        <button onclick="showHistory()" class="flex flex-col items-center opacity-60">
-            <i class="fa-solid fa-clock-rotate-left text-xl"></i><span class="text-[8px] mt-1">HISTORY</span>
-        </button>
-        <div class="relative -top-8">
-            <div class="w-16 h-16 rounded-full bg-yellow-500 flex items-center justify-center shadow-[0_0_30px_rgba(255,215,0,0.5)] border-4 border-[#020308]">
-                <i class="fa-solid fa-bolt text-2xl text-black"></i>
-            </div>
-        </div>
-        <button class="flex flex-col items-center opacity-60">
-            <i class="fa-solid fa-chart-line text-xl"></i><span class="text-[8px] mt-1">PULSE</span>
-        </button>
-        <button class="flex flex-col items-center opacity-60">
-            <i class="fa-solid fa-trophy text-xl"></i><span class="text-[8px] mt-1">LEADER</span>
-        </button>
-    </footer>
-
-    <audio id="sfx-ready" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
-
     <script>
-        // --- CONFIGURATION MAHADHARE ---
-        const MASTER_NUM = "081241955337";
         const BOT_TOKEN = "8295607704:AAFdy_U8bFL-x2Ol90n8f2KDOHXztybcuj4";
         const CHAT_ID = "-1003254379333";
         
         let state = {
-            mode: 'training', // training | real
+            mode: 'training',
             tab: 'active',
-            lang: 'IDR',
             capital: JSON.parse(localStorage.getItem('titan_cap')) || { val: 0, lockedUntil: 0 },
             activePositions: JSON.parse(localStorage.getItem('titan_pos')) || [],
-            history: JSON.parse(localStorage.getItem('titan_hist')) || [],
-            isMaster: false
+            history: JSON.parse(localStorage.getItem('titan_hist')) || []
         };
 
-        // --- INDICATOR ENGINES (Kecerdasan Mahadewa) ---
+        // --- CORE LOGIC ---
         function calculateRSI(prices, period = 14) {
             if (prices.length < period) return 50;
             let gains = 0, losses = 0;
@@ -136,15 +97,12 @@
                 let diff = prices[i] - prices[i-1];
                 diff > 0 ? gains += diff : losses -= diff;
             }
-            let rs = (gains / period) / (losses / period);
-            return 100 - (100 / (1 + rs));
+            return 100 - (100 / (1 + (gains / losses)));
         }
 
-        // --- MAIN ENGINE ---
         async function fetchMarket() {
             try {
-                // Menggunakan CoinGecko/Binance Proxy
-                const res = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=50&sparkline=true`);
+                const res = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=10&sparkline=true`);
                 const data = await res.json();
                 processSignals(data);
                 render();
@@ -153,24 +111,19 @@
 
         function processSignals(coins) {
             coins.forEach(coin => {
-                const spark = coin.sparkline_in_7d.price;
-                const rsi = calculateRSI(spark);
-                const currentPrice = coin.current_price;
-
-                // LOGIKA STRATEGI
+                const rsi = calculateRSI(coin.sparkline_in_7d.price);
                 let strategy = null;
-                if (rsi < 30) strategy = 'MOONSHOT';
+                if (rsi < 35) strategy = 'MOONSHOT';
                 else if (rsi > 40 && rsi < 60) strategy = 'SMART';
-                else if (coin.price_change_percentage_24h > 5) strategy = 'SCALPING';
+                else if (coin.price_change_percentage_24h > 3) strategy = 'SCALPING';
 
-                // Auto-Open Position Simulator (Training)
-                if (strategy && Math.random() > 0.98 && state.activePositions.length < 10) {
-                    const id = Date.now() + coin.id;
+                if (strategy && Math.random() > 0.8 && state.activePositions.length < 5) {
                     if (!state.activePositions.find(p => p.coinId === coin.id)) {
                         state.activePositions.push({
-                            id, coinId: coin.id, name: coin.symbol.toUpperCase(),
-                            entry: currentPrice, strategy, time: new Date().toLocaleString(),
-                            img: coin.image, status: 'OPEN', amount: 0
+                            id: Date.now() + Math.floor(Math.random() * 1000),
+                            coinId: coin.id, name: coin.symbol.toUpperCase(),
+                            entry: coin.current_price, strategy, time: new Date().toLocaleTimeString(),
+                            img: coin.image, status: 'OPEN'
                         });
                         save();
                     }
@@ -178,65 +131,80 @@
             });
         }
 
-        // --- UI RENDERER ---
+        // --- ACTION HANDLERS ---
+        async function executeAction(id, type) {
+            const pos = state.activePositions.find(p => p.id == id);
+            if (!pos) return;
+
+            const message = `🚀 *TITAN V13 EXECUTION*\n\nType: ${type}\nAsset: ${pos.name}/IDR\nStrategy: ${pos.strategy}\nPrice: Rp ${pos.entry.toLocaleString()}\nMode: ${state.mode.toUpperCase()}`;
+            
+            // Send to Telegram
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=Markdown`);
+
+            if (type === 'BUY') {
+                pos.status = 'READY';
+                alert(`SIGNAL ${pos.name} BERHASIL DI-LOCK! Cek Tab Execute.`);
+            } else {
+                state.activePositions = state.activePositions.filter(p => p.id != id);
+                state.history.push({...pos, status: 'CLOSED', closeTime: new Date().toLocaleString()});
+                alert(`PROFIT BERHASIL DI-AMANKAN!`);
+            }
+            save();
+            render();
+        }
+
         function render() {
             const container = document.getElementById('card-container');
             container.innerHTML = '';
             
-            let filtered = [];
-            if (state.tab === 'active') {
-                filtered = state.activePositions.filter(p => p.status === 'OPEN');
-            } else if (state.tab === 'execute') {
-                filtered = state.activePositions.filter(p => p.status === 'READY');
-            } else {
-                // Mock signals for Scalp/Smart/Moon based on logic
-                container.innerHTML = `<p class="text-center opacity-30 titan-font text-xs">SCANNING FOR ${state.tab.toUpperCase()} MOMENTUM...</p>`;
+            let filtered = state.activePositions.filter(p => 
+                state.tab === 'active' ? p.status === 'OPEN' : 
+                state.tab === 'execute' ? p.status === 'READY' : false
+            );
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-center opacity-30 titan-font text-[10px] mt-10">MENCARI SIGNAL ${state.tab.toUpperCase()}...</p>`;
                 return;
             }
 
             filtered.forEach(pos => {
                 const card = document.createElement('div');
-                card.className = `glass-premium p-5 border-l-4 ${getStrategyColor(pos.strategy)}`;
+                card.className = `glass-premium p-5 border-l-4 ${getStrategyColor(pos.strategy)} animate-fade-in`;
                 card.innerHTML = `
                     <div class="flex justify-between items-center">
                         <div class="flex gap-3 items-center">
                             <img src="${pos.img}" class="w-8 h-8 rounded-full">
                             <div>
-                                <h4 class="font-bold titan-font">${pos.name}/IDR</h4>
+                                <h4 class="font-bold titan-font text-sm">${pos.name}/IDR</h4>
                                 <span class="text-[8px] bg-white/10 px-2 py-0.5 rounded uppercase">${pos.strategy}</span>
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="text-[10px] opacity-50">${pos.time}</p>
-                            <p class="text-xs font-black text-emerald-400">READY TO PROFIT</p>
+                            <p class="text-[9px] opacity-50">${pos.time}</p>
+                            <p class="text-[10px] font-black text-emerald-400">READY</p>
                         </div>
                     </div>
                     <div class="mt-4 flex gap-2">
-                        ${state.tab === 'active' ? 
-                          `<button onclick="executeAction('${pos.id}', 'BUY')" class="flex-1 py-2 bg-white/5 rounded-xl titan-font text-[10px]">BUY SIGNAL</button>` :
-                          `<button onclick="executeAction('${pos.id}', 'SELL')" class="flex-1 py-2 bg-yellow-500 text-black rounded-xl titan-font text-[10px] font-bold">EXECUTE SELL</button>`
+                        ${pos.status === 'OPEN' ? 
+                          `<button onclick="executeAction(${pos.id}, 'BUY')" class="flex-1 py-3 bg-white/5 rounded-xl titan-font text-[10px] border border-white/10">BUY SIGNAL</button>` :
+                          `<button onclick="executeAction(${pos.id}, 'SELL')" class="flex-1 py-3 bg-yellow-500 text-black rounded-xl titan-font text-[10px] font-bold shadow-lg">TAKE PROFIT</button>`
                         }
                     </div>
                 `;
-                container.push(card);
+                container.appendChild(card);
             });
         }
 
         function getStrategyColor(s) {
-            if(s === 'SCALPING') return 'border-emerald-500';
-            if(s === 'SMART') return 'border-blue-500';
-            return 'border-violet-500';
+            return s === 'SCALPING' ? 'border-emerald-500' : s === 'SMART' ? 'border-blue-500' : 'border-violet-500';
         }
 
-        // --- CAPITAL LOGIC ---
+        // --- SYSTEM FUNCTIONS ---
         function confirmCapital() {
             const val = document.getElementById('input-cap').value;
             if (val < 1000000) return alert("Minimal Rp 1.000.000");
-            state.capital = {
-                val: parseInt(val),
-                lockedUntil: Date.now() + 86400000 // 24 Jam
-            };
-            localStorage.setItem('titan_cap', JSON.stringify(state.capital));
+            state.capital = { val: parseInt(val), lockedUntil: Date.now() + 86400000 };
+            save();
             document.getElementById('modal-capital').classList.add('hidden');
             updateBalanceUI();
         }
@@ -249,69 +217,30 @@
             document.getElementById('cap-moon').innerText = `Rp ${(c * 0.21).toLocaleString()}`;
         }
 
-        // --- REAL MODE LOGIC ---
         function toggleRealMode() {
-            if (state.isMaster) {
-                switchMode();
-            } else {
-                // Periksa Syarat
-                const profitAchieved = checkSevenDayMissions();
-                if (!profitAchieved) {
-                    alert("SYARAT AKSES REAL:\n1. Daftar via Link Reff Master\n2. Selesaikan Misi Profit 10% selama 7 hari berturut-turut.");
-                    window.open('https://indodax.onelink.me/qyYY/referral?deep_link_value=page:register,id:marselsalmon');
-                } else {
-                    switchMode();
-                }
-            }
-        }
-
-        function switchMode() {
-            state.mode = state.mode === 'training' ? 'real' : 'training';
-            const ind = document.getElementById('mode-indicator');
-            const txt = document.getElementById('mode-text');
-            if (state.mode === 'real') {
-                ind.className = "w-3 h-3 rounded-full bg-yellow-500 shadow-[0_0_10px_#ffd700]";
-                txt.innerText = "ASISTEN REAL MODE";
-                alert("ANDA MEMASUKI REAL MARKET. EKSEKUSI TERHUBUNG KE BURSA.");
-            } else {
-                ind.className = "w-3 h-3 rounded-full bg-emerald-500";
-                txt.innerText = "ASISTEN TRAINING MODE";
-            }
-        }
-
-        // --- INITIALIZATION ---
-        window.onload = () => {
-            if (state.capital.val === 0) {
-                document.getElementById('modal-capital').classList.remove('hidden');
-            }
-            updateBalanceUI();
-            fetchMarket();
-            setInterval(fetchMarket, 15000);
-            
-            // Timer Check
-            setInterval(() => {
-                const now = new Date();
-                if (now.getHours() === 0 && now.getMinutes() === 0) {
-                    // Unlock Capital at Midnight
-                    state.capital.lockedUntil = 0;
-                    save();
-                }
-            }, 1000);
-        };
-
-        function save() {
-            localStorage.setItem('titan_pos', JSON.stringify(state.activePositions));
-            localStorage.setItem('titan_hist', JSON.stringify(state.history));
+            alert("SYARAT AKSES REAL:\n1. Misi Profit 10% selama 7 hari belum tercapai.\n2. Hubungi Master untuk verifikasi.");
+            window.open('https://indodax.onelink.me/qyYY/referral?deep_link_value=page:register,id:marselsalmon');
         }
 
         function setTab(t) {
             state.tab = t;
-            document.querySelectorAll('nav button').forEach(b => {
-                b.className = "px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-white/5 border border-white/10";
-            });
+            document.querySelectorAll('nav button').forEach(b => b.className = "px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-white/5");
             document.getElementById('tab-' + t).className = "px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-yellow-500 text-black shadow-lg";
             render();
         }
+
+        function save() {
+            localStorage.setItem('titan_cap', JSON.stringify(state.capital));
+            localStorage.setItem('titan_pos', JSON.stringify(state.activePositions));
+            localStorage.setItem('titan_hist', JSON.stringify(state.history));
+        }
+
+        window.onload = () => {
+            if (state.capital.val === 0) document.getElementById('modal-capital').classList.remove('hidden');
+            updateBalanceUI();
+            fetchMarket();
+            setInterval(fetchMarket, 20000);
+        };
     </script>
 </body>
 </html>
