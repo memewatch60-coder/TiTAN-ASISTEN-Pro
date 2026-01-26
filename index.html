@@ -3,84 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TITAN V13 - MAHADHARE GOLD</title>
+    <title>TITAN V13 - MAHADHARE GOLD ULTIMATE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;500;700&display=swap');
-        :root { --gold: #ffd700; --royal: #8b5cf6; --glass: rgba(10, 10, 18, 0.9); }
-        body { background: #020308; color: #e2e8f0; font-family: 'Space Grotesk', sans-serif; overflow: hidden; height: 100vh; }
+        
+        :root { 
+            --gold: #ffd700; 
+            --emerald: #10b981; 
+            --glass: rgba(10, 10, 18, 0.95); 
+        }
+
+        body { 
+            background: #020308; 
+            color: #e2e8f0; 
+            font-family: 'Space Grotesk', sans-serif; 
+            overflow: hidden; 
+            height: 100vh; 
+            margin: 0;
+        }
+
         .titan-font { font-family: 'Orbitron', sans-serif; }
-        .glass-premium { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(255,215,0,0.1); border-radius: 1.5rem; }
+
+        .glass-premium { 
+            background: var(--glass); 
+            backdrop-filter: blur(25px); 
+            border: 1px solid rgba(255, 215, 0, 0.15); 
+            border-radius: 1.5rem; 
+        }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .tab-active { 
+            background: var(--gold) !important; 
+            color: black !important; 
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.4); 
+        }
+
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        .pulse-live { animation: pulse-fast 1.5s infinite; }
+        @keyframes pulse-fast { 
+            0%, 100% { opacity: 1; box-shadow: 0 0 5px var(--emerald); } 
+            50% { opacity: 0.4; box-shadow: 0 0 15px var(--emerald); } 
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
     </style>
 </head>
 <body class="p-0 m-0">
 
-    <header class="p-4 flex justify-between items-center bg-black/60 border-b border-yellow-500/20">
+    <div id="splash-screen" class="fixed inset-0 z-[10000] bg-[#020308] flex flex-col items-center justify-center p-8 transition-all duration-1000">
+        <div class="relative mb-8">
+            <div class="w-24 h-24 rounded-full border-4 border-yellow-500/10 flex items-center justify-center">
+                <i class="fa-solid fa-bolt text-4xl text-yellow-500 animate-pulse"></i>
+            </div>
+            <div class="absolute inset-0 rounded-full border-t-4 border-yellow-500 animate-spin"></div>
+        </div>
+        <h1 class="titan-font text-2xl text-white mb-2 tracking-[5px]">TITAN V.13</h1>
+        <p class="text-[10px] text-yellow-500/50 uppercase tracking-[3px] mb-12">Mahadhare Gold Security</p>
+        
+        <div id="login-form" class="w-full max-w-xs space-y-4">
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4 focus-within:border-yellow-500/50 transition-all">
+                <i class="fa-solid fa-user-shield text-yellow-500/50"></i>
+                <input type="password" id="access-key" placeholder="ENTER ACCESS KEY" class="bg-transparent border-none outline-none text-white titan-font text-sm w-full placeholder:text-white/20">
+            </div>
+            <button onclick="attemptLogin()" class="w-full py-4 bg-yellow-500 text-black titan-font text-[12px] font-black rounded-2xl shadow-[0_0_30px_rgba(255,215,0,0.2)]">
+                VERIFY IDENTITY
+            </button>
+            <p class="text-[8px] text-center mt-4 opacity-30 italic">LOG: ENCRYPTED ACCESS ONLY</p>
+        </div>
+    </div>
+
+    <div id="titan-alert" class="fixed inset-0 z-[10001] flex items-center justify-center p-6 hidden">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-md"></div>
+        <div class="glass-premium p-8 w-full max-w-xs border-yellow-500/50 relative animate-fade-in text-center shadow-2xl">
+            <div class="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-yellow-500/20">
+                <i class="fa-solid fa-shield-check text-2xl text-yellow-500"></i>
+            </div>
+            <h3 class="titan-font text-lg text-white mb-2 uppercase tracking-tighter">TITAN V13 SYSTEM</h3>
+            <p id="alert-message" class="text-xs text-white/70 mb-6 leading-relaxed font-light"></p>
+            <button onclick="closeAlert()" class="w-full py-3 bg-yellow-500 text-black titan-font text-[10px] font-black rounded-xl uppercase tracking-widest active:scale-95 transition-transform">Dimengerti</button>
+        </div>
+    </div>
+
+    <header class="p-4 flex justify-between items-center bg-black/80 border-b border-yellow-500/10 backdrop-blur-lg sticky top-0 z-50">
         <div class="flex items-center gap-3">
-            <div id="mode-selector" onclick="toggleRealMode()" class="cursor-pointer bg-white/5 p-2 rounded-2xl flex items-center gap-2 border border-white/10">
-                <div id="mode-indicator" class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span id="mode-text" class="titan-font text-[10px] font-bold tracking-tighter">ASISTEN TRAINING MODE</span>
-                <i class="fa-solid fa-right-left text-[10px] opacity-50"></i>
+            <div onclick="toggleRealMode()" class="cursor-pointer bg-white/5 p-2 px-3 rounded-2xl flex items-center gap-2 border border-white/10">
+                <div id="mode-indicator" class="w-2 h-2 rounded-full bg-emerald-500 pulse-live"></div>
+                <span id="mode-text" class="titan-font text-[9px] font-black tracking-tighter">TRAINING MODE</span>
             </div>
         </div>
         <div class="flex items-center gap-4">
-            <button class="text-xs bg-white/5 px-3 py-1 rounded-full border border-white/10">🇮🇩 IDR</button>
-            <button onclick="localStorage.clear(); location.reload();" class="text-rose-500/80"><i class="fa-solid fa-power-off text-xl"></i></button>
+            <div class="text-right hidden sm:block">
+                <p class="text-[8px] opacity-40 uppercase">Connection</p>
+                <p class="text-[9px] text-emerald-400 font-bold">SECURE</p>
+            </div>
+            <button onclick="confirmLogout()" class="text-rose-500/80 bg-rose-500/10 w-10 h-10 rounded-xl border border-rose-500/20 transition-all active:scale-90">
+                <i class="fa-solid fa-power-off text-lg"></i>
+            </button>
         </div>
     </header>
 
-    <main id="app" class="h-full flex flex-col pb-32">
-        <section class="p-6">
-            <div class="glass-premium p-5">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <p class="text-[9px] uppercase font-black opacity-50 tracking-[3px]">Capital Management</p>
-                        <h2 id="display-balance" class="titan-font text-2xl text-yellow-500 font-black">Rp 0</h2>
+    <main id="app" class="h-full flex flex-col pb-40 overflow-y-auto no-scrollbar">
+        <section class="p-5">
+            <div class="glass-premium p-6 relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-5"><i class="fa-solid fa-microchip text-5xl"></i></div>
+                <p class="text-[9px] uppercase font-black opacity-40 tracking-[4px] mb-1">Capital Management</p>
+                <h2 id="display-balance" class="titan-font text-3xl text-yellow-500 font-black mb-6 tracking-tighter">Rp 0</h2>
+                
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="bg-white/5 p-3 rounded-2xl border border-white/5">
+                        <p class="text-[7px] opacity-50 mb-1">SCALP (40%)</p>
+                        <p id="cap-scalp" class="text-[10px] font-bold text-emerald-400">Rp 0</p>
                     </div>
-                </div>
-                <div class="grid grid-cols-3 gap-2 mt-4">
-                    <div class="bg-white/5 p-2 rounded-xl border-l-2 border-emerald-500">
-                        <p class="text-[7px] opacity-60">SCALP (40%)</p>
-                        <p id="cap-scalp" class="text-[10px] font-bold">Rp 0</p>
+                    <div class="bg-white/5 p-3 rounded-2xl border border-white/5">
+                        <p class="text-[7px] opacity-50 mb-1">SMART (39%)</p>
+                        <p id="cap-smart" class="text-[10px] font-bold text-blue-400">Rp 0</p>
                     </div>
-                    <div class="bg-white/5 p-2 rounded-xl border-l-2 border-blue-500">
-                        <p class="text-[7px] opacity-60">SMART (39%)</p>
-                        <p id="cap-smart" class="text-[10px] font-bold">Rp 0</p>
-                    </div>
-                    <div class="bg-white/5 p-2 rounded-xl border-l-2 border-violet-500">
-                        <p class="text-[7px] opacity-60">MOON (21%)</p>
-                        <p id="cap-moon" class="text-[10px] font-bold">Rp 0</p>
+                    <div class="bg-white/5 p-3 rounded-2xl border border-white/5">
+                        <p class="text-[7px] opacity-50 mb-1">MOON (21%)</p>
+                        <p id="cap-moon" class="text-[10px] font-bold text-violet-400">Rp 0</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <nav class="px-6 flex gap-1 overflow-x-auto no-scrollbar mb-4">
-            <button onclick="setTab('active')" id="tab-active" class="px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-yellow-500 text-black">ACTIVE</button>
-            <button onclick="setTab('execute')" id="tab-execute" class="px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-white/5">EXECUTE</button>
-            <button onclick="setTab('scalp')" id="tab-scalp" class="px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-white/5">SCALP</button>
+        <nav class="px-5 flex gap-2 overflow-x-auto no-scrollbar mb-4">
+            <button onclick="setTab('active')" id="tab-active" class="px-6 py-3 rounded-xl titan-font text-[10px] font-bold bg-white/5 border border-white/10 flex-shrink-0 transition-all tab-active">ANALYSIS</button>
+            <button onclick="setTab('execute')" id="tab-execute" class="px-6 py-3 rounded-xl titan-font text-[10px] font-bold bg-white/5 border border-white/10 flex-shrink-0 transition-all">EXECUTION</button>
+            <button onclick="setTab('history')" id="tab-history" class="px-6 py-3 rounded-xl titan-font text-[10px] font-bold bg-white/5 border border-white/10 flex-shrink-0 transition-all">LOG HISTORY</button>
         </nav>
 
-        <div id="card-container" class="flex-1 overflow-y-auto px-6 space-y-4 no-scrollbar"></div>
+        <div id="card-container" class="px-5 space-y-4 mb-20"></div>
     </main>
 
-    <div id="modal-capital" class="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-8 hidden">
-        <div class="glass-premium p-8 w-full max-w-sm border-yellow-500/50">
-            <h3 class="titan-font text-xl text-yellow-500 mb-2">INITIAL CAPITAL</h3>
-            <p class="text-[10px] opacity-60 mb-6">MIN Rp 1,000,000 | LOCK 24H</p>
-            <input type="number" id="input-cap" value="1000000" class="w-full bg-white/10 p-4 rounded-2xl mb-6 titan-font text-xl text-center text-white outline-none border border-white/10">
-            <button onclick="confirmCapital()" class="w-full py-4 bg-yellow-500 text-black font-black rounded-2xl titan-font">CONFIRM & LOCK</button>
+    <footer class="fixed bottom-6 left-5 right-5 z-[40]">
+        <div class="glass-premium p-4 flex justify-around items-center border border-white/10 shadow-2xl backdrop-blur-3xl">
+            <button class="flex flex-col items-center gap-1 opacity-40"><i class="fa-solid fa-chart-line"></i><span class="text-[8px]">PULSE</span></button>
+            <button onclick="window.open('https://t.me/+8uJ78T4VDHJkOTRl')" class="flex flex-col items-center gap-1 text-sky-400"><i class="fa-brands fa-telegram text-2xl"></i><span class="text-[8px]">TELEGRAM</span></button>
+            <div class="relative -top-8">
+                <div class="w-16 h-16 rounded-full bg-yellow-500 flex items-center justify-center shadow-[0_0_30px_rgba(255,215,0,0.5)] border-[6px] border-[#020308]">
+                    <i class="fa-solid fa-bolt text-2xl text-black"></i>
+                </div>
+            </div>
+            <button onclick="showTitanAlert('Smart AI Scan Aktif di Background.')" class="flex flex-col items-center gap-1 text-emerald-400"><i class="fa-solid fa-brain"></i><span class="text-[8px]">AI SCAN</span></button>
+            <button onclick="setTab('history')" class="flex flex-col items-center gap-1 opacity-40"><i class="fa-solid fa-database"></i><span class="text-[8px]">VAULT</span></button>
+        </div>
+    </footer>
+
+    <div id="modal-capital" class="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-8 hidden backdrop-blur-2xl">
+        <div class="glass-premium p-8 w-full max-w-sm border-yellow-500/40 text-center">
+            <i class="fa-solid fa-vault text-4xl text-yellow-500 mb-4"></i>
+            <h3 class="titan-font text-xl text-yellow-500">TITAN VAULT</h3>
+            <p class="text-[10px] opacity-50 uppercase tracking-[2px] mb-8">Initialize Trading Capital</p>
+            <input type="number" id="input-cap" value="1000000" class="w-full bg-white/5 p-4 rounded-2xl mb-8 titan-font text-2xl text-center text-yellow-500 outline-none border border-yellow-500/20 focus:border-yellow-500 transition-all">
+            <button onclick="confirmCapital()" class="w-full py-5 bg-yellow-500 text-black font-black rounded-2xl titan-font hover:scale-[0.98] active:scale-90 transition-all">START SYSTEM</button>
         </div>
     </div>
 
     <script>
-        const BOT_TOKEN = "8295607704:AAFdy_U8bFL-x2Ol90n8f2KDOHXztybcuj4";
-        const CHAT_ID = "-1003254379333";
-        
+        // --- MASTER CONFIGURATION ---
+        const MASTER_KEY = "TITAN88"; // Key Login
+        const CONFIG = {
+            BOT_TOKEN: "8295607704:AAFdy_U8bFL-x2Ol90n8f2KDOHXztybcuj4",
+            CHAT_ID: "-1003254379333",
+            REF_LINK: "https://indodax.onelink.me/qyYY/referral?deep_link_value=page:register,id:marselsalmon"
+        };
+
         let state = {
             mode: 'training',
             tab: 'active',
@@ -89,22 +188,61 @@
             history: JSON.parse(localStorage.getItem('titan_hist')) || []
         };
 
-        // --- CORE LOGIC ---
-        function calculateRSI(prices, period = 14) {
-            if (prices.length < period) return 50;
+        // --- CUSTOM UI SYSTEM ---
+        function showTitanAlert(msg) {
+            document.getElementById('alert-message').innerText = msg;
+            document.getElementById('titan-alert').classList.remove('hidden');
+        }
+
+        function closeAlert() {
+            document.getElementById('titan-alert').classList.add('hidden');
+        }
+
+        // --- LOGIN & SECURITY SYSTEM ---
+        function attemptLogin() {
+            const val = document.getElementById('access-key').value;
+            if (val === MASTER_KEY) {
+                sessionStorage.setItem('titan_auth', 'true');
+                document.getElementById('splash-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splash-screen').style.display = 'none';
+                    sendTelegramNotify("🔔 *TITAN V.13 LOGIN*\nIdentity Verified. System Online.");
+                }, 1000);
+            } else {
+                showTitanAlert("ACCESS DENIED: Kunci akses salah!");
+            }
+        }
+
+        let idleTimer;
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(() => {
+                if(sessionStorage.getItem('titan_auth') === 'true') {
+                    sessionStorage.removeItem('titan_auth');
+                    location.reload();
+                }
+            }, 300000); // 5 Menit Auto-Lock
+        }
+        window.onmousedown = resetIdleTimer;
+        window.ontouchstart = resetIdleTimer;
+
+        // --- TRADING ENGINE ---
+        function calculateRSI(prices) {
+            if (prices.length < 14) return 50;
             let gains = 0, losses = 0;
-            for(let i = 1; i <= period; i++){
+            for(let i = 1; i <= 14; i++){
                 let diff = prices[i] - prices[i-1];
                 diff > 0 ? gains += diff : losses -= diff;
             }
-            return 100 - (100 / (1 + (gains / losses)));
+            let rs = gains / (losses || 1);
+            return Math.round(100 - (100 / (1 + rs)));
         }
 
         async function fetchMarket() {
             try {
-                const res = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=10&sparkline=true`);
-                const data = await res.json();
-                processSignals(data);
+                const res = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=15&sparkline=true`);
+                const coins = await res.json();
+                processSignals(coins);
                 render();
             } catch (e) { console.error("Sync Error"); }
         }
@@ -113,17 +251,17 @@
             coins.forEach(coin => {
                 const rsi = calculateRSI(coin.sparkline_in_7d.price);
                 let strategy = null;
-                if (rsi < 35) strategy = 'MOONSHOT';
-                else if (rsi > 40 && rsi < 60) strategy = 'SMART';
-                else if (coin.price_change_percentage_24h > 3) strategy = 'SCALPING';
+                if (rsi < 33) strategy = 'MOONSHOT';
+                else if (rsi > 45 && rsi < 55) strategy = 'SMART';
+                else if (coin.price_change_percentage_24h > 4) strategy = 'SCALPING';
 
-                if (strategy && Math.random() > 0.8 && state.activePositions.length < 5) {
+                if (strategy && Math.random() > 0.85 && state.activePositions.length < 5) {
                     if (!state.activePositions.find(p => p.coinId === coin.id)) {
                         state.activePositions.push({
                             id: Date.now() + Math.floor(Math.random() * 1000),
                             coinId: coin.id, name: coin.symbol.toUpperCase(),
-                            entry: coin.current_price, strategy, time: new Date().toLocaleTimeString(),
-                            img: coin.image, status: 'OPEN'
+                            entry: coin.current_price, rsi: rsi, strategy,
+                            img: coin.image, status: 'OPEN', time: new Date().toLocaleTimeString()
                         });
                         save();
                     }
@@ -131,63 +269,58 @@
             });
         }
 
-        // --- ACTION HANDLERS ---
-        async function executeAction(id, type) {
-            const pos = state.activePositions.find(p => p.id == id);
-            if (!pos) return;
-
-            const message = `🚀 *TITAN V13 EXECUTION*\n\nType: ${type}\nAsset: ${pos.name}/IDR\nStrategy: ${pos.strategy}\nPrice: Rp ${pos.entry.toLocaleString()}\nMode: ${state.mode.toUpperCase()}`;
-            
-            // Send to Telegram
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=Markdown`);
-
-            if (type === 'BUY') {
-                pos.status = 'READY';
-                alert(`SIGNAL ${pos.name} BERHASIL DI-LOCK! Cek Tab Execute.`);
-            } else {
-                state.activePositions = state.activePositions.filter(p => p.id != id);
-                state.history.push({...pos, status: 'CLOSED', closeTime: new Date().toLocaleString()});
-                alert(`PROFIT BERHASIL DI-AMANKAN!`);
-            }
-            save();
-            render();
-        }
-
+        // --- UI RENDERER ---
         function render() {
             const container = document.getElementById('card-container');
             container.innerHTML = '';
-            
+
+            if (state.tab === 'history') {
+                if (state.history.length === 0) {
+                    container.innerHTML = `<div class="text-center py-20 opacity-20 titan-font text-[10px]">NO LOG DATA</div>`;
+                } else {
+                    state.history.slice().reverse().forEach(h => {
+                        const item = document.createElement('div');
+                        item.className = "bg-white/5 p-4 rounded-2xl flex justify-between items-center border border-white/5 mb-2 animate-fade-in";
+                        item.innerHTML = `<div><p class="text-xs font-bold titan-font">${h.name}/IDR</p><p class="text-[8px] opacity-40">${h.closeTime}</p></div><p class="text-xs font-black text-emerald-400">+1.25%</p>`;
+                        container.appendChild(item);
+                    });
+                }
+                return;
+            }
+
             let filtered = state.activePositions.filter(p => 
-                state.tab === 'active' ? p.status === 'OPEN' : 
-                state.tab === 'execute' ? p.status === 'READY' : false
+                state.tab === 'active' ? p.status === 'OPEN' : p.status === 'READY'
             );
 
             if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-center opacity-30 titan-font text-[10px] mt-10">MENCARI SIGNAL ${state.tab.toUpperCase()}...</p>`;
+                container.innerHTML = `<div class="text-center py-20 opacity-20 titan-font text-[10px] tracking-[5px]">SCANNING MARKET...</div>`;
                 return;
             }
 
             filtered.forEach(pos => {
                 const card = document.createElement('div');
-                card.className = `glass-premium p-5 border-l-4 ${getStrategyColor(pos.strategy)} animate-fade-in`;
+                card.className = `glass-premium p-5 border-l-4 ${getStrategyColor(pos.strategy)} animate-fade-in mb-4 relative overflow-hidden`;
                 card.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <div class="flex gap-3 items-center">
-                            <img src="${pos.img}" class="w-8 h-8 rounded-full">
+                    <div class="flex justify-between items-start">
+                        <div class="flex gap-4">
+                            <img src="${pos.img}" class="w-10 h-10 rounded-full border border-white/10">
                             <div>
-                                <h4 class="font-bold titan-font text-sm">${pos.name}/IDR</h4>
-                                <span class="text-[8px] bg-white/10 px-2 py-0.5 rounded uppercase">${pos.strategy}</span>
+                                <h4 class="font-black titan-font text-sm">${pos.name}/IDR</h4>
+                                <div class="flex gap-2 mt-1">
+                                    <span class="text-[7px] bg-white/5 px-2 py-0.5 rounded border border-white/10 uppercase">${pos.strategy}</span>
+                                    <span class="text-[7px] text-yellow-500 font-bold italic">RSI: ${pos.rsi}</span>
+                                </div>
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="text-[9px] opacity-50">${pos.time}</p>
-                            <p class="text-[10px] font-black text-emerald-400">READY</p>
+                            <p class="text-[8px] opacity-40">${pos.time}</p>
+                            <p class="text-[9px] font-black text-emerald-400">ANALYZED</p>
                         </div>
                     </div>
-                    <div class="mt-4 flex gap-2">
+                    <div class="mt-5 flex gap-2">
                         ${pos.status === 'OPEN' ? 
-                          `<button onclick="executeAction(${pos.id}, 'BUY')" class="flex-1 py-3 bg-white/5 rounded-xl titan-font text-[10px] border border-white/10">BUY SIGNAL</button>` :
-                          `<button onclick="executeAction(${pos.id}, 'SELL')" class="flex-1 py-3 bg-yellow-500 text-black rounded-xl titan-font text-[10px] font-bold shadow-lg">TAKE PROFIT</button>`
+                            `<button onclick="executeAction(${pos.id}, 'BUY')" class="flex-1 py-3 bg-white/5 rounded-xl titan-font text-[10px] border border-white/10 active:bg-white/10 transition-all">LOCK SIGNAL</button>` :
+                            `<button onclick="executeAction(${pos.id}, 'SELL')" class="flex-1 py-3 bg-yellow-500 text-black rounded-xl titan-font text-[10px] font-black shadow-lg">EXECUTE PROFIT</button>`
                         }
                     </div>
                 `;
@@ -195,18 +328,44 @@
             });
         }
 
-        function getStrategyColor(s) {
-            return s === 'SCALPING' ? 'border-emerald-500' : s === 'SMART' ? 'border-blue-500' : 'border-violet-500';
+        async function executeAction(id, type) {
+            const pos = state.activePositions.find(p => p.id == id);
+            if (!pos) return;
+
+            const msg = `🚀 *TITAN V.13 EXECUTION*\n\nAsset: ${pos.name}/IDR\nType: ${type}\nPrice: Rp ${pos.entry.toLocaleString()}\nStrategy: ${pos.strategy}`;
+            sendTelegramNotify(msg);
+
+            if (type === 'BUY') {
+                pos.status = 'READY';
+                showTitanAlert(`SIGNAL ${pos.name} BERHASIL DI-LOCK!\nMonitoring pergerakan harga dimulai.`);
+            } else {
+                state.history.push({...pos, status: 'CLOSED', closeTime: new Date().toLocaleTimeString()});
+                state.activePositions = state.activePositions.filter(p => p.id != id);
+                showTitanAlert(`EXECUTE SUCCESS!\nProfit ${pos.name} berhasil diamankan ke Vault.`);
+            }
+            save();
+            render();
         }
 
-        // --- SYSTEM FUNCTIONS ---
+        // --- UTILS ---
+        function sendTelegramNotify(text) {
+            fetch(`https://api.telegram.org/bot${CONFIG.BOT_TOKEN}/sendMessage?chat_id=${CONFIG.CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=Markdown`);
+        }
+
+        function getStrategyColor(s) {
+            if(s === 'SCALPING') return 'border-emerald-500';
+            if(s === 'SMART') return 'border-blue-500';
+            return 'border-violet-500';
+        }
+
         function confirmCapital() {
             const val = document.getElementById('input-cap').value;
-            if (val < 1000000) return alert("Minimal Rp 1.000.000");
+            if (val < 1000000) return showTitanAlert("Minimal modal Rp 1.000.000");
             state.capital = { val: parseInt(val), lockedUntil: Date.now() + 86400000 };
             save();
             document.getElementById('modal-capital').classList.add('hidden');
             updateBalanceUI();
+            showTitanAlert("SYSTEM INITIALIZED\nModal berhasil dialokasikan.");
         }
 
         function updateBalanceUI() {
@@ -218,15 +377,23 @@
         }
 
         function toggleRealMode() {
-            alert("SYARAT AKSES REAL:\n1. Misi Profit 10% selama 7 hari belum tercapai.\n2. Hubungi Master untuk verifikasi.");
-            window.open('https://indodax.onelink.me/qyYY/referral?deep_link_value=page:register,id:marselsalmon');
+            showTitanAlert("🔒 SYARAT REAL MODE:\n- Deposit Min Rp 5.000.000\n- Gunakan Reff Master Marsel\n- Selesaikan Misi Training.");
+            setTimeout(() => window.open(CONFIG.REF_LINK), 3000);
         }
 
         function setTab(t) {
             state.tab = t;
-            document.querySelectorAll('nav button').forEach(b => b.className = "px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-white/5");
-            document.getElementById('tab-' + t).className = "px-5 py-3 rounded-xl titan-font text-[10px] font-bold bg-yellow-500 text-black shadow-lg";
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('tab-active'));
+            document.getElementById('tab-' + t).classList.add('tab-active');
             render();
+        }
+
+        function confirmLogout() {
+            if(confirm("Logout akan menghapus semua data cache. Lanjutkan?")) {
+                localStorage.clear();
+                sessionStorage.clear();
+                location.reload();
+            }
         }
 
         function save() {
@@ -236,10 +403,14 @@
         }
 
         window.onload = () => {
+            if (sessionStorage.getItem('titan_auth') === 'true') {
+                document.getElementById('splash-screen').style.display = 'none';
+            }
             if (state.capital.val === 0) document.getElementById('modal-capital').classList.remove('hidden');
             updateBalanceUI();
             fetchMarket();
             setInterval(fetchMarket, 20000);
+            resetIdleTimer();
         };
     </script>
 </body>
