@@ -13,14 +13,16 @@
         :root { --bg: #010204; --glass: rgba(15, 23, 42, 0.9); --accent: #8b5cf6; --emerald: #10b981; --rose: #f43f5e; }
         * { font-family: 'Space Grotesk', sans-serif; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #e2e8f0; height: 100vh; margin: 0; overflow: hidden; }
-        .glass-card { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+        .glass-card { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.05); }
         .m-grad { background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); }
-        .blink-alert { animation: blink 1s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; border-color: var(--rose); } 50% { opacity: 0.5; border-color: transparent; } }
+        .blink-alert { animation: blink 0.8s infinite; }
+        @keyframes blink { 0%, 100% { border-color: var(--rose); box-shadow: 0 0 10px var(--rose); } 50% { border-color: transparent; box-shadow: none; } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .module-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; height: calc(100vh - 180px); }
+        .module-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; height: calc(100vh - 200px); }
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
         .f-scan-overlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: none; align-items: center; justify-content: center; flex-direction: column; }
+        .pop-up-modern { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body onmousedown="resetInactivity()">
@@ -28,89 +30,89 @@
     <div id="toast-container"></div>
 
     <div id="auth-screen" class="fixed inset-0 z-[5000] bg-black flex items-center justify-center p-6">
-        <div class="w-full max-w-md glass-card p-10 rounded-[3rem] border-violet-500/20 shadow-2xl">
+        <div class="w-full max-w-md glass-card p-10 rounded-[3rem] border-violet-500/20 shadow-2xl pop-up-modern">
             <div class="text-center mb-8">
-                <i class="fa-solid fa-shield-halved text-5xl text-violet-500 mb-4"></i>
-                <h2 class="text-3xl font-black italic">TITAN <span class="text-violet-500">V13</span></h2>
-                <p id="gate-label" class="text-[10px] uppercase tracking-[0.3em] opacity-40">Gerbang 1: Registrasi</p>
+                <i class="fa-solid fa-shield-halved text-5xl text-violet-500 mb-4 drop-shadow-[0_0_15px_#8b5cf6]"></i>
+                <h2 class="text-3xl font-black italic tracking-tighter">TITAN <span class="text-violet-500">V13</span></h2>
+                <p id="gate-label" class="text-[9px] uppercase tracking-[0.4em] text-violet-400 font-bold mt-2">Gate Authority: Biometric Ready</p>
             </div>
             
             <div id="auth-form" class="space-y-4">
-                <input type="tel" id="u-phone" placeholder="Nomor Telepon (Telegram)" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-white font-bold">
-                <input type="password" id="u-pass" placeholder="Password (Huruf Besar, kecil, Angka)" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-white">
-                <button onclick="handleAuth()" class="w-full py-5 m-grad rounded-3xl font-black text-xs uppercase shadow-xl active:scale-95 transition-all">Masuk / Daftar</button>
-                <div class="flex justify-between items-center px-2">
-                    <button onclick="verifyMaster()" class="text-[9px] text-violet-400 font-bold uppercase tracking-widest">Master Identity</button>
-                    <button onclick="startFaceScan()" class="text-[9px] text-white/20 font-bold uppercase tracking-widest">Recovery Wajah</button>
+                <input type="tel" id="u-phone" placeholder="Nomor Telepon (Telegram)" class="w-full bg-white/5 border border-white/10 p-5 rounded-[1.5rem] text-white font-bold placeholder:opacity-20 focus:border-violet-500 transition-all">
+                <input type="password" id="u-pass" placeholder="Password (Besar, kecil, Angka)" class="w-full bg-white/5 border border-white/10 p-5 rounded-[1.5rem] text-white font-bold placeholder:opacity-20 focus:border-violet-500 transition-all">
+                <button onclick="handleAuth()" class="w-full py-5 m-grad rounded-[1.5rem] font-black text-xs uppercase shadow-xl active:scale-95 transition-all">Initialize Access</button>
+                <div class="flex justify-between items-center px-4">
+                    <button onclick="verifyMaster()" class="text-[9px] text-violet-400 font-black uppercase tracking-widest hover:text-white transition-colors">Master Key</button>
+                    <button onclick="startFaceScan()" class="text-[9px] text-white/20 font-black uppercase tracking-widest hover:text-white transition-colors">Face Recovery</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="f-scan" class="f-scan-overlay">
-        <div class="w-64 h-64 border-4 border-violet-500 rounded-full overflow-hidden relative shadow-[0_0_50px_#8b5cf6]">
+        <div class="w-64 h-64 border-4 border-violet-500 rounded-full overflow-hidden relative shadow-[0_0_60px_#8b5cf6]">
             <video id="v-cam" class="w-full h-full object-cover grayscale" autoplay playsinline></video>
-            <div class="absolute top-0 left-0 w-full h-1 bg-violet-500 animate-[scan_2s_infinite_linear]"></div>
+            <div class="absolute top-0 left-0 w-full h-1 bg-violet-500 shadow-[0_0_15px_#8b5cf6] animate-[scan_2s_infinite_linear]"></div>
         </div>
-        <h3 class="text-white font-black italic mt-8 uppercase tracking-widest">Scanning Biometric...</h3>
+        <h3 class="text-white font-black italic mt-10 uppercase tracking-[0.3em] text-xs animate-pulse">Scanning Neural Map...</h3>
     </div>
 
     <div id="app" class="hidden h-full flex flex-col">
-        <header class="p-4 flex justify-between items-center bg-black/50 border-b border-white/5">
-            <div class="flex items-center gap-4">
-                <button onclick="openLink('tg')" class="text-2xl text-[#229ED9]"><i class="fa-brands fa-telegram"></i></button>
+        <header class="p-5 flex justify-between items-center bg-black/60 border-b border-white/5 backdrop-blur-xl">
+            <div class="flex items-center gap-5">
+                <button onclick="openLink('tg')" class="text-3xl text-[#229ED9] hover:scale-110 transition-transform"><i class="fa-brands fa-telegram"></i></button>
                 <div>
-                    <h1 class="text-xl font-black italic">TITAN <span class="text-violet-500">V13</span></h1>
-                    <div class="flex items-center gap-2">
-                        <span id="mode-badge" onclick="showModeChecklist()" class="text-[8px] px-2 py-0.5 rounded bg-white/10 font-black cursor-pointer uppercase">Training Mode</span>
-                        <div id="comp-info" class="text-[8px] text-emerald-500 font-black uppercase">Capital: <span id="cap-perc">100%</span></div>
+                    <h1 class="text-2xl font-black italic leading-none">TITAN <span class="text-violet-500">V13</span></h1>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span id="mode-badge" onclick="showModeChecklist()" class="text-[7px] px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-400 font-black cursor-pointer uppercase border border-violet-500/30">Training Mode</span>
+                        <div id="comp-info" class="text-[7px] text-emerald-500 font-black uppercase tracking-widest">Growth: <span id="cap-perc">0%</span></div>
                     </div>
                 </div>
             </div>
             
-            <div class="flex items-center gap-2">
-                <button id="stealth-btn" onclick="toggleStealth()" class="hidden w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500"><i class="fa-solid fa-eye"></i></button>
-                <button onclick="showTutorial()" class="w-10 h-10 rounded-xl bg-white/5 text-violet-400"><i class="fa-solid fa-book"></i></button>
-                <button onclick="toggleLang()" class="w-10 h-10 rounded-xl bg-white/5 text-[10px] font-bold"><span id="lang-flag">🇮🇩</span></button>
-                <button onclick="logout()" class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500"><i class="fa-solid fa-power-off"></i></button>
+            <div class="flex items-center gap-3">
+                <button id="stealth-btn" onclick="toggleStealth()" class="hidden w-11 h-11 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500/20 transition-all"><i class="fa-solid fa-eye"></i></button>
+                <button onclick="showTutorial()" class="w-11 h-11 rounded-2xl bg-white/5 border border-white/10 text-violet-400 hover:bg-violet-500/10 transition-all"><i class="fa-solid fa-book"></i></button>
+                <button onclick="toggleLang()" class="w-11 h-11 rounded-2xl bg-white/5 border border-white/10 flex flex-col items-center justify-center text-[8px] font-black"><span id="lang-flag">🇮🇩</span><span id="lang-text">IDR</span></button>
+                <button onclick="logout()" class="w-11 h-11 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 active:scale-90 transition-all"><i class="fa-solid fa-power-off"></i></button>
             </div>
         </header>
 
-        <div class="p-4 bg-black/20 flex gap-2 overflow-x-auto no-scrollbar border-b border-white/5">
-            <div class="min-w-[120px] bg-white/5 p-3 rounded-2xl border border-white/5">
-                <p class="text-[7px] opacity-40 uppercase font-black">Capital Management</p>
-                <p id="val-cap" class="text-xs font-black">Rp 0</p>
+        <div class="px-5 py-4 bg-black/40 flex gap-3 overflow-x-auto no-scrollbar border-b border-white/5 shadow-inner">
+            <div class="min-w-[140px] glass-card p-4 rounded-3xl border-white/5">
+                <p class="text-[7px] opacity-40 uppercase font-black tracking-widest mb-1">Capital Management</p>
+                <p id="val-cap" class="text-sm font-black text-white">Rp 0</p>
             </div>
-            <div class="min-w-[100px] bg-sky-500/10 p-3 rounded-2xl border border-sky-500/20">
-                <p class="text-[7px] text-sky-400 uppercase font-black">Scalping (40%)</p>
-                <p id="val-scalp" class="text-xs font-black text-sky-400">Rp 0</p>
+            <div class="min-w-[120px] bg-sky-500/5 p-4 rounded-3xl border border-sky-500/20">
+                <p class="text-[7px] text-sky-400/60 uppercase font-black tracking-widest mb-1">Scalping (40%)</p>
+                <p id="val-scalp" class="text-sm font-black text-sky-400">Rp 0</p>
             </div>
-            <div class="min-w-[100px] bg-violet-500/10 p-3 rounded-2xl border border-violet-500/20">
-                <p class="text-[7px] text-violet-400 uppercase font-black">Smart (39%)</p>
-                <p id="val-smart" class="text-xs font-black text-violet-400">Rp 0</p>
+            <div class="min-w-[120px] bg-violet-500/5 p-4 rounded-3xl border border-violet-500/20">
+                <p class="text-[7px] text-violet-400/60 uppercase font-black tracking-widest mb-1">Smart (39%)</p>
+                <p id="val-smart" class="text-sm font-black text-violet-400">Rp 0</p>
             </div>
-            <div class="min-w-[100px] bg-amber-500/10 p-3 rounded-2xl border border-amber-500/20">
-                <p class="text-[7px] text-amber-400 uppercase font-black">Moon (21%)</p>
-                <p id="val-moon" class="text-xs font-black text-amber-400">Rp 0</p>
+            <div class="min-w-[120px] bg-amber-500/5 p-4 rounded-3xl border border-amber-500/20">
+                <p class="text-[7px] text-amber-400/60 uppercase font-black tracking-widest mb-1">MoonShot (21%)</p>
+                <p id="val-moon" class="text-sm font-black text-amber-400">Rp 0</p>
             </div>
         </div>
 
-        <main class="flex-1 p-4 overflow-hidden">
+        <main class="flex-1 p-5 overflow-hidden">
             <div class="module-grid">
-                <section class="flex flex-col gap-3 h-full">
-                    <h2 class="text-[10px] font-black uppercase tracking-widest opacity-30 px-2">Analysis Module</h2>
-                    <div id="list-analysis" class="flex-1 overflow-y-auto space-y-3 no-scrollbar pb-10"></div>
+                <section class="flex flex-col gap-4 h-full bg-white/[0.02] p-4 rounded-[2rem] border border-white/5">
+                    <h2 class="text-[9px] font-black uppercase tracking-[0.4em] opacity-30 text-center">Analysis Intelligence</h2>
+                    <div id="list-analysis" class="flex-1 overflow-y-auto space-y-4 no-scrollbar pb-10"></div>
                 </section>
 
-                <section class="flex flex-col gap-3 h-full">
-                    <h2 class="text-[10px] font-black uppercase tracking-widest opacity-30 px-2 text-center">Execution Module</h2>
-                    <div id="list-execution" class="flex-1 overflow-y-auto space-y-3 no-scrollbar pb-10"></div>
+                <section class="flex flex-col gap-4 h-full bg-white/[0.03] p-4 rounded-[2rem] border border-violet-500/10 shadow-2xl shadow-violet-500/5">
+                    <h2 class="text-[9px] font-black uppercase tracking-[0.4em] opacity-30 text-center text-violet-400">Execution Vortex</h2>
+                    <div id="list-execution" class="flex-1 overflow-y-auto space-y-4 no-scrollbar pb-10"></div>
                 </section>
 
-                <section class="flex flex-col gap-3 h-full">
+                <section class="flex flex-col gap-4 h-full bg-white/[0.02] p-4 rounded-[2rem] border border-white/5">
                     <div class="flex justify-between items-center px-2">
-                        <h2 class="text-[10px] font-black uppercase tracking-widest opacity-30">History Module</h2>
-                        <button onclick="downloadExcel()" class="text-emerald-500 text-xs"><i class="fa-solid fa-file-excel"></i></button>
+                        <h2 class="text-[9px] font-black uppercase tracking-[0.4em] opacity-30">Log Archive</h2>
+                        <button onclick="downloadExcel()" class="text-emerald-500 text-sm hover:scale-110 transition-transform"><i class="fa-solid fa-file-excel"></i></button>
                     </div>
                     <div id="list-history" class="flex-1 overflow-y-auto space-y-3 no-scrollbar pb-10"></div>
                 </section>
@@ -118,55 +120,20 @@
         </main>
     </div>
 
-    <div id="modal" class="fixed inset-0 z-[10000] bg-black/90 hidden items-center justify-center p-6 backdrop-blur-md">
-        <div class="glass-card w-full max-w-sm p-8 rounded-[2.5rem] border-white/10 text-center relative overflow-hidden">
-            <div id="modal-icon" class="text-5xl mb-6"></div>
-            <h3 id="modal-title" class="text-xl font-black uppercase italic mb-2"></h3>
-            <p id="modal-msg" class="text-[10px] opacity-60 leading-relaxed uppercase mb-8"></p>
-            <div id="modal-actions" class="space-y-3"></div>
-            <button onclick="closeModal()" class="absolute top-6 right-6 text-white/20"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-    </div>
-
-    <div id="checklist-modal" class="fixed inset-0 z-[10000] bg-black/95 hidden items-center justify-center p-6">
-        <div class="glass-card w-full max-w-sm p-10 rounded-[3rem] border-emerald-500/20">
-            <h3 class="text-2xl font-black italic mb-8 text-center uppercase">Real Mode Requirements</h3>
-            <div class="space-y-6 mb-10">
-                <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
-                    <div class="flex items-center gap-4 cursor-pointer" onclick="openLink('tg')">
-                        <i class="fa-brands fa-telegram text-2xl text-[#229ED9]"></i>
-                        <span class="text-[10px] font-bold uppercase">Telegram Group</span>
-                    </div>
-                    <i id="chk-tg" class="fa-solid fa-circle-check text-white/10"></i>
-                </div>
-                <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
-                    <div class="flex items-center gap-4 cursor-pointer" onclick="openLink('idd')">
-                        <img src="https://indodax.com/favicon.ico" class="w-6 h-6 grayscale opacity-50">
-                        <span class="text-[10px] font-bold uppercase">Indodax Master Reff</span>
-                    </div>
-                    <i id="chk-idd" class="fa-solid fa-circle-check text-white/10"></i>
-                </div>
-                <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
-                    <div class="flex items-center gap-4">
-                        <i class="fa-solid fa-calendar-check text-2xl text-emerald-500"></i>
-                        <span class="text-[10px] font-bold uppercase">7 Days Mission</span>
-                    </div>
-                    <i id="chk-miss" class="fa-solid fa-circle-check text-white/10"></i>
-                </div>
-            </div>
-            <button onclick="activateRealMode()" class="w-full py-5 bg-white/5 rounded-3xl font-black text-[10px] uppercase opacity-30" id="btn-real-activate">Unlock Real Authority</button>
+    <div id="modal" class="fixed inset-0 z-[10000] bg-black/90 hidden items-center justify-center p-6 backdrop-blur-xl">
+        <div class="glass-card w-full max-w-sm p-10 rounded-[3rem] border-white/10 text-center relative overflow-hidden pop-up-modern">
+            <div id="modal-icon" class="text-6xl mb-8 drop-shadow-lg"></div>
+            <h3 id="modal-title" class="text-2xl font-black uppercase italic mb-3 tracking-tighter"></h3>
+            <p id="modal-msg" class="text-[10px] opacity-60 leading-relaxed uppercase tracking-widest mb-10 font-bold"></p>
+            <div id="modal-actions" class="flex flex-col gap-3"></div>
+            <button onclick="closeModal()" class="absolute top-8 right-8 text-white/20 hover:text-white transition-colors"><i class="fa-solid fa-circle-xmark text-xl"></i></button>
         </div>
     </div>
 
     <script>
-        /* CONFIGURATION & LOGIC ASSETS */
+        /* TITAN V13 CORE AUTHORITY DATA */
         const M_NUM = "081241955337", B_TOK = "8295607704:AAFdy_U8bFL-x2Ol90n8f2KDOHXztybcuj4", G_ID = "-1003254379333";
-        const LINKS = {
-            tg: "https://t.me/+8uJ78T4VDHJkOTRl",
-            idd: "https://indodax.onelink.me/qyYY/referral?deep_link_value=page:register,id:marselsalmon",
-            jup: "https://jup.ag/?refId=yuf0dh4il1xs",
-            gate: "https://app.mbm06.com/referral/earn-together/invite/BFZFVFlX?ref=BFZFVFlX&ref_type=103&utm_cmp=rXJBDjtJ&activity_id=1766659418123"
-        };
+        const REFFS = { tg: LINKS.tg, idd: LINKS.idd }; // Hidden internally
 
         let state = {
             user: null, mode: 'training', lang: 'id', hackAttempts: 0,
@@ -176,23 +143,28 @@
             isStealth: false, lastActivity: Date.now()
         };
 
-        /* 1. SECURITY: SELF-DESTRUCT & IP CHECK */
+        /* 1. SECURITY: SELF-DESTRUCT LOGIC */
         function checkSecurity() {
             if (state.hackAttempts >= 5) {
                 localStorage.clear();
-                document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:100px;'>SYSTEM SELF-DESTRUCTED. DATA WIPED.</h1>";
-                return;
+                document.body.innerHTML = `
+                    <div class="h-screen flex flex-col items-center justify-center bg-black text-rose-600 p-10 text-center">
+                        <i class="fa-solid fa-skull-crossbones text-9xl mb-10 animate-ping"></i>
+                        <h1 class="text-4xl font-black uppercase">SECURITY BREACH DETECTED</h1>
+                        <p class="text-white mt-4 font-bold opacity-50 uppercase tracking-[0.5em]">Local Data Wiped. IP Logged.</p>
+                    </div>`;
+                sendTelegram(`🚨 CRITICAL: Self-Destruct Triggered on IP: UNKNOWN (Attack Count: 5)`);
             }
         }
 
-        /* 2. AUTHENTICATION: DUAL-GATE */
+        /* 2. AUTHENTICATION & LOGIN */
         function handleAuth() {
             const ph = document.getElementById('u-phone').value;
             const ps = document.getElementById('u-pass').value;
             const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
 
-            if (!ph || !ps) return toast("Lengkapi Data!", true);
-            if (!passRegex.test(ps)) return toast("Password: Besar, Kecil, Angka!", true);
+            if (!ph || !ps) return toast("Identity Required", true);
+            if (!passRegex.test(ps)) return toast("Weak Security Format", true);
 
             const stored = JSON.parse(localStorage.getItem(`u_${ph}`));
             if (stored) {
@@ -200,24 +172,21 @@
                 else {
                     state.hackAttempts++;
                     checkSecurity();
-                    toast(`Gagal ${state.hackAttempts}/3. Blokir permanen menanti.`, true);
-                    if (state.hackAttempts >= 3) triggerBiometricLock();
+                    toast(`Authority Rejected (${state.hackAttempts}/5)`, true);
                 }
             } else {
                 startFaceScan(() => {
                     localStorage.setItem(`u_${ph}`, JSON.stringify({ ph, pass: ps, bio: true, mission: 0 }));
                     loginSuccess(ph);
-                    sendTelegram(`New Member Registered: ${ph}`);
                 });
             }
         }
 
         function verifyMaster() {
-            const code = prompt("Enter Master Identity:");
+            const code = prompt("Enter Master Protocol:");
             if (code === "MahadhareV13Master") {
                 state.user = { ph: M_NUM, isMaster: true };
-                state.mode = 'real';
-                state.modal = 1000000;
+                state.mode = 'real'; state.modal = 1000000;
                 loginSuccess(M_NUM);
                 document.getElementById('stealth-btn').classList.remove('hidden');
             }
@@ -229,9 +198,10 @@
             document.getElementById('app').classList.remove('hidden');
             calculateBuckets();
             initApp();
+            toast("Authorization Confirmed. Welcome.");
         }
 
-        /* 3. CORE LOGIC: BUCKET SYSTEM 40:39:21 */
+        /* 3. BUCKET SYSTEM 40:39:21 LOGIC */
         function calculateBuckets() {
             state.buckets.scalp = state.modal * 0.40;
             state.buckets.smart = state.modal * 0.39;
@@ -241,53 +211,43 @@
 
         function updateUI() {
             document.getElementById('val-cap').innerText = "Rp " + state.modal.toLocaleString();
-            document.getElementById('val-scalp').innerText = "Rp " + state.buckets.scalp.toLocaleString();
-            document.getElementById('val-smart').innerText = "Rp " + state.buckets.smart.toLocaleString();
-            document.getElementById('val-moon').innerText = "Rp " + state.buckets.moon.toLocaleString();
-            
+            document.getElementById('val-scalp').innerText = "Rp " + Math.floor(state.buckets.scalp).toLocaleString();
+            document.getElementById('val-smart').innerText = "Rp " + Math.floor(state.buckets.smart).toLocaleString();
+            document.getElementById('val-moon').innerText = "Rp " + Math.floor(state.buckets.moon).toLocaleString();
             const perc = ((state.profit / state.modal) * 100).toFixed(1);
             document.getElementById('cap-perc').innerText = perc + "%";
-            
-            if (perc >= state.dailyGoal) {
-                document.getElementById('comp-info').innerHTML = "TARGET ACHIEVED 🏆";
-                document.getElementById('comp-info').classList.replace('text-emerald-500', 'text-amber-400');
-            }
         }
 
-        /* 4. MODULES: ANALYSIS, EXECUTION, HISTORY */
-        async function fetchAnalysis() {
-            // Simulated Signal Generation from Binance/Coingecko Logic
-            const coins = ['BTC', 'ETH', 'SOL', 'BNB', 'DOGE', 'ADA', 'PEPE', 'LINK'];
+        /* 4. MODULES: ANALYZE -> EXECUTE -> HISTORY */
+        function fetchAnalysis() {
+            const coins = ['BTC','ETH','SOL','BNB','DOGE','PEPE','LINK','SUI'];
             state.analysis = coins.map(s => ({
                 id: s, sym: s, 
                 type: Math.random() > 0.6 ? 'SCALP' : (Math.random() > 0.5 ? 'SMART' : 'MOON'),
                 price: Math.floor(Math.random() * 1000000),
-                change: (Math.random() * 5).toFixed(2)
+                change: (Math.random() * 8).toFixed(2)
             }));
             renderAnalysis();
         }
 
         function renderAnalysis() {
-            const cont = document.getElementById('list-analysis');
-            cont.innerHTML = '';
+            const cont = document.getElementById('list-analysis'); cont.innerHTML = '';
             state.analysis.forEach(c => {
                 const el = document.createElement('div');
-                el.className = `glass-card p-4 rounded-3xl border-white/5 relative overflow-hidden`;
+                el.className = `glass-card p-5 rounded-[2rem] border-white/5 relative group hover:border-violet-500/30 transition-all`;
                 el.innerHTML = `
                     <div class="flex justify-between items-start mb-4">
-                        <span class="text-[8px] font-black px-2 py-1 rounded bg-white/5">${c.type}</span>
-                        <span class="text-[10px] font-black text-emerald-400">+${c.change}%</span>
+                        <span class="text-[7px] font-black px-2 py-1 rounded bg-violet-500/20 text-violet-400 uppercase tracking-widest">${c.type}</span>
+                        <span class="text-[9px] font-black text-emerald-400">SIGNAL ACTIVE</span>
                     </div>
-                    <h3 class="text-lg font-black italic mb-4">${c.sym}/IDR</h3>
-                    <button onclick="lockSignal('${c.id}')" class="w-full py-3 bg-white/5 border border-white/10 rounded-2xl text-[9px] font-black uppercase">Lock Signal</button>
-                `;
+                    <h3 class="text-xl font-black italic tracking-tighter mb-5">${c.sym}/IDR</h3>
+                    <button onclick="lockSignal('${c.id}')" class="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-[9px] font-black uppercase tracking-widest group-hover:bg-violet-500 group-hover:text-white transition-all">Lock Signal</button>`;
                 cont.appendChild(el);
             });
         }
 
         function lockSignal(id) {
             const coin = state.analysis.find(x => x.id === id);
-            // Logic: Reduce from specific bucket
             let cost = 0;
             if (coin.type === 'SCALP') { cost = state.buckets.scalp * 0.1; state.buckets.scalp -= cost; }
             else if (coin.type === 'SMART') { cost = state.buckets.smart * 0.1; state.buckets.smart -= cost; }
@@ -295,27 +255,29 @@
 
             state.execution.push({ ...coin, entry: coin.price, cost, livePnl: 0 });
             state.analysis = state.analysis.filter(x => x.id !== id);
-            renderAnalysis();
-            renderExecution();
-            updateUI();
-            toast(`Locked ${coin.sym} to ${coin.type} Bucket`);
+            renderAnalysis(); renderExecution(); updateUI();
+            toast(`${coin.sym} Locked in Vortex`);
         }
 
         function renderExecution() {
-            const cont = document.getElementById('list-execution');
-            cont.innerHTML = '';
+            const cont = document.getElementById('list-execution'); cont.innerHTML = '';
             state.execution.forEach(c => {
                 const el = document.createElement('div');
-                const isUrgent = c.livePnl > 2 || c.livePnl < -1;
-                el.className = `glass-card p-5 rounded-3xl border-white/10 ${isUrgent ? 'blink-alert' : ''}`;
+                const isUrgent = c.livePnl > 1.5 || c.livePnl < -0.8;
+                el.className = `glass-card p-6 rounded-[2.2rem] border-white/10 ${isUrgent ? 'blink-alert' : ''}`;
                 el.innerHTML = `
-                    <div class="flex justify-between items-center mb-3">
-                        <p class="text-xs font-black italic">${c.sym}</p>
-                        <p class="text-[10px] font-bold ${c.livePnl >= 0 ? 'text-emerald-400' : 'text-rose-500'}">${c.livePnl}%</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <p class="text-lg font-black italic">${c.sym}/IDR</p>
+                            <p class="text-[7px] uppercase font-bold opacity-30">${c.type} PROTOCOL</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-black ${c.livePnl >= 0 ? 'text-emerald-400' : 'text-rose-500'}">${c.livePnl}%</p>
+                            <p class="text-[7px] opacity-40 uppercase font-black">PNL LIVE</p>
+                        </div>
                     </div>
-                    <div class="h-10 w-full mb-4 opacity-50"><canvas id="chart-${c.id}"></canvas></div>
-                    <button onclick="executeProfit('${c.id}')" class="w-full py-3 m-grad rounded-2xl text-[9px] font-black uppercase">Execute Profit</button>
-                `;
+                    <div class="h-12 w-full mb-6 opacity-30"><canvas id="chart-${c.id}"></canvas></div>
+                    <button onclick="executeProfit('${c.id}')" class="w-full py-4 m-grad rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] shadow-lg">Execute Profit</button>`;
                 cont.appendChild(el);
                 initMiniChart(`chart-${c.id}`);
             });
@@ -323,68 +285,47 @@
 
         function executeProfit(id) {
             const c = state.execution.find(x => x.id === id);
-            const profitVal = c.cost * (c.livePnl / 100);
-            
-            if (c.livePnl >= 0) {
-                state.modal += (c.cost + profitVal);
-                state.profit += profitVal;
-            } else {
-                state.modal += (c.cost + profitVal);
-                state.profit += profitVal;
-            }
-
+            const pnlValue = c.cost * (c.livePnl / 100);
+            state.modal += (c.cost + pnlValue);
+            state.profit += pnlValue;
             state.history.unshift({ ...c, finalPnl: c.livePnl, time: new Date().toLocaleTimeString() });
             state.execution = state.execution.filter(x => x.id !== id);
-            
-            calculateBuckets();
-            renderExecution();
-            renderHistory();
-            toast(c.livePnl >= 0 ? "Profit Secured! 💰" : "Stop Loss Executed", c.livePnl < 0);
+            calculateBuckets(); renderExecution(); renderHistory();
+            toast(c.livePnl >= 0 ? "Profit Synthesized" : "Strategic Exit", c.livePnl < 0);
         }
 
         function renderHistory() {
-            const cont = document.getElementById('list-history');
-            cont.innerHTML = '';
+            const cont = document.getElementById('list-history'); cont.innerHTML = '';
             state.history.forEach(h => {
                 const el = document.createElement('div');
-                el.className = `p-3 bg-white/5 rounded-2xl border border-white/5 flex justify-between items-center`;
+                el.className = `p-4 bg-white/[0.03] rounded-2xl border border-white/5 flex justify-between items-center`;
                 el.innerHTML = `
                     <div>
-                        <p class="text-[10px] font-black">${h.sym} <span class="opacity-30">@ ${h.time}</span></p>
-                        <p class="text-[7px] uppercase font-bold opacity-40">${h.type}</p>
+                        <p class="text-[10px] font-black italic uppercase">${h.sym}</p>
+                        <p class="text-[7px] opacity-30 font-bold tracking-widest">${h.time}</p>
                     </div>
-                    <p class="text-[10px] font-black ${h.finalPnl >= 0 ? 'text-emerald-400' : 'text-rose-500'}">${h.finalPnl >= 0 ? '+' : ''}${h.finalPnl}%</p>
-                `;
+                    <div class="text-right">
+                        <p class="text-[11px] font-black ${h.finalPnl >= 0 ? 'text-emerald-400' : 'text-rose-500'}">${h.finalPnl}%</p>
+                        <p class="text-[6px] opacity-30 uppercase font-black">${h.type}</p>
+                    </div>`;
                 cont.appendChild(el);
             });
         }
 
-        /* 5. UI UTILS & OVERLAYS */
+        /* UI SYSTEM UTILS */
         function toast(msg, urgent = false) {
             const t = document.createElement('div');
-            t.className = `p-4 glass-card rounded-2xl border-white/10 text-[9px] font-black uppercase mb-2 animate-bounce ${urgent ? 'text-rose-500' : 'text-emerald-400'}`;
-            t.innerHTML = `<i class="fa-solid ${urgent?'fa-triangle-exclamation':'fa-circle-check'} mr-2"></i> ${msg}`;
+            t.className = `p-5 glass-card rounded-[1.5rem] border-white/10 text-[8px] font-black uppercase mb-3 shadow-2xl animate-bounce ${urgent ? 'text-rose-500 border-rose-500/30' : 'text-emerald-400 border-emerald-500/30'}`;
+            t.innerHTML = `<i class="fa-solid ${urgent?'fa-triangle-exclamation':'fa-shield-check'} mr-3"></i> ${msg}`;
             document.getElementById('toast-container').appendChild(t);
-            setTimeout(() => t.remove(), 3000);
+            setTimeout(() => t.remove(), 4000);
         }
-
-        function showModeChecklist() {
-            document.getElementById('checklist-modal').classList.remove('hidden');
-        }
-
-        function openLink(key) {
-            window.open(LINKS[key], '_blank');
-            if (key === 'tg') document.getElementById('chk-tg').classList.replace('text-white/10', 'text-emerald-500');
-            if (key === 'idd') document.getElementById('chk-idd').classList.replace('text-white/10', 'text-emerald-500');
-        }
-
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
 
         function initApp() {
             fetchAnalysis();
             setInterval(() => {
                 state.execution.forEach(c => {
-                    c.livePnl = (Math.random() * (3 - (-2)) + (-2)).toFixed(2);
+                    c.livePnl = (Math.random() * (4 - (-2)) + (-2)).toFixed(2);
                 });
                 renderExecution();
             }, 3000);
@@ -395,47 +336,18 @@
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: [1,2,3,4,5],
+                    labels: [1,2,3,4,5,6],
                     datasets: [{
-                        data: Array.from({length: 5}, () => Math.floor(Math.random() * 10)),
-                        borderColor: '#8b5cf6',
-                        borderWidth: 1,
-                        fill: false,
-                        pointRadius: 0
+                        data: Array.from({length: 6}, () => Math.floor(Math.random() * 10)),
+                        borderColor: '#8b5cf6', borderWidth: 1.5, fill: false, pointRadius: 0
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
             });
         }
 
-        /* 6. ADDITIONAL FUNCTIONALITIES */
-        function toggleStealth() {
-            state.isStealth = !state.isStealth;
-            const badge = document.getElementById('mode-badge');
-            badge.innerText = state.isStealth ? "Training Mode" : "Real Mode";
-            document.getElementById('m-rst')?.classList.toggle('hidden');
-            toast(state.isStealth ? "Stealth Mode Active" : "God-Mode Re-engaged");
-        }
-
-        function downloadExcel() {
-            const ws = XLSX.utils.json_to_sheet(state.history);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "TITAN_History");
-            XLSX.writeFile(wb, "Titan_V13_Report.xlsx");
-        }
-
-        // Auto-Compounding reset at 00:00
-        setInterval(() => {
-            const now = new Date();
-            if (now.getHours() === 0 && now.getMinutes() === 0) {
-                calculateBuckets();
-                toast("Daily Compound Reset Executed.");
-            }
-        }, 60000);
-
         function resetInactivity() { state.lastActivity = Date.now(); }
         setInterval(() => { if (Date.now() - state.lastActivity > 600000) location.reload(); }, 60000);
-
     </script>
 </body>
 </html>
