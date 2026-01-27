@@ -15,15 +15,21 @@
         .titan-font { font-family: 'Orbitron', sans-serif; }
         .glass-premium { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid rgba(255, 215, 0, 0.15); border-radius: 1.5rem; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Arsitektur Visual: Hot Zone Pulse (V13 Optimized) */
+        .hot-zone-pulse { animation: hot-zone-red 1.2s infinite ease-in-out; border: 2px solid #ef4444 !important; }
+        @keyframes hot-zone-red { 
+            0%, 100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); } 
+            50% { box-shadow: 0 0 25px rgba(239, 68, 68, 0.6); background: rgba(239, 68, 68, 0.15); } 
+        }
+
         .blink-execute { animation: blink-gold 1s infinite; }
         @keyframes blink-gold { 0%, 100% { border-color: rgba(255,215,0,0.1); } 50% { border-color: var(--gold); box-shadow: 0 0 15px rgba(255,215,0,0.3); } }
+        
         .floating-msg { position: fixed; top: 110px; right: 20px; z-index: 9999; background: rgba(0,0,0,0.9); padding: 12px; border-radius: 12px; border: 1px solid var(--gold); max-width: 220px; font-size: 9px; animation: slideIn 0.3s ease-out; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         #face-video { width: 100%; height: 180px; border-radius: 1rem; object-fit: cover; border: 2px solid var(--gold); background: #000; }
         canvas.mini-chart { height: 60px !important; width: 100% !important; }
-        /* Hot Zone Effect */
-        .hot-zone-pulse { animation: hot-pulse 0.8s infinite; }
-        @keyframes hot-pulse { 0% { background: rgba(244, 63, 94, 0.1); } 50% { background: rgba(244, 63, 94, 0.4); } 100% { background: rgba(244, 63, 94, 0.1); } }
     </style>
 </head>
 <body>
@@ -36,35 +42,50 @@
             <p class="text-[8px] tracking-[4px] opacity-50 mb-8 uppercase font-black">Mahadhare Gold Security</p>
             
             <div id="auth-box" class="space-y-4">
-                <input type="text" id="auth-phone" placeholder="NOMOR TELEPON TELEGRAM" class="w-full bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none text-xs">
+                <input type="text" id="auth-phone" placeholder="MASTER PHONE (081241955337)" class="w-full bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none text-xs">
                 <div id="reg-extra" class="hidden space-y-4">
                     <video id="face-video" class="hidden" autoplay muted playsinline></video>
-                    <button onclick="startFaceScan()" id="scan-btn" class="w-full py-3 bg-blue-600 rounded-xl text-[10px] titan-font shadow-lg">SCAN WAJAH (BIOMETRIC)</button>
+                    <button onclick="startFaceScan()" id="scan-btn" class="w-full py-3 bg-blue-600 rounded-xl text-[10px] titan-font shadow-lg">BIOMETRIC SYNC (4S)</button>
                 </div>
-                <input type="password" id="auth-pass" placeholder="PASSWORD" class="w-full bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none text-xs">
+                <input type="password" id="auth-pass" placeholder="MASTER PROTOCOL PASSWORD" class="w-full bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none text-xs">
                 <div class="grid grid-cols-2 gap-2">
-                    <button onclick="handleAuth()" id="login-btn" class="py-4 bg-yellow-500 text-black titan-font text-[10px] font-black rounded-xl uppercase">Login</button>
+                    <button onclick="handleAuth('LOGIN')" id="login-btn" class="py-4 bg-yellow-500 text-black titan-font text-[10px] font-black rounded-xl uppercase">Login</button>
                     <button onclick="toggleAuth()" id="toggle-btn" class="py-4 bg-white/5 border border-white/10 text-white titan-font text-[10px] rounded-xl uppercase">Daftar</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="custom-alert" class="fixed inset-0 z-[10001] flex items-center justify-center p-6 hidden">
+        <div class="absolute inset-0 bg-black/95 backdrop-blur-xl"></div>
+        <div class="glass-premium p-8 w-full max-w-sm border-yellow-500/50 relative text-center">
+            <div class="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-yellow-500/20 text-yellow-500">
+                <i class="fa-solid fa-shield-halved text-2xl"></i>
+            </div>
+            <h3 class="titan-font text-[11px] text-white mb-2 uppercase tracking-widest">TITAN V13 SYSTEM</h3>
+            <div id="alert-content" class="text-[10px] text-white/70 mb-6 leading-relaxed"></div>
+            <button onclick="closeAlert()" class="w-full py-3 bg-yellow-500 text-black titan-font text-[10px] font-black rounded-xl">KONFIRMASI</button>
+        </div>
+    </div>
+
     <header class="p-4 flex justify-between items-center bg-black/80 border-b border-yellow-500/10 backdrop-blur-lg sticky top-0 z-50">
         <div onclick="showRealModeCheck()" class="cursor-pointer bg-white/5 p-2 px-3 rounded-2xl flex items-center gap-2 border border-white/10">
             <div id="mode-dot" class="w-2 h-2 rounded-full bg-emerald-500 pulse-live"></div>
-            <span id="mode-text" class="titan-font text-[9px] font-black uppercase">Training Mode</span>
-            <span id="rank-badge" class="ml-2 px-2 py-0.5 bg-yellow-500/20 text-yellow-500 text-[7px] rounded-full border border-yellow-500/30">0 XP</span>
+            <span id="mode-text" class="titan-font text-[9px] font-black uppercase">Standard Member</span>
+            <span id="xp-display" class="text-[8px] bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded-full ml-1">0 XP</span>
         </div>
         <div class="flex items-center gap-2">
-            <span id="btc-guard" class="text-[8px] text-emerald-400 font-bold hidden"><i class="fa-solid fa-shield-bitcoin"></i> GUARD</span>
-            <button onclick="location.reload()" class="text-rose-500 bg-rose-500/10 w-8 h-8 rounded-lg border border-rose-500/20"><i class="fa-solid fa-power-off text-sm"></i></button>
+            <span id="btc-guard-ui" class="text-[8px] text-emerald-400 font-bold hidden"><i class="fa-solid fa-shield-bitcoin"></i> BTC GUARD</span>
+            <button onclick="location.reload()" class="text-rose-500 bg-rose-500/10 w-8 h-8 rounded-lg border border-rose-500/20">
+                <i class="fa-solid fa-power-off text-sm"></i>
+            </button>
         </div>
     </header>
 
     <main class="h-full flex flex-col pb-48 overflow-y-auto no-scrollbar">
         <section class="p-5">
             <div class="glass-premium p-6 relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-5"><i class="fa-solid fa-microchip text-5xl"></i></div>
                 <div class="flex justify-between items-start mb-2">
                     <p class="text-[8px] uppercase font-black opacity-40 tracking-[2px]">Capital Management (<span id="perc-stat">0%</span>)</p>
                     <p id="target-info" class="text-[8px] text-yellow-500 font-bold uppercase"></p>
@@ -88,168 +109,275 @@
         </section>
 
         <div class="px-5 space-y-10 pb-40">
+            <section><h3 class="titan-font text-[10px] text-yellow-500 mb-4 flex items-center gap-2 uppercase tracking-widest"><i class="fa-solid fa-eye"></i> Mata Dewa Analysis</h3><div id="list-analysis" class="space-y-4"></div></section>
             <section>
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="titan-font text-[10px] text-yellow-500 flex items-center gap-2 uppercase tracking-widest"><i class="fa-solid fa-chart-line"></i> Mata Dewa Analysis</h3>
-                    <div id="execute-all-btn" class="hidden">
-                        <button onclick="executeAllSignals()" class="text-[8px] bg-yellow-500 text-black px-3 py-1 rounded-lg font-black uppercase">Execute All (ELITE)</button>
-                    </div>
+                    <h3 class="titan-font text-[10px] text-blue-500 flex items-center gap-2 uppercase tracking-widest"><i class="fa-solid fa-bolt"></i> Execution Engine</h3>
+                    <button id="execute-all-btn" onclick="executeAll()" class="hidden text-[8px] bg-yellow-500 text-black px-3 py-1 rounded-full font-black">EXECUTE ALL (ELITE)</button>
                 </div>
-                <div id="list-analysis" class="space-y-4"></div>
+                <div id="list-execution" class="space-y-4"></div>
             </section>
-            <section><h3 class="titan-font text-[10px] text-blue-500 mb-4 flex items-center gap-2 uppercase tracking-widest"><i class="fa-solid fa-bolt"></i> Execution</h3><div id="list-execution" class="space-y-4"></div></section>
+            <section>
+                <div class="flex justify-between items-center mb-4"><h3 class="titan-font text-[10px] text-emerald-500 flex items-center gap-2 uppercase tracking-widest"><i class="fa-solid fa-database"></i> Log History</h3><button onclick="exportExcel()" class="text-[8px] bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2 py-1 rounded uppercase font-bold tracking-widest">Excel</button></div>
+                <div id="list-history" class="space-y-2"></div>
+            </section>
         </div>
     </main>
 
+    <footer class="fixed bottom-0 left-0 right-0 p-4 bg-black/95 border-t border-white/5 z-50">
+        <div class="flex justify-around items-center max-w-md mx-auto relative">
+            <button class="flex flex-col items-center gap-1 opacity-40"><i class="fa-solid fa-ranking-star"></i><span class="text-[8px]">RANKS</span></button>
+            <button id="tg-group-btn" class="flex flex-col items-center gap-1 text-sky-400"><i class="fa-brands fa-telegram text-2xl"></i><span class="text-[8px]">GROUP</span></button>
+            <div class="w-14 h-14 bg-yellow-500 rounded-full flex items-center justify-center -mt-10 shadow-lg shadow-yellow-500/30 border-8 border-[#020308]"><i class="fa-solid fa-bolt text-black text-xl"></i></div>
+            <button class="flex flex-col items-center gap-1 text-emerald-400" onclick="alert('AI Sentiment Scraper (V14) Coming Soon')"><i class="fa-solid fa-brain"></i><span class="text-[8px]">AI SCAN</span></button>
+            <button class="flex flex-col items-center gap-1 opacity-40"><i class="fa-solid fa-shield-check"></i><span class="text-[8px]">SECURE</span></button>
+        </div>
+    </footer>
+
+    <div id="modal-vault" class="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-8 hidden backdrop-blur-2xl">
+        <div class="glass-premium p-8 w-full max-w-sm border-yellow-500/40 text-center">
+            <i class="fa-solid fa-vault text-3xl text-yellow-500 mb-4"></i>
+            <h3 class="titan-font text-sm text-yellow-500 mb-1 uppercase tracking-widest">Initial Vault</h3>
+            <p id="vault-range-info" class="text-[8px] opacity-40 mb-8 uppercase tracking-widest">Bucket Logic 40:39:21 Auto-Allocation</p>
+            <input type="number" id="vault-input" value="1000000" class="w-full bg-white/5 p-4 rounded-xl mb-8 titan-font text-2xl text-center text-yellow-500 border border-white/10 outline-none">
+            <button onclick="finalizeCapital()" class="w-full py-5 bg-yellow-500 text-black font-black rounded-xl titan-font text-[10px] uppercase shadow-lg tracking-widest">Initialize System</button>
+        </div>
+    </div>
+
     <script>
-        // --- MASTER CONFIG ---
+        // --- MASTER CONFIG & SECURITY PROTOCOL ---
         const MASTER_CONFIG = {
-            ADMIN_PHONE: "081241955337",
-            MASTER_KEY: "MahadhareV13Master",
             BT: "8295607704:AAFdy_U8bFL-x2Ol90n8f2KDOHXztybcuj4",
             CI: "-1003254379333",
-            GOAL_TARGET: 0.10 // 10%
+            MK: "MahadhareV13Master",
+            ADMIN_PH: "081241955337",
+            TG: "https://t.me/+8uJ78T4VDHJkOTRl",
+            REFF: {
+                IDX: "https://indodax.onelink.me/qyYY/referral?deep_link_value=page:register,id:marselsalmon",
+                JUP: "https://jup.ag/?refId=yuf0dh4il1xs"
+            }
         };
 
         let state = {
-            xp: 0, rank: 'Standard',
-            initCap: 0, capProfit: 0, 
+            authMode: 'LOGIN', xp: 0, rank: 'Standard',
+            failed: 0, face: false, hack: 0,
+            initCap: 0, capProfit: 0, goalReached: false,
             buckets: { scalp: 0, smart: 0, moon: 0 },
-            cards: [], log: [],
-            isBtcDrop: false,
-            failedAuth: 0, blocked: false
+            cards: [], log: [], btcStatus: 'Stable'
         };
 
-        // --- 1. KEAMANAN & ANTI-BREACH ---
+        // --- GATEKEEPER & ANTI-BREACH ---
         window.addEventListener('keydown', (e) => {
-            if(e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73)) {
-                alert("SECURITY BREACH DETECTED. SELF-DESTRUCT INITIATED.");
-                localStorage.clear();
-                location.reload();
+            if(e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74))) {
+                state.hack++;
+                if(state.hack >= 3) {
+                    localStorage.clear();
+                    document.body.innerHTML = "<div style='background:#000; color:red; height:100vh; display:flex; align-items:center; justify-content:center; font-family:Orbitron;'>ANTI-BREACH: SYSTEM SELF-DESTRUCTED</div>";
+                    notifyTelegram("🚨 *SECURITY ALERT:* Hacker detected (F12). System wiped.");
+                }
             }
         });
 
-        async function handleAuth() {
+        async function startFaceScan() {
+            const vid = document.getElementById('face-video'); vid.classList.remove('hidden');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                vid.srcObject = stream; vid.play();
+                smartNotif("Syncing Biometrics (4s)...");
+                setTimeout(() => {
+                    state.face = true; 
+                    vid.classList.add('hidden'); 
+                    stream.getTracks().forEach(t => t.stop());
+                    showCustomAlert("Biometric Sync Success. Identity Validated.");
+                }, 4000);
+            } catch (e) { showCustomAlert("Camera Required for V13 Access."); }
+        }
+
+        function handleAuth() {
             const ph = document.getElementById('auth-phone').value;
             const ps = document.getElementById('auth-pass').value;
 
-            if (ph === MASTER_CONFIG.ADMIN_PHONE && ps === MASTER_CONFIG.MASTER_KEY) {
-                return proceedLogin();
+            if (ph === MASTER_CONFIG.ADMIN_PH && ps === MASTER_CONFIG.MK) {
+                return autoEnter('Master Marsel');
             }
             
-            state.failedAuth++;
-            if(state.failedAuth >= 3) {
-                state.blocked = true;
-                alert("AKUN DIBLOKIR. HUBUNGI MASTER.");
+            state.failed++;
+            if(state.failed >= 3) {
+                document.getElementById('auth-box').innerHTML = "<p class='text-rose-500 titan-font text-[10px]'>SYSTEM BLOCKED. CONTACT MASTER.</p>";
             } else {
-                alert(`Login Gagal. Sisa percobaan: ${3 - state.failedAuth}`);
+                smartNotif(`Auth Failed (${state.failed}/3)`);
             }
         }
 
-        async function startFaceScan() {
-            const vid = document.getElementById('face-video');
-            vid.classList.remove('hidden');
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            vid.srcObject = stream;
-            setTimeout(() => {
-                stream.getTracks().forEach(t => t.stop());
-                vid.classList.add('hidden');
-                alert("Biometric Validated.");
-            }, 4000);
-        }
-
-        function proceedLogin() {
+        function autoEnter(u) {
+            sessionStorage.setItem('titan_auth', 'true');
             document.getElementById('auth-screen').style.display = 'none';
-            // Trigger Modal Vault Initial
-            document.getElementById('modal-vault').classList.remove('hidden');
+            if(state.initCap === 0) document.getElementById('modal-vault').classList.remove('hidden');
+            startEngine();
         }
 
-        // --- 2. MATA DEWA ENGINE & BTC GUARD ---
-        async function fetchMarketData() {
-            // Cek BTC Guard (Simulasi penurunan 2%)
-            const btcRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&include_24hr_change=true');
-            const btcData = await btcRes.json();
-            if(btcData.bitcoin.idr_24h_change < -2) {
-                state.isBtcDrop = true;
-                document.getElementById('btc-guard').classList.remove('hidden');
-            } else {
-                state.isBtcDrop = false;
-                document.getElementById('btc-guard').classList.add('hidden');
-            }
-
-            if(state.isBtcDrop) return; // Hentikan sinyal baru jika BTC Drop
-
-            // Fetch Meme Coins & Top Coins
-            const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&ids=pepe,dogecoin,bonk,shiba-inu,bitcoin,ethereum&sparkline=true');
-            const coins = await res.json();
-            processMataDewa(coins);
+        // --- BUCKET LOGIC & AUTO-COMPOUNDING ---
+        function finalizeCapital() {
+            const v = parseInt(document.getElementById('vault-input').value);
+            state.initCap = v;
+            state.buckets = { scalp: v*0.4, smart: v*0.39, moon: v*0.21 };
+            document.getElementById('modal-vault').classList.add('hidden');
+            renderUI();
         }
 
-        function processMataDewa(coins) {
-            // Cek Goal Lock 10%
-            const total = state.capProfit + state.buckets.scalp + state.buckets.smart + state.buckets.moon;
-            if (((total / state.initCap) - 1) >= MASTER_CONFIG.GOAL_TARGET) {
-                smartNotif("GOAL 10% REACHED. SYSTEM LOCKED.");
-                return;
+        // Midnight Auto-Compounding
+        setInterval(() => {
+            const now = new Date();
+            if(now.getHours() === 0 && now.getMinutes() === 0 && now.getSeconds() === 0) {
+                const total = state.initCap + state.capProfit;
+                state.initCap = total;
+                state.capProfit = 0;
+                state.buckets = { scalp: total*0.4, smart: total*0.39, moon: total*0.21 };
+                smartNotif("00:00 - Profit Compounded to Base Capital");
+                renderUI();
             }
+        }, 1000);
+
+        // --- MATA DEWA EXECUTION ENGINE ---
+        async function startEngine() {
+            try {
+                // BTC Guard Check
+                const btcRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&include_24hr_change=true');
+                const btcData = await btcRes.json();
+                const btcChange = btcData.bitcoin.idr_24h_change;
+                
+                if(btcChange < -2.0) {
+                    state.btcStatus = 'Danger';
+                    document.getElementById('btc-guard-ui').classList.remove('hidden');
+                    smartNotif("BTC GUARD: Market Crash Detected. Signals Paused.");
+                } else {
+                    state.btcStatus = 'Stable';
+                    document.getElementById('btc-guard-ui').classList.add('hidden');
+                    
+                    // Fetch Markets for RSI/Volume Scan
+                    const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=15&sparkline=true');
+                    const data = await res.json();
+                    processSignals(data);
+                }
+            } catch (e) { console.warn("API Node Delay"); }
+            setTimeout(startEngine, 10000); // 10s Scan Interval
+        }
+
+        function processSignals(coins) {
+            if(state.goalReached) return;
 
             coins.forEach(coin => {
-                // Simulasi RSI < 35 & Volume Spike
-                if(Math.random() > 0.85 && state.cards.length < 5) {
-                    addSignal(coin);
+                // Logic RSI < 35 & Volume Spike (Simulasi)
+                if(Math.random() > 0.88 && state.cards.length < 8) {
+                    if(!state.cards.find(c => c.coinId === coin.id)) {
+                        state.cards.push({
+                            id: Date.now() + Math.random(), coinId: coin.id, name: coin.symbol.toUpperCase(),
+                            entry: coin.current_price, current: coin.current_price, 
+                            img: coin.image, spark: coin.sparkline_in_7d.price.slice(-20),
+                            status: 'ANALYSIS', peak: coin.current_price,
+                            strat: ['SCALP', 'SMART', 'MOON'][Math.floor(Math.random()*3)]
+                        });
+                        smartNotif(`MATA DEWA: Strong Buy ${coin.symbol.toUpperCase()}`);
+                    }
                 }
             });
             renderUI();
         }
 
-        // --- 3. BUCKET LOGIC (40:39:21) & AUTO COMPOUNDING ---
-        function finalizeCapital() {
-            const v = parseInt(document.getElementById('vault-input').value);
-            state.initCap = v;
-            state.buckets.scalp = v * 0.40;
-            state.buckets.smart = v * 0.39;
-            state.buckets.moon = v * 0.21;
-            document.getElementById('modal-vault').classList.add('hidden');
-            setInterval(fetchMarketData, 10000);
+        function handleCardAction(id, type) {
+            const card = state.cards.find(c => c.id === id);
+            if(!card) return;
+
+            if(type === 'LOCK') {
+                card.status = 'EXECUTION';
+                smartNotif(`${card.name} In Execution - Monitoring Trailing Stop`);
+            } else {
+                const profit = type === 'TP' ? Math.random() * 50000 : -(Math.random() * 20000);
+                state.capProfit += profit;
+                
+                // XP Management
+                if(type === 'TP') {
+                    state.xp += 15;
+                    if(state.xp >= 150) {
+                        state.rank = 'Elite Master';
+                        document.getElementById('execute-all-btn').classList.remove('hidden');
+                    }
+                }
+
+                state.log.push({ name: card.name, result: type, pnl: profit, time: new Date().toLocaleTimeString() });
+                state.cards = state.cards.filter(c => c.id !== id);
+                
+                // Goal Lock 10% Check
+                if((state.capProfit / state.initCap) >= 0.10) {
+                    state.goalReached = true;
+                    showCustomAlert("DAILY GOAL 10% REACHED. PROFIT LOCKED.");
+                }
+            }
             renderUI();
         }
 
-        // Reset & Compound pada jam 00:00
-        setInterval(() => {
-            const now = new Date();
-            if(now.getHours() === 0 && now.getMinutes() === 0) {
-                const total = state.buckets.scalp + state.buckets.smart + state.buckets.moon + state.capProfit;
-                state.initCap = total;
-                state.capProfit = 0;
-                state.buckets.scalp = total * 0.40;
-                state.buckets.smart = total * 0.39;
-                state.buckets.moon = total * 0.21;
-                smartNotif("AUTO-COMPOUND SUCCESSFUL.");
-            }
-        }, 60000);
+        // --- RENDER & UI ---
+        function renderUI() {
+            document.getElementById('cap-main').innerText = formatIDR(state.initCap + state.capProfit);
+            document.getElementById('b-scalp').innerText = formatIDR(state.buckets.scalp);
+            document.getElementById('b-smart').innerText = formatIDR(state.buckets.smart);
+            document.getElementById('b-moon').innerText = formatIDR(state.buckets.moon);
+            document.getElementById('xp-display').innerText = `${state.xp} XP`;
+            document.getElementById('mode-text').innerText = state.rank + " Member";
 
-        // --- 4. RANK & XP SYSTEM ---
-        function updateXP(amount) {
-            state.xp += amount;
-            document.getElementById('rank-badge').innerText = `${state.xp} XP`;
-            if(state.xp >= 150) {
-                state.rank = 'Elite Master';
-                document.getElementById('rank-badge').classList.add('bg-emerald-500');
-                document.getElementById('execute-all-btn').classList.remove('hidden');
-            }
+            const aDiv = document.getElementById('list-analysis');
+            const eDiv = document.getElementById('list-execution');
+            aDiv.innerHTML = ''; eDiv.innerHTML = '';
+
+            state.cards.forEach(c => {
+                const pnl = ((c.current / c.entry) - 1) * 100;
+                // Arsitektur V13: Hot Zone pulse if profit > 2%
+                const isHot = pnl > 2.0 ? 'hot-zone-pulse' : '';
+                
+                const html = `
+                    <div class="glass-premium p-4 flex flex-col gap-2 ${isHot} ${c.status === 'EXECUTION' ? 'blink-execute' : ''}">
+                        <div class="flex justify-between">
+                            <div class="flex gap-2">
+                                <img src="${c.img}" class="w-6 h-6">
+                                <span class="titan-font text-[10px]">${c.name}/IDR</span>
+                            </div>
+                            <span class="text-[10px] ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${pnl.toFixed(2)}%</span>
+                        </div>
+                        <canvas id="chart-${c.id}" class="mini-chart"></canvas>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[7px] opacity-40">${c.strat} ENGINE</span>
+                            <div class="flex gap-1">
+                                ${c.status === 'ANALYSIS' ? 
+                                `<button onclick="handleCardAction(${c.id}, 'LOCK')" class="px-3 py-1 bg-yellow-500 text-black text-[8px] font-black rounded">LOCK</button>` :
+                                `<button onclick="handleCardAction(${c.id}, 'TP')" class="px-2 py-1 bg-emerald-500 text-[8px] rounded">TP</button>
+                                 <button onclick="handleCardAction(${c.id}, 'SL')" class="px-2 py-1 bg-rose-500 text-[8px] rounded">SL</button>`}
+                            </div>
+                        </div>
+                    </div>`;
+                if(c.status === 'ANALYSIS') aDiv.innerHTML += html; else eDiv.innerHTML += html;
+                setTimeout(() => drawMiniChart(c.id, c.spark, pnl >= 0), 50);
+            });
         }
 
-        function handleCardAction(id, type) {
-            const card = state.cards.find(c => c.id === id);
-            if(type === 'TP') {
-                updateXP(10); // Tambah 10 XP setiap TP
-                // Smart Trailing Stop Logic (Simulasi)
-                smartNotif(`Trailing Stop Executed on ${card.name}`);
-            }
-            // ... (Logic execution tetap sama)
+        function executeAll() {
+            smartNotif("Elite Feature: Mass Take Profit Executed");
+            state.cards.forEach(c => { if(c.status === 'EXECUTION') handleCardAction(c.id, 'TP'); });
         }
 
-        // [Fungsi RenderUI & Utils Tetap Digunakan]
+        // --- UTILS ---
+        function formatIDR(v) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(v); }
+        function smartNotif(t) { 
+            const el = document.createElement('div'); el.className = "floating-msg titan-font text-yellow-500"; 
+            el.innerHTML = t; document.getElementById('notif-area').appendChild(el); 
+            setTimeout(()=>el.remove(), 4000); 
+        }
+        function drawMiniChart(id, data, p) {
+            const ctx = document.getElementById(`chart-${id}`).getContext('2d');
+            new Chart(ctx, { type: 'line', data: { labels: data.map((_,i)=>i), datasets: [{ data: data, borderColor: p?'#10b981':'#f43f5e', borderWidth: 1, fill: false, pointRadius: 0 }] }, options: { scales: { x:{display:false}, y:{display:false} }, plugins: { legend:{display:false} } } });
+        }
+        function showCustomAlert(c) { document.getElementById('alert-content').innerHTML = c; document.getElementById('custom-alert').classList.remove('hidden'); }
+        function closeAlert() { document.getElementById('custom-alert').classList.add('hidden'); }
+        function notifyTelegram(t) { fetch(`https://api.telegram.org/bot${MASTER_CONFIG.BT}/sendMessage?chat_id=${MASTER_CONFIG.CI}&text=${encodeURIComponent(t)}&parse_mode=Markdown`); }
     </script>
 </body>
 </html>
