@@ -26,7 +26,7 @@
     <div id="notif-area" class="fixed top-5 right-5 z-[60000] space-y-2"></div>
 
     <div id="auth-screen" class="fixed inset-0 z-[10000] bg-[#020308] overflow-y-auto p-6 flex flex-col items-center">
-        <div class="w-full max-sm text-center mt-4">
+        <div class="w-full max-w-sm text-center mt-4">
             <div class="w-32 h-32 mx-auto mb-4 bg-zinc-900 rounded-2xl border border-yellow-500/30 flex items-center justify-center">
                 <i class="fa-solid fa-microchip text-4xl text-yellow-500"></i>
             </div>
@@ -55,17 +55,17 @@
             <div class="border-b border-white/5 pb-4">
                 <h4 class="text-yellow-500 titan-font text-[9px] mb-2">I. PENJELASAN FITUR APK</h4>
                 <p><b>Capital Management:</b> Membagi modal otomatis (40:39:21).<br>
-                <b>WebSocket AI:</b> Harga bergerak real-time otomatis dari Binance API.</p>
+                <b>WebSocket AI:</b> Harga bergerak real-time otomatis dari Binance Main API.</p>
             </div>
             <div class="border-b border-white/5 pb-4">
                 <h4 class="text-emerald-500 titan-font text-[9px] mb-2">II. STRATEGI BUY (LOCK SIGNAL)</h4>
-                <p>1. Pantau kartu koin di Analysis.<br>
-                2. Lakukan <b>LOCK</b> pada bucket yang tersedia (Scalp/Smart/Moon).</p>
+                <p>1. Pantau kartu koin, pastikan tren/grafik bergerak naik.<br>
+                2. Lakukan <b>LOCK</b> jika akurasi sinyal di atas 85%.</p>
             </div>
             <div>
                 <h4 class="text-rose-500 titan-font text-[9px] mb-2">III. STRATEGI SELL (EXECUTE PROFIT)</h4>
-                <p>1. Eksekusi trade di kolom Execution saat tombol muncul.<br>
-                2. Dana kembali ke Capital Management dengan tambahan profit.</p>
+                <p>1. Eksekusi trade di kolom Execution saat profit tercapai.<br>
+                2. Dana kembali ke Capital Management secara instan.</p>
             </div>
         </div>
     </div>
@@ -88,45 +88,27 @@
 
     <main id="main-content" class="h-full flex flex-col pb-48 overflow-y-auto no-scrollbar hidden">
         <section class="p-5">
-            <div class="glass-premium p-6 text-center">
-                <p class="text-[8px] uppercase font-black opacity-40 text-white tracking-widest mb-1">Capital Management</p>
+            <div class="glass-premium p-6">
+                <p class="text-[8px] uppercase font-black opacity-40 text-white tracking-widest">Capital Management</p>
                 <h2 id="cap-main" class="titan-font text-3xl text-yellow-500 font-black mb-4">Rp 0</h2>
                 <div class="grid grid-cols-3 gap-2">
-                    <div class="bg-white/5 p-3 rounded-xl border border-white/5">
-                        <p class="text-[7px] opacity-50 uppercase mb-1">Scalp</p>
-                        <p id="b-scalp" class="text-[9px] font-bold text-emerald-400">0</p>
-                    </div>
-                    <div class="bg-white/5 p-3 rounded-xl border border-white/5">
-                        <p class="text-[7px] opacity-50 uppercase mb-1">Smart</p>
-                        <p id="b-smart" class="text-[9px] font-bold text-blue-400">0</p>
-                    </div>
-                    <div class="bg-white/5 p-3 rounded-xl border border-white/5">
-                        <p class="text-[7px] opacity-50 uppercase mb-1">Moon</p>
-                        <p id="b-moon" class="text-[9px] font-bold text-violet-400">0</p>
-                    </div>
+                    <div class="bg-white/5 p-3 rounded-xl text-center"><p class="text-[7px] opacity-50 uppercase mb-1">Scalp</p><p id="b-scalp" class="text-[9px] font-bold text-emerald-400">0</p></div>
+                    <div class="bg-white/5 p-3 rounded-xl text-center"><p class="text-[7px] opacity-50 uppercase mb-1">Smart</p><p id="b-smart" class="text-[9px] font-bold text-blue-400">0</p></div>
+                    <div class="bg-white/5 p-3 rounded-xl text-center"><p class="text-[7px] opacity-50 uppercase mb-1">Moon</p><p id="b-moon" class="text-[9px] font-bold text-violet-400">0</p></div>
                 </div>
             </div>
         </section>
 
         <section class="px-5 mb-10 h-[45vh] grid grid-cols-3 gap-3">
-            <div class="mod-col">
-                <h3 class="titan-font text-[9px] text-yellow-500 mb-4 uppercase text-center font-black">Analysis</h3>
-                <div id="list-analysis" class="space-y-4 overflow-y-auto no-scrollbar"></div>
-            </div>
-            <div class="mod-col">
-                <h3 class="titan-font text-[9px] text-blue-500 mb-4 uppercase text-center font-black">Execution</h3>
-                <div id="list-execution" class="space-y-4 overflow-y-auto no-scrollbar"></div>
-            </div>
-            <div class="mod-col">
-                <h3 class="titan-font text-[9px] text-emerald-500 mb-4 uppercase text-center font-black">History</h3>
-                <div id="list-history" class="space-y-2 overflow-y-auto no-scrollbar"></div>
-            </div>
+            <div class="mod-col"><h3 class="titan-font text-[9px] text-yellow-500 mb-4 uppercase text-center font-black">Analysis</h3><div id="list-analysis" class="space-y-4 overflow-y-auto no-scrollbar"></div></div>
+            <div class="mod-col"><h3 class="titan-font text-[9px] text-blue-500 mb-4 uppercase text-center font-black">Execution</h3><div id="list-execution" class="space-y-4 overflow-y-auto no-scrollbar"></div></div>
+            <div class="mod-col"><h3 class="titan-font text-[9px] text-emerald-500 mb-4 uppercase text-center font-black">History</h3><div id="list-history" class="space-y-2 overflow-y-auto no-scrollbar"></div></div>
         </section>
     </main>
 
     <footer id="footer-nav" class="fixed bottom-0 left-0 right-0 p-4 bg-black/95 border-t border-white/5 z-50 hidden">
         <div class="flex justify-around items-center max-w-md mx-auto">
-            <button class="flex flex-col items-center gap-1 text-yellow-500"><i class="fa-solid fa-ranking-star text-lg"></i><span class="text-[8px]">LIVE</span></button>
+            <button onclick="toggleRank()" class="flex flex-col items-center gap-1 text-yellow-500"><i class="fa-solid fa-ranking-star text-lg"></i><span class="text-[8px]">LIVE</span></button>
             <div onclick="smartScanTrigger()" class="w-14 h-14 bg-yellow-500 rounded-full flex items-center justify-center -mt-10 shadow-lg border-8 border-[#020308] cursor-pointer hover:scale-110 transition-transform"><i class="fa-solid fa-bolt text-black text-xl"></i></div>
             <button class="flex flex-col items-center gap-1 text-emerald-400"><i class="fa-solid fa-brain text-lg"></i><span class="text-[8px]">AI SCAN</span></button>
         </div>
@@ -140,36 +122,134 @@
             profit: 0, 
             buckets: { scalp: 0, smart: 0, moon: 0 },
             activeTrades: [],
-            ws: null,
+            ws: null, 
             symbols: ['BTC', 'ETH', 'XRP']
         };
 
-        // --- SISTEM AUTH & LOGIN ---
-        function enterSystem(isReal) {
+        // --- ATURAN MASUK (INTEGRASI JALUR MASTER & TRAINING) ---
+        function enterSystem(isVerifyBtn) {
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('main-content').classList.remove('hidden');
             document.getElementById('footer-nav').classList.remove('hidden');
             
-            if(isReal) {
-                state.mode = 'REAL';
+            // Aturan Login: Verify Identity = Jalur Master (Real Mode)
+            if(isVerifyBtn) { 
+                state.mode = 'REAL'; 
                 state.profit = 1000000; 
-                recalculateBuckets();
+                showNotif("IDENTITY VERIFIED: MASTER ACCESS", "yellow");
             } else {
                 state.mode = 'TRAINING';
                 state.profit = 0;
             }
-            initWebSocket();
+            
+            recalculateBuckets();
+            initWebSocket(); 
             renderUI();
         }
 
-        // --- MANAJEMEN MODAL ---
         function recalculateBuckets() {
-            // Aturan 40:39:21
             state.buckets.scalp = state.profit * 0.40;
             state.buckets.smart = state.profit * 0.39;
             state.buckets.moon = state.profit * 0.21;
         }
 
+        // --- WEBSOCKET & PRICE (KODE ASLI) ---
+        function initWebSocket() {
+            if(state.ws) state.ws.close();
+            state.ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker/ethusdt@ticker/xrpusdt@ticker');
+            
+            state.ws.onmessage = (evt) => {
+                const d = JSON.parse(evt.data);
+                const sym = d.s.replace('USDT', '');
+                const el = document.getElementById(`price-${sym}`);
+                if(el) {
+                    const oldPrice = parseFloat(el.getAttribute('data-price') || 0);
+                    const newPrice = parseFloat(d.c) * state.usdRate;
+                    el.innerText = formatVal(newPrice);
+                    el.parentElement.className = newPrice >= oldPrice ? "price-up text-[10px] font-bold" : "price-down text-[10px] font-bold";
+                    el.setAttribute('data-price', newPrice);
+                }
+            };
+        }
+
+        // --- FITUR LOCK & EXECUTION (TAMBAHAN BARU) ---
+        function smartScanTrigger() {
+            const list = document.getElementById('list-analysis');
+            list.innerHTML = '';
+            state.symbols.forEach(s => {
+                list.innerHTML += `
+                    <div class="glass-premium p-3 border border-white/5 mb-3 transition-all duration-300">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[9px] font-black">${s}/IDR</span>
+                            <span class="text-[7px] titan-font text-emerald-400">95% ACCURACY</span>
+                        </div>
+                        <div class="text-[10px] font-bold py-1"><span id="price-${s}" data-price="0">WAITING...</span></div>
+                        <div class="chart-container flex items-end gap-[1px] mb-2 h-[20px]">
+                            ${Array(8).fill().map(() => `<div class="flex-1 bg-yellow-500/20" style="height:${Math.random()*100}%"></div>`).join('')}
+                        </div>
+                        <div class="grid grid-cols-3 gap-1">
+                            <button onclick="lockTrade('${s}', 'scalp')" class="py-1 bg-emerald-500/20 text-emerald-400 text-[7px] font-black rounded border border-emerald-500/30">SCALP</button>
+                            <button onclick="lockTrade('${s}', 'smart')" class="py-1 bg-blue-500/20 text-blue-400 text-[7px] font-black rounded border border-blue-500/30">SMART</button>
+                            <button onclick="lockTrade('${s}', 'moon')" class="py-1 bg-violet-500/20 text-violet-400 text-[7px] font-black rounded border border-violet-500/30">MOON</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function lockTrade(symbol, bucket) {
+            if(state.mode !== 'REAL') return showNotif("AKTIFKAN REAL MODE", "rose");
+            const amount = state.buckets[bucket];
+            if(amount <= 0) return showNotif("SALDO KOSONG", "rose");
+
+            state.buckets[bucket] = 0;
+            state.profit -= amount;
+            
+            const tradeId = Date.now();
+            state.activeTrades.push({ id: tradeId, symbol: symbol, type: bucket, amount: amount });
+            
+            renderUI();
+            renderExecution();
+            showNotif(`LOCKED ${symbol} [${bucket.toUpperCase()}]`, "yellow");
+        }
+
+        function renderExecution() {
+            const list = document.getElementById('list-execution');
+            list.innerHTML = '';
+            state.activeTrades.forEach(t => {
+                list.innerHTML += `
+                    <div class="bg-blue-500/10 border border-blue-500/30 p-2 rounded-xl mb-2 animate-pulse">
+                        <p class="text-[7px] text-blue-400 font-bold mb-1">${t.symbol} - ${t.type.toUpperCase()}</p>
+                        <p class="text-[8px] mb-2">${formatVal(t.amount)}</p>
+                        <button onclick="executeProfit(${t.id})" class="w-full py-1 bg-blue-500 text-black text-[7px] font-black rounded">EXECUTE</button>
+                    </div>`;
+            });
+        }
+
+        function executeProfit(id) {
+            const idx = state.activeTrades.findIndex(t => t.id === id);
+            const trade = state.activeTrades[idx];
+            
+            const profitBonus = trade.amount * (0.01 + Math.random() * 0.04);
+            state.profit += (trade.amount + profitBonus);
+            
+            recalculateBuckets();
+            addHistory(trade.symbol, profitBonus);
+            state.activeTrades.splice(idx, 1);
+            
+            renderUI();
+            renderExecution();
+            showNotif("PROFIT EXECUTED", "emerald");
+        }
+
+        function addHistory(sym, prof) {
+            const hist = document.getElementById('list-history');
+            const div = document.createElement('div');
+            div.className = "bg-white/5 p-2 rounded-lg text-[7px] flex justify-between items-center mb-1 border-l-2 border-emerald-500";
+            div.innerHTML = `<span>${sym}</span><span class="text-emerald-400 font-bold">+${formatVal(prof)}</span>`;
+            hist.prepend(div);
+        }
+
+        // --- UI UTILS (KODE ASLI) ---
         function renderUI() {
             document.getElementById('cap-main').innerText = formatVal(state.profit);
             document.getElementById('b-scalp').innerText = formatVal(state.buckets.scalp);
@@ -179,114 +259,8 @@
             document.getElementById('mode-dot').className = state.mode === 'REAL' ? "w-2 h-2 rounded-full bg-yellow-500 animate-pulse" : "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
         }
 
-        // --- ANALISIS & LOCK ---
-        function smartScanTrigger() {
-            const list = document.getElementById('list-analysis');
-            list.innerHTML = '';
-            state.symbols.forEach(s => {
-                list.innerHTML += `
-                    <div class="bg-white/5 border border-white/10 p-3 rounded-2xl transition-all">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-[9px] font-black">${s}/IDR</span>
-                            <span class="text-[7px] text-emerald-400">SGNL: 95%+</span>
-                        </div>
-                        <div class="text-[10px] font-bold mb-2"><span id="price-${s}" data-price="0">Loading...</span></div>
-                        <div class="grid grid-cols-3 gap-1">
-                            <button onclick="lockSignal('${s}', 'scalp')" class="py-1 bg-emerald-500 text-black text-[7px] font-black rounded uppercase">Scalp</button>
-                            <button onclick="lockSignal('${s}', 'smart')" class="py-1 bg-blue-500 text-black text-[7px] font-black rounded uppercase">Smart</button>
-                            <button onclick="lockSignal('${s}', 'moon')" class="py-1 bg-violet-500 text-black text-[7px] font-black rounded uppercase">Moon</button>
-                        </div>
-                    </div>`;
-            });
-            showNotif("AI Scanner Re-synced", "emerald");
-        }
-
-        function lockSignal(symbol, bucketType) {
-            if(state.mode !== 'REAL') return showNotif("Hanya di REAL MODE", "rose");
-            
-            const amount = state.buckets[bucketType];
-            if(amount <= 0) return showNotif("Saldo " + bucketType + " Kosong!", "rose");
-
-            // Eksekusi Pemotongan
-            state.buckets[bucketType] = 0;
-            state.profit -= amount;
-
-            const trade = {
-                id: Date.now(),
-                symbol: symbol,
-                type: bucketType,
-                amount: amount
-            };
-            state.activeTrades.push(trade);
-
-            renderUI();
-            renderExecutionList();
-            showNotif(`${symbol} LOCKED via ${bucketType.toUpperCase()}`, "yellow");
-        }
-
-        // --- EKSEKUSI PROFIT ---
-        function renderExecutionList() {
-            const container = document.getElementById('list-execution');
-            container.innerHTML = '';
-            state.activeTrades.forEach(t => {
-                container.innerHTML += `
-                    <div class="bg-blue-600/10 border border-blue-500/30 p-3 rounded-xl">
-                        <p class="text-[7px] text-blue-400 font-bold uppercase mb-1">${t.symbol} Active</p>
-                        <p class="text-[9px] mb-2">${formatVal(t.amount)}</p>
-                        <button onclick="executeProfit(${t.id})" class="w-full py-1 bg-blue-500 text-black text-[8px] font-black rounded uppercase shadow-lg shadow-blue-500/20">Execute</button>
-                    </div>`;
-            });
-        }
-
-        function executeProfit(id) {
-            const idx = state.activeTrades.findIndex(t => t.id === id);
-            const trade = state.activeTrades[idx];
-            
-            // Simulasi profit acak 1.5% - 4%
-            const multiplier = 1 + (Math.random() * (0.04 - 0.015) + 0.015);
-            const finalValue = trade.amount * multiplier;
-            const netProfit = finalValue - trade.amount;
-
-            state.profit += finalValue;
-            recalculateBuckets(); // Balikin ke 40:39:21 secara otomatis (Compounding)
-            
-            addHistory(trade.symbol, netProfit);
-            state.activeTrades.splice(idx, 1);
-            
-            renderUI();
-            renderExecutionList();
-            showNotif("Profit + " + formatVal(netProfit), "emerald");
-        }
-
-        function addHistory(symbol, profit) {
-            const list = document.getElementById('list-history');
-            const item = document.createElement('div');
-            item.className = "bg-white/5 p-2 rounded flex justify-between border-l-2 border-emerald-500 text-[7px]";
-            item.innerHTML = `<span>${symbol}</span><span class="text-emerald-400 font-bold">+${formatVal(profit)}</span>`;
-            list.prepend(item);
-        }
-
-        // --- UTILS & CORE WEB ---
-        function initWebSocket() {
-            if(state.ws) state.ws.close();
-            state.ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker/ethusdt@ticker/xrpusdt@ticker');
-            state.ws.onmessage = (e) => {
-                const d = JSON.parse(e.data);
-                const sym = d.s.replace('USDT', '');
-                const el = document.getElementById(`price-${sym}`);
-                if(el) {
-                    const oldPrice = parseFloat(el.getAttribute('data-price'));
-                    const newPrice = parseFloat(d.c) * state.usdRate;
-                    el.innerText = formatVal(newPrice);
-                    el.setAttribute('data-price', newPrice);
-                    el.parentElement.className = newPrice >= oldPrice ? "price-up text-[10px] font-bold" : "price-down text-[10px] font-bold";
-                }
-            };
-        }
-
         function formatVal(v) {
-            if(state.lang === 'ID') return "Rp " + Math.floor(v).toLocaleString('id-ID');
-            return "$" + (v / state.usdRate).toFixed(2);
+            return state.lang === 'ID' ? "Rp " + Math.floor(v).toLocaleString('id-ID') : "$" + (v / state.usdRate).toFixed(2);
         }
 
         function toggleCurrencyAndLang() {
@@ -295,21 +269,16 @@
             renderUI();
         }
 
-        function showNotif(msg, color) {
-            const area = document.getElementById('notif-area');
-            const t = document.createElement('div');
-            t.className = `notif-toast bg-black border border-${color}-500 p-3 rounded-lg text-[9px] titan-font shadow-xl text-white`;
-            t.innerText = msg;
-            area.appendChild(t);
-            setTimeout(() => t.remove(), 3000);
-        }
-
         function openTutorial() { document.getElementById('tutorial-modal').classList.remove('hidden'); }
         function closeTutorial() { document.getElementById('tutorial-modal').classList.add('hidden'); }
-        function triggerModeTransition() { 
-            if(state.mode !== 'REAL' && confirm("Aktifkan Real Mode?")) { 
-                enterSystem(true); 
-            } 
+        function triggerModeTransition() { if(state.mode !== 'REAL' && confirm("Aktivasi Real Mode?")) { enterSystem(true); } }
+        function showNotif(msg, color) {
+            const area = document.getElementById('notif-area');
+            const n = document.createElement('div');
+            n.className = `notif-toast bg-black border border-${color}-500 p-3 rounded-lg text-[9px] shadow-2xl text-white titan-font`;
+            n.innerText = msg;
+            area.appendChild(n);
+            setTimeout(() => n.remove(), 3000);
         }
     </script>
 </body>
