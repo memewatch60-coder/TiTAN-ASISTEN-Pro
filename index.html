@@ -15,7 +15,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;500;700;900&display=swap');
         :root { --gold: #ffd700; --emerald: #10b981; --rose: #f43f5e; --violet: #8b5cf6; --glass: rgba(10, 10, 18, 0.95); }
         
-        * { font-family: 'Space Grotesk', sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { font-family: 'Space Grotesk', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
         body { background: #010204; color: #e2e8f0; overflow: hidden; height: 100vh; margin: 0; }
         .titan-font { font-family: 'Orbitron', sans-serif; }
         
@@ -23,21 +23,28 @@
         .m-grad { background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* Hot Zone & Animations */
-        .hot-zone { border: 2px solid var(--rose) !important; background: rgba(244, 63, 94, 0.1) !important; animation: pulse 1s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+        .titan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; height: calc(100vh - 420px); padding: 0 1.5rem; }
+        .column-box { background: rgba(255, 255, 255, 0.02); border-radius: 2rem; padding: 1.2rem; border: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; overflow: hidden; }
+        .column-content { flex: 1; overflow-y: auto; padding-right: 5px; }
+        .column-header { text-align: center; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(255, 215, 0, 0.1); margin-bottom: 0.8rem; letter-spacing: 0.2em; font-weight: 900; font-size: 8px; }
+
+        .hot-zone { border: 2px solid var(--rose) !important; background: rgba(244, 63, 94, 0.15) !important; animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red { 0%, 100% { box-shadow: 0 0 5px var(--rose); } 50% { box-shadow: 0 0 25px var(--rose); transform: scale(1.01); } }
         
         .floating-msg { position: fixed; top: 110px; right: 20px; z-index: 9999; background: rgba(0,0,0,0.9); padding: 12px 18px; border-radius: 12px; border: 1px solid var(--gold); font-size: 10px; animation: slideIn 0.3s forwards; }
         @keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
 
-        /* Biometric Scan Overlay */
         #f-scan { position: fixed; inset: 0; background: #000; z-index: 10000; display: none; flex-direction: column; align-items: center; justify-content: center; }
         .v-box { width: 280px; height: 280px; border: 4px solid var(--violet); border-radius: 50%; overflow: hidden; position: relative; box-shadow: 0 0 50px var(--violet); }
-        .v-line { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--violet); animation: scan 2s infinite linear; }
+        .v-line { position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--violet); box-shadow: 0 0 15px var(--violet); animation: scan 2s infinite linear; }
         @keyframes scan { from { top: 0; } to { top: 100%; } }
         
-        canvas.mini-chart { height: 60px !important; width: 100% !important; margin: 10px 0; }
-        .elite-glow { text-shadow: 0 0 15px var(--gold); color: var(--gold); }
+        .pro-modal { position: fixed; inset: 0; z-index: 50000; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); display: none; align-items: center; justify-content: center; }
+        .pro-modal-content { width: 100%; max-width: 350px; padding: 2.5rem; border: 1px solid rgba(255,255,255,0.1); }
+        canvas.mini-chart { height: 45px !important; width: 100% !important; margin: 5px 0; }
+        .main-analytics { height: 100px !important; width: 100% !important; }
+        .eye-active { animation: eye-flicker 2s infinite; color: #ffd700; }
+        @keyframes eye-flicker { 0%, 100% { opacity: 1; text-shadow: 0 0 10px gold; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body onmousedown="rAct()" ontouchstart="rAct()">
@@ -47,36 +54,34 @@
 
     <div id="notif-area"></div>
 
-    <div id="breach" class="hidden fixed inset-0 bg-black text-red-600 z-[99999] flex flex-col items-center justify-center p-10 text-center">
-        <i class="fa-solid fa-triangle-exclamation text-9xl mb-10 animate-ping"></i>
-        <h1 class="titan-font text-4xl mb-4 italic">SECURITY BREACH</h1>
-        <p class="font-bold uppercase tracking-widest">Akses Ilegal Terdeteksi. Perangkat Diblokir.</p>
+    <div id="modal-box" class="pro-modal" onclick="closeModal(event)">
+        <div class="pro-modal-content glass-premium text-center" onclick="event.stopPropagation()">
+            <div id="modal-icon" class="mb-6"></div>
+            <h3 id="modal-title" class="titan-font text-xl mb-4 text-white uppercase tracking-tighter"></h3>
+            <div id="modal-body" class="text-[11px] leading-relaxed opacity-70 mb-8 text-left space-y-3"></div>
+            <button onclick="hideModal()" class="w-full py-4 m-grad rounded-2xl font-black text-[10px] uppercase shadow-xl">Konfirmasi</button>
+        </div>
     </div>
 
-    <div id="quota-screen" class="hidden fixed inset-0 z-[60000] bg-black/95 flex items-center justify-center p-8 backdrop-blur-3xl">
-        <div class="w-full max-w-sm glass-premium p-10 border-rose-500/30 text-center">
-            <i class="fa-solid fa-users-slash text-7xl text-rose-500 mb-6"></i>
-            <h2 class="titan-font text-2xl text-white mb-4 uppercase">Kuota Penuh!</h2>
-            <p class="text-[10px] opacity-60 mb-10 uppercase tracking-widest">100 Member Gratis Terpenuhi. Gunakan Link Reff Master Marsel untuk Akses Batch 2.</p>
-            <div class="space-y-4">
-                <button onclick="window.open('https://indodax.onelink.me/qyYY/referral?deep_link_value=page:register,id:marselsalmon')" class="w-full py-5 m-grad rounded-3xl font-black text-[10px] uppercase">Daftar Link Master</button>
-                <button onclick="confirmAff()" class="w-full py-5 bg-white/5 border border-white/10 rounded-3xl font-black text-[10px] uppercase">Konfirmasi Verifikasi</button>
-            </div>
-        </div>
+    <div id="breach" class="hidden fixed inset-0 bg-black text-red-600 z-[99999] flex flex-col items-center justify-center p-10 text-center">
+        <i class="fa-solid fa-triangle-exclamation text-9xl mb-10 animate-ping"></i>
+        <h1 class="titan-font text-4xl mb-4 italic text-white">SYSTEM BREACH</h1>
+        <p class="font-bold uppercase tracking-widest text-red-500">Illegal Access Detected. Device Blocked.</p>
     </div>
 
     <div id="f-scan">
         <div class="v-box"><video id="v-cam" class="w-full h-full object-cover grayscale" autoplay playsinline></video><div class="v-line"></div></div>
-        <h3 class="titan-font text-white mt-10 uppercase text-sm animate-pulse">Biometric Identity Sync...</h3>
+        <h3 class="titan-font text-white mt-10 uppercase text-xs animate-pulse tracking-widest">Biometric Identity Sync...</h3>
     </div>
 
-    <div id="auth-screen" class="fixed inset-0 z-[5000] bg-[#010204] flex items-center justify-center p-8">
-        <div class="w-full max-w-sm glass-premium p-10 shadow-2xl">
-            <div class="text-center mb-10"><i class="fa-solid fa-crown text-6xl text-yellow-500 mb-4"></i><h2 class="titan-font text-3xl text-white">TITAN <span class="text-yellow-500">V13</span></h2></div>
+    <div id="auth-screen" class="fixed inset-0 z-[5000] bg-[#010204] flex items-center justify-center p-8 text-center">
+        <div class="w-full max-w-sm glass-premium p-10 shadow-2xl border-white/5">
+            <i class="fa-solid fa-eye text-6xl text-yellow-500 mb-4 eye-active"></i>
+            <h2 class="titan-font text-3xl text-white mb-10">TITAN <span class="text-yellow-500">V13</span></h2>
             <div class="space-y-4">
-                <input type="tel" id="u-phone" placeholder="Nomor HP Telegram" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-white font-bold outline-none focus:border-yellow-500">
-                <input type="password" id="u-pass" placeholder="Password" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-white font-bold outline-none focus:border-yellow-500">
-                <button onclick="doLgn()" class="w-full py-6 m-grad rounded-3xl titan-font text-xs uppercase text-white shadow-2xl active:scale-95">Initialize Authority</button>
+                <input type="tel" id="u-phone" placeholder="TELEGRAM PHONE" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-white font-bold text-xs outline-none focus:border-yellow-500">
+                <input type="password" id="u-pass" placeholder="ACCESS KEY" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-white font-bold text-xs outline-none focus:border-yellow-500">
+                <button onclick="doLgn()" class="w-full py-6 m-grad rounded-3xl titan-font text-[10px] uppercase text-white shadow-2xl active:scale-95">Initialize Authority</button>
             </div>
         </div>
     </div>
@@ -91,355 +96,315 @@
                 </div>
             </div>
             <div class="flex gap-2">
-                <button onclick="showGuide()" class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-yellow-500"><i class="fa-solid fa-book-open"></i></button>
-                <button onclick="lOut()" class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500"><i class="fa-solid fa-power-off"></i></button>
+                <div id="btc-guard" class="px-3 py-2 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2">
+                    <i class="fa-brands fa-bitcoin text-orange-500"></i>
+                    <span id="btc-status" class="text-[8px] font-bold text-white uppercase">Syncing...</span>
+                </div>
+                <button onclick="showGuide()" class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-yellow-500 active:scale-90"><i class="fa-solid fa-book-open"></i></button>
+                <button onclick="lOut()" class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 active:scale-90"><i class="fa-solid fa-power-off"></i></button>
             </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto p-6 no-scrollbar">
-            <div class="glass-premium p-8 mb-8 border-yellow-500/10">
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-white/5 p-5 rounded-3xl border border-white/5">
-                        <p class="text-[8px] opacity-40 uppercase font-black mb-1">Capital (IDR)</p>
-                        <input type="number" id="base-input" onchange="uMdl()" class="bg-transparent text-lg titan-font font-black w-full text-yellow-500 outline-none" value="1000000">
+        <main class="flex-1 overflow-y-auto pt-4 no-scrollbar">
+            <div class="px-6 mb-4">
+                <div class="glass-premium p-4 border-yellow-500/10 mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="text-[8px] titan-font text-yellow-500 uppercase font-black">Performance Chart</p>
+                        <p id="growth-rate" class="text-[8px] text-emerald-400 font-black">+0.0%</p>
                     </div>
-                    <div class="bg-white/5 p-5 rounded-3xl border border-white/5">
-                        <p class="text-[8px] opacity-40 uppercase font-black mb-1">Total Profit</p>
-                        <p id="v-pl" class="text-lg titan-font font-black text-emerald-400">Rp 0</p>
-                    </div>
-                </div>
-                
-                <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-3">
-                    <div id="g-bar" class="h-full m-grad transition-all duration-1000" style="width:0%"></div>
-                </div>
-                <div class="flex justify-between text-[8px] font-black opacity-40 uppercase">
-                    <span>Auto-Guard: 10% Daily Goal</span>
-                    <span id="g-perc">0%</span>
+                    <canvas id="main-growth-chart" class="main-analytics"></canvas>
                 </div>
 
-                <div class="grid grid-cols-3 gap-2 mt-6">
-                    <div class="text-center p-2 rounded-xl bg-white/5 border border-white/5">
-                        <p class="text-[6px] opacity-50 mb-1 uppercase">Scalp (40%)</p>
-                        <p id="b-scalp" class="text-[9px] font-black text-emerald-400 tracking-tighter">Rp 0</p>
+                <div class="glass-premium p-5 border-yellow-500/10">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="bg-white/5 p-3 rounded-2xl border border-white/5">
+                            <p class="text-[7px] opacity-40 uppercase font-black mb-1">Capital (IDR)</p>
+                            <input type="number" id="base-input" onchange="uMdl()" class="bg-transparent text-sm titan-font font-black w-full text-yellow-500 outline-none" value="1000000">
+                        </div>
+                        <div class="bg-white/5 p-3 rounded-2xl border border-white/5">
+                            <p class="text-[7px] opacity-40 uppercase font-black mb-1">Total Profit</p>
+                            <p id="v-pl" class="text-sm titan-font font-black text-emerald-400">Rp 0</p>
+                        </div>
                     </div>
-                    <div class="text-center p-2 rounded-xl bg-white/5 border border-white/5">
-                        <p class="text-[6px] opacity-50 mb-1 uppercase">Smart (39%)</p>
-                        <p id="b-smart" class="text-[9px] font-black text-blue-400 tracking-tighter">Rp 0</p>
+                    <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden mb-2">
+                        <div id="g-bar" class="h-full m-grad transition-all duration-1000" style="width:0%"></div>
                     </div>
-                    <div class="text-center p-2 rounded-xl bg-white/5 border border-white/5">
-                        <p class="text-[6px] opacity-50 mb-1 uppercase">Moon (21%)</p>
-                        <p id="b-moon" class="text-[9px] font-black text-violet-400 tracking-tighter">Rp 0</p>
-                    </div>
+                    <div class="flex justify-between text-[6px] font-black opacity-40 uppercase"><span>Daily Goal 10%</span><span id="g-perc">0%</span></div>
                 </div>
             </div>
 
-            <div id="nav-grid" class="grid grid-cols-3 gap-2 mb-8 sticky top-0 z-[500] bg-black/90 p-2 rounded-2xl border border-white/5 backdrop-blur-xl">
-                <button onclick="f('active')" id="btn-active" class="py-3 rounded-xl bg-yellow-500 text-[10px] font-black uppercase text-black">Signals</button>
-                <button onclick="f('exec')" id="btn-exec" class="py-3 rounded-xl bg-white/5 text-[10px] font-black uppercase text-white/30">Execute</button>
-                <button onclick="f('hist')" id="btn-hist" class="py-3 rounded-xl bg-white/5 text-[10px] font-black uppercase text-white/30">History</button>
+            <div class="titan-grid">
+                <div class="column-box">
+                    <div class="column-header titan-font text-yellow-500">MATA DEWA</div>
+                    <div id="col-active" class="column-content space-y-4 no-scrollbar"></div>
+                </div>
+                <div class="column-box">
+                    <div class="column-header titan-font text-emerald-400">EXECUTE</div>
+                    <div id="col-exec" class="column-content space-y-4 no-scrollbar"></div>
+                </div>
+                <div class="column-box">
+                    <div class="column-header titan-font text-violet-400">HISTORY</div>
+                    <div id="col-hist" class="column-content space-y-4 no-scrollbar"></div>
+                </div>
             </div>
-
-            <div id="c-cont" class="space-y-5 pb-40"></div>
         </main>
 
-        <nav class="bg-black/95 border-t border-white/5 p-8 flex justify-between items-center fixed bottom-0 left-0 right-0 z-[2000]">
-            <button onclick="exportExcel()" class="text-2xl text-emerald-500 opacity-50"><i class="fa-solid fa-file-excel"></i></button>
-            <div class="flex gap-10 text-center">
-                <div><p class="text-[8px] opacity-40 uppercase font-black">Active</p><p id="c-b" class="text-xl titan-font font-black text-yellow-500">0</p></div>
-                <div><p class="text-[8px] opacity-40 uppercase font-black">Quota</p><p id="q-val" class="text-xl titan-font font-black text-violet-400">0/1100</p></div>
+        <nav class="bg-black/95 border-t border-white/5 p-6 flex justify-between items-center fixed bottom-0 left-0 right-0 z-[2000]">
+            <button onclick="exportExcel()" class="text-xl text-emerald-500 opacity-50"><i class="fa-solid fa-file-excel"></i></button>
+            <div class="flex gap-8 text-center">
+                <div><p class="text-[7px] opacity-40 uppercase font-black">Active</p><p id="c-b" class="text-lg titan-font font-black text-yellow-500">0</p></div>
+                <div><p class="text-[7px] opacity-40 uppercase font-black">Quota</p><p id="q-val" class="text-lg titan-font font-black text-violet-400">0/1100</p></div>
             </div>
-            <button onclick="smartNotif('Cloud Sync Complete')" class="text-2xl text-violet-500 opacity-50"><i class="fa-solid fa-cloud-arrow-up"></i></button>
+            <button onclick="smartNotif('Analytics Synced')" class="text-xl text-yellow-500 eye-active"><i class="fa-solid fa-eye"></i></button>
         </nav>
     </div>
 
-    <div id="p-over" class="fixed inset-0 z-[20000] bg-black/98 hidden flex flex-col items-center justify-center p-10 backdrop-blur-3xl">
-        <div class="glass-premium p-12 text-center w-full max-w-xs border-yellow-500/20">
-            <h3 class="titan-font text-xl text-yellow-500 mb-2 uppercase">Auth Security</h3>
-            <p id="p-tmr" class="text-[10px] text-rose-500 font-black mb-10 uppercase">Momentum: 05:00</p>
-            <input type="password" id="p-in" maxlength="6" placeholder="******" class="bg-white/5 border border-white/10 p-6 rounded-3xl text-center text-4xl titan-font font-black mb-10 w-full text-white outline-none">
-            <button onclick="vPin()" class="w-full py-6 m-grad rounded-3xl font-black text-xs uppercase text-white shadow-xl">Confirm Trade</button>
-            <button onclick="clPin()" class="mt-8 text-[9px] font-black uppercase text-rose-500 opacity-50">Cancel Operation</button>
+    <div id="p-over" class="fixed inset-0 z-[20000] bg-black/98 hidden flex flex-col items-center justify-center p-10 backdrop-blur-3xl text-center">
+        <div class="glass-premium p-10 w-full max-w-xs border-yellow-500/20 shadow-2xl">
+            <h3 class="titan-font text-lg text-yellow-500 mb-2 uppercase">Elite Otoritas</h3>
+            <p id="p-tmr" class="text-[9px] text-rose-500 font-black mb-10 uppercase">Momentum: 05:00</p>
+            <input type="password" id="p-in" maxlength="6" placeholder="******" class="bg-white/5 border border-white/10 p-5 rounded-3xl text-center text-3xl titan-font font-black w-full text-white outline-none">
+            <button onclick="vPin()" class="w-full py-5 m-grad rounded-3xl font-black text-[10px] uppercase text-white shadow-xl active:scale-95">Verify</button>
+            <button onclick="clPin()" class="mt-6 text-[8px] font-black uppercase text-rose-500 opacity-50">Batal</button>
         </div>
     </div>
 
     <script>
-        // --- MASTER CONFIG & INITIAL STATE ---
-        const MASTER_NUM = "081241955337", 
-              BOT_TOKEN = "8295607704:AAFdy_U8bFL-x2Ol90n8f2KDOHXztybcuj4", 
-              GROUP_ID = "-1003254379333",
-              MASTER_KEY = "MahadhareV13Master";
-
-        let att = 0, lAct = Date.now(), curF = 'active', tRem = 300, tInt = null;
-        
-        let state = JSON.parse(localStorage.getItem('t_state')) || {
-            memCount: 0,
-            sigs: {},
-            hist: [],
-            ledg: { p: 0, d: 0, b: 1000000, xp: 0, buckets: { s: 400000, sm: 390000, m: 210000 } }
+        const MASTER_NUM = "081241955337", BOT_TOKEN = "8295607704:AAFdy_U8bFL-x2Ol90n8f2KDOHXztybcuj4", GROUP_ID = "-1003254379333", MASTER_KEY = "MahadhareV13Master";
+        let att = 0, lAct = Date.now(), tRem = 300, tInt = null, ws = null, mainChart = null;
+        let btcSafe = true;
+        let state = JSON.parse(localStorage.getItem('t_state')) || { 
+            memCount: 0, sigs: {}, hist: [], 
+            ledg: { p: 0, d: 0, b: 1000000, xp: 0, buckets: { s: 400000, sm: 390000, m: 210000 } },
+            growth: [0] 
         };
 
-        // --- CORE UTILS ---
         function save() { localStorage.setItem('t_state', JSON.stringify(state)); }
         function rAct() { lAct = Date.now(); }
         function formatIDR(v) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v); }
+        
         function smartNotif(m, u = false) {
             const c = document.getElementById('notif-area'), t = document.createElement('div');
-            t.className = `floating-msg titan-font text-yellow-500`; t.innerHTML = `<i class="fa-solid fa-microchip mr-2"></i> ${m}`;
+            t.className = `floating-msg titan-font text-yellow-500 border-yellow-500/50`; t.innerHTML = `<i class="fa-solid fa-eye mr-2"></i> ${m}`;
             c.appendChild(t); if(u) document.getElementById('s-urgent').play();
             setTimeout(() => t.remove(), 4000);
         }
 
-        // --- AUTH & QUOTA ---
-        async function doLgn() {
-            const ph = document.getElementById('u-phone').value, ps = document.getElementById('u-pass').value;
-            if(ph === MASTER_NUM || ps === MASTER_KEY) return lgnOk(ph);
+        function showModal(title, bodyArr, iconClass = 'fa-eye', iconColor = 'text-yellow-500') {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-icon').innerHTML = `<i class="fa-solid ${iconClass} text-5xl ${iconColor}"></i>`;
+            document.getElementById('modal-body').innerHTML = bodyArr.map(line => `<div class="flex gap-2"><i class="fa-solid fa-caret-right mt-1 text-indigo-500"></i><p>${line}</p></div>`).join('');
+            document.getElementById('modal-box').style.display = 'flex';
+        }
+        function hideModal() { document.getElementById('modal-box').style.display = 'none'; }
+        function closeModal(e) { if(e.target === document.getElementById('modal-box')) hideModal(); }
+
+        function showGuide() { 
+            showModal("LOGIKA MATA DEWA V13", [
+                "ANALYTICS: Grafik pertumbuhan modal harian otomatis.",
+                "VOLUME SPIKE: Deteksi 'Whale' masuk koin meme (>5% vol/h).",
+                "BTC GUARD: Proteksi modal jika Trend Global turun > 2%.",
+                "WS ENGINE: Sinkronisasi harga Binance 0.0s delay.",
+                "ELITE ACCESS: Level Master 150 XP aktif."
+            ]); 
+        }
+
+        // --- DASHBOARD ANALYTICS ---
+        function initMainChart() {
+            const ctx = document.getElementById('main-growth-chart').getContext('2d');
+            const grad = ctx.createLinearGradient(0, 0, 0, 100);
+            grad.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
+            grad.addColorStop(1, 'transparent');
+
+            mainChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: state.growth.map((_, i) => i),
+                    datasets: [{
+                        label: 'Profit %',
+                        data: state.growth,
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        fill: true,
+                        backgroundColor: grad,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { 
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { font: { size: 7 }, color: 'rgba(255,255,255,0.3)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateAnalytics(newD) {
+            state.growth.push(parseFloat(newD.toFixed(2)));
+            if(state.growth.length > 30) state.growth.shift();
+            if(mainChart) {
+                mainChart.data.labels = state.growth.map((_, i) => i);
+                mainChart.data.datasets[0].data = state.growth;
+                mainChart.update();
+            }
+            document.getElementById('growth-rate').innerText = (newD >= 0 ? '+' : '') + newD.toFixed(2) + "%";
+        }
+
+        async function startEngine() {
+            try {
+                const r = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=50&sparkline=true&price_change_percentage=1h`);
+                const data = await r.json();
+                
+                const btc = data.find(x => x.symbol === 'btc');
+                btcSafe = btc.price_change_percentage_1h_in_currency > -2.0;
+                const statusEl = document.getElementById('btc-status');
+                statusEl.innerText = btcSafe ? "Market Safe" : "Market Danger";
+                statusEl.className = btcSafe ? "text-[8px] font-bold text-emerald-400 uppercase" : "text-[8px] font-bold text-rose-500 uppercase";
+
+                const symbols = ['btcidr', 'ethidr', 'dogeidr', 'pepeidr', 'flokiidr', 'shibidr', 'solidr', 'bnbidr'];
+                if(ws) ws.close();
+                ws = new WebSocket(`wss://stream.binance.com:9443/ws/${symbols.join('/')}@ticker`);
+
+                ws.onmessage = (event) => {
+                    const wsData = JSON.parse(event.data);
+                    updateLivePrice(wsData.s.toLowerCase(), parseFloat(wsData.c));
+                };
+
+                proc(data); renColumns(data);
+            } catch(e) { setTimeout(startEngine, 5000); }
+        }
+
+        function proc(data) {
+            if(!btcSafe) return;
+            data.forEach(c => {
+                const prices = c.sparkline_in_7d.price, rsi = calculateRSI(prices.slice(-15)), cp = c.current_price;
+                const volSpike = c.price_change_percentage_1h_in_currency > 5;
+
+                if(!state.sigs[c.id] && rsi < 35 && volSpike) { 
+                    state.sigs[c.id] = { 
+                        id: c.id, sym: c.symbol.toUpperCase(), ent: cp, tp: cp*1.15, max: cp, 
+                        status: 'ANALYSIS', rsi: rsi.toFixed(0), img: c.image, 
+                        spark: prices.slice(-20), spike: true, date: Date.now() 
+                    };
+                    smartNotif(`Target: ${c.symbol.toUpperCase()} Spike!`);
+                }
+            }); save();
+        }
+
+        function updateLivePrice(symbol, price) {
+            Object.keys(state.sigs).forEach(id => {
+                if (state.sigs[id].sym.toLowerCase() + "idr" === symbol) {
+                    const s = state.sigs[id];
+                    s.max = Math.max(s.max || price, price);
+                    if(s.status === 'EXEC' && price <= s.max * 0.985) finSell(id, "SELL (TRAILING)", price);
+                }
+            });
+            requestAnimationFrame(() => uUI());
+        }
+
+        function finSell(id, type, cp) {
+            const s = state.sigs[id], gain = ((cp - s.ent)/s.ent)*100, profitVal = (gain/100) * (state.ledg.b * 0.1);
+            state.ledg.p += profitVal; state.ledg.d = (state.ledg.p / state.ledg.b) * 100; 
+            state.ledg.xp += 15;
+            state.hist.unshift({...s, type, gain, exit: cp, profit: profitVal, finalTime: new Date().toLocaleTimeString()});
+            updateAnalytics(state.ledg.d);
+            document.getElementById('s-ching').play(); 
+            delete state.sigs[id]; save(); uUI();
+        }
+
+        function execAll() {
+            if (state.ledg.xp < 150) return showModal("Akses Terkunci", ["Execute All hanya untuk Master."]);
+            const targets = Object.values(state.sigs).filter(x => x.status === 'ANALYSIS');
+            targets.forEach(s => { state.sigs[s.id].status = 'EXEC'; }); save();
+            window.open("https://indodax.onelink.me/qyYY/referral?deep_link_value=page:register,id:marselsalmon", '_blank');
+        }
+
+        function renColumns(data) {
+            const colActive = document.getElementById('col-active'), colExec = document.getElementById('col-exec'), colHist = document.getElementById('col-hist');
+            colActive.innerHTML = ''; colExec.innerHTML = ''; colHist.innerHTML = '';
             
-            if(state.memCount >= 1100) return alert("Batch 1 Penuh. Gunakan Link Master.");
-            
-            const ud = JSON.parse(localStorage.getItem(`u_${ph}`));
-            if(ud) {
-                if(ud.p === ps) lgnOk(ph);
-                else { att++; if(att >= 3) triggerB(); else smartNotif(`Sisa Percobaan: ${3-att}`, true); }
-            } else {
-                if(state.memCount >= 100) { document.getElementById('quota-screen').classList.remove('hidden'); return; }
-                await startBiometric(ph, ps);
+            const activeSigs = Object.values(state.sigs).filter(x => x.status === 'ANALYSIS');
+            if(activeSigs.length > 0) {
+                const isElite = state.ledg.xp >= 150, btn = document.createElement('button');
+                btn.onclick = execAll; btn.className = `w-full py-2 mb-2 rounded-xl titan-font text-[7px] uppercase text-white ${isElite ? 'm-grad animate-bounce shadow-lg shadow-indigo-500/30' : 'bg-white/10 opacity-40'}`;
+                btn.innerHTML = isElite ? `<i class="fa-solid fa-crown"></i> Execute All` : `<i class="fa-solid fa-lock"></i> Execute All`;
+                colActive.appendChild(btn);
+            }
+            activeSigs.forEach(s => colActive.appendChild(createCard(s, data, 'active')));
+            Object.values(state.sigs).filter(x => x.status === 'EXEC').forEach(s => colExec.appendChild(createCard(s, data, 'exec')));
+            state.hist.slice(0, 5).forEach(s => colHist.appendChild(createCard(s, data, 'hist')));
+            uUI();
+        }
+
+        function createCard(s, data, type) {
+            const live = data.find(x => x.id === s.id), cp = live ? live.current_price : (s.exit || s.ent), pnl = ((cp - s.ent)/s.ent)*100, stake = state.ledg.b * 0.1;
+            const el = document.createElement('div'); el.className = `glass-premium p-3 border-white/5 shadow-lg ${pnl >= 4 ? 'hot-zone' : ''}`;
+            el.innerHTML = `<div class="flex justify-between items-start mb-1"><div class="flex gap-2 items-center"><img src="${s.img}" class="w-5 h-5 rounded-full"><div><p class="titan-font text-[8px] font-black">${s.sym}</p><p class="text-[6px] text-yellow-500 font-bold">Rp ${stake.toLocaleString()}</p></div></div><div class="text-right"><p class="titan-font text-[8px] ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-500'}">${pnl.toFixed(1)}%</p></div></div><canvas id="chart-${type}-${s.id}-${s.finalTime || ''}" class="mini-chart"></canvas>${type === 'active' ? `<button onclick="initLock('${s.id}')" class="w-full py-2 mt-1 rounded-xl titan-font text-[6px] bg-yellow-500 text-black font-black">LOCK</button>` : ''}${type === 'exec' ? `<div class="grid grid-cols-2 gap-1 mt-1"><button onclick="finSell('${s.id}', 'TP', ${cp})" class="py-2 rounded-xl bg-emerald-500 text-black titan-font text-[6px] font-black">TP</button><button onclick="finSell('${s.id}', 'SL', ${cp})" class="py-2 rounded-xl bg-rose-500 text-white titan-font text-[6px] font-black">SL</button></div>` : ''}`;
+            setTimeout(() => { const canv = document.getElementById(`chart-${type}-${s.id}-${s.finalTime || ''}`); if(canv) drawMiniChart(canv, s.spark, pnl >= 0); }, 50);
+            return el;
+        }
+
+        function drawMiniChart(canvas, spark, profit) { new Chart(canvas.getContext('2d'), { type: 'line', data: { labels: spark.map((_,i)=>i), datasets: [{ data: spark, borderColor: profit ? '#10b981' : '#f43f5e', borderWidth: 1.5, tension: 0.4, pointRadius: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } } }); }
+        
+        function calculateRSI(prices) {
+            if (prices.length < 14) return 50;
+            let gains = 0, losses = 0;
+            for (let i = 1; i < 14; i++) { let diff = prices[i] - prices[i-1]; if (diff >= 0) gains += diff; else losses -= diff; }
+            let rs = (gains/14) / (losses/14 || 1); return 100 - (100 / (1 + rs));
+        }
+
+        function initLock(id) { state.sigs[id].status = 'EXEC'; document.getElementById('p-over').classList.remove('hidden'); startTmr(); }
+        function startTmr() { tRem = 300; clearInterval(tInt); tInt = setInterval(() => { tRem--; document.getElementById('p-tmr').innerText = `Momentum: ${Math.floor(tRem/60)}:${(tRem%60).toString().padStart(2,'0')}`; if(tRem <= 0) clPin(); }, 1000); }
+        function vPin() { clPin(); smartNotif("Mata Dewa Otoritas OK"); }
+        function clPin() { clearInterval(tInt); document.getElementById('p-over').classList.add('hidden'); }
+        
+        function uMdl() { state.ledg.b = parseInt(document.getElementById('base-input').value); save(); uUI(); }
+
+        function uUI() {
+            document.getElementById('v-pl').innerText = formatIDR(state.ledg.p); 
+            document.getElementById('g-perc').innerText = Math.floor(state.ledg.d) + "%"; 
+            document.getElementById('g-bar').style.width = Math.min(state.ledg.d * 10, 100) + "%";
+            document.getElementById('q-val').innerText = state.memCount + "/1100"; 
+            document.getElementById('c-b').innerText = Object.values(state.sigs).filter(x => x.status === 'EXEC').length;
+            document.getElementById('b-scalp').innerText = formatIDR(state.ledg.b*0.4); 
+            document.getElementById('b-smart').innerText = formatIDR(state.ledg.b*0.39); 
+            document.getElementById('b-moon').innerText = formatIDR(state.ledg.b*0.21);
+            const rankEl = document.getElementById('rank-badge');
+            if(state.ledg.xp >= 150) { 
+                rankEl.innerText = "ELITE MASTER 🎖️"; 
+                rankEl.className = "text-[8px] font-black uppercase tracking-widest elite-glow animate-pulse";
             }
         }
 
-        async function startBiometric(ph, ps) {
-            const scan = document.getElementById('f-scan'), cam = document.getElementById('v-cam');
-            scan.style.display = 'flex';
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                cam.srcObject = stream;
-                setTimeout(() => {
-                    state.memCount++;
-                    localStorage.setItem(`u_${ph}`, JSON.stringify({p:ps, xp:0}));
-                    stream.getTracks().forEach(t => t.stop());
-                    scan.style.display = 'none';
-                    lgnOk(ph);
-                }, 4000);
-            } catch(e) { smartNotif("Kamera Diperlukan untuk Biometrik", true); scan.style.display='none'; }
+        function lOut() { localStorage.removeItem('t_sess'); location.reload(); }
+        function doLgn() {
+            const ph = document.getElementById('u-phone').value, ps = document.getElementById('u-pass').value;
+            if(ph === MASTER_NUM || ps === MASTER_KEY) return lgnOk(ph);
+            const ud = JSON.parse(localStorage.getItem(`u_${ph}`));
+            if(ud && ud.p === ps) lgnOk(ph); else startBiometric(ph, ps);
         }
-
         function lgnOk(ph) { 
             localStorage.setItem('t_sess', ph); 
             document.getElementById('auth-screen').classList.add('hidden'); 
             document.getElementById('app').classList.remove('hidden'); 
-            uUI(); startEngine(); 
+            uUI(); initMainChart(); startEngine(); 
         }
-
-        // --- TRADING LOGIC (MATA DEWA RSI) ---
-        async function startEngine() {
+        async function startBiometric(ph, ps) {
+            const scan = document.getElementById('f-scan'), cam = document.getElementById('v-cam');
+            scan.style.display = 'flex';
             try {
-                const r = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&per_page=20&sparkline=true`);
-                const data = await r.json();
-                proc(data); ren(data);
-            } catch(e) { console.warn("Mata Dewa Re-connecting..."); }
-            setTimeout(startEngine, 15000);
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true }); cam.srcObject = stream;
+                setTimeout(() => { state.memCount++; localStorage.setItem(`u_${ph}`, JSON.stringify({p:ps, xp:0})); stream.getTracks().forEach(t => t.stop()); scan.style.display = 'none'; lgnOk(ph); }, 4000);
+            } catch(e) { scan.style.display='none'; }
         }
-
-        function calculateRSI(prices) {
-            if (prices.length < 14) return 50;
-            let gains = 0, losses = 0;
-            for (let i = 1; i < 14; i++) {
-                let diff = prices[i] - prices[i-1];
-                if (diff >= 0) gains += diff; else losses -= diff;
-            }
-            let rs = (gains/14) / (losses/14 || 1);
-            return 100 - (100 / (1 + rs));
-        }
-
-        function proc(data) {
-            // Auto-Guard 10% Daily Goal
-            if(state.ledg.d >= 10) {
-                Object.keys(state.sigs).forEach(id => {
-                    if(state.sigs[id].status === 'EXEC') finSell(id, "AUTO-GUARD", state.sigs[id].max);
-                });
-                return;
-            }
-
-            data.forEach(c => {
-                const prices = c.sparkline_in_7d.price;
-                const rsi = calculateRSI(prices.slice(-15));
-                const cp = c.current_price;
-
-                // Auto-Buy Logic: RSI < 30 (Strong Buy)
-                if(!state.sigs[c.id] && rsi < 35) {
-                    state.sigs[c.id] = { 
-                        id: c.id, sym: c.symbol.toUpperCase(), ent: cp, 
-                        tp: cp*1.15, max: cp, status: 'ANALYSIS', rsi: rsi.toFixed(0),
-                        img: c.image, spark: prices.slice(-20), date: Date.now()
-                    };
-                    smartNotif(`Strong Buy: ${c.symbol.toUpperCase()}`);
-                }
-
-                if(state.sigs[c.id]) {
-                    let s = state.sigs[c.id];
-                    s.max = Math.max(s.max, cp);
-                    // Trailing Logic
-                    if(s.status === 'EXEC' && cp <= s.max * 0.985) finSell(c.id, "SELL (TRAILING)", cp);
-                }
-            });
-            save();
-        }
-
-        function finSell(id, type, cp) {
-            const s = state.sigs[id];
-            const gain = ((cp - s.ent)/s.ent)*100;
-            const profitVal = (gain/100) * (state.ledg.b * 0.1);
-            
-            state.ledg.p += profitVal;
-            state.ledg.d = (state.ledg.p / state.ledg.b) * 100;
-            state.ledg.xp += 15;
-            
-            state.hist.unshift({...s, type, gain, exit: cp, profit: profitVal, finalTime: new Date().toLocaleTimeString()});
-            document.getElementById('s-ching').play();
-            delete state.sigs[id]; 
-            save(); uUI();
-        }
-
-        // --- UI RENDERING ---
-        function ren(data) {
-            const c = document.getElementById('c-cont'); c.innerHTML = '';
-            let list = [];
-            
-            if(curF === 'active') list = Object.values(state.sigs).filter(x => x.status === 'ANALYSIS');
-            else if(curF === 'exec') list = Object.values(state.sigs).filter(x => x.status === 'EXEC');
-            else list = state.hist;
-
-            list.forEach(s => {
-                const live = data.find(x => x.id === s.id);
-                const cp = live ? live.current_price : (s.exit || s.ent);
-                const pnl = ((cp - s.ent)/s.ent)*100;
-                const hot = curF !== 'hist' && pnl >= 4;
-
-                const el = document.createElement('div');
-                el.className = `glass-premium p-6 border-white/5 shadow-xl ${hot ? 'hot-zone' : ''}`;
-                el.innerHTML = `
-                <div class="flex justify-between items-start mb-4">
-                    <div class="flex gap-4 items-center">
-                        <img src="${s.img}" class="w-10 h-10 rounded-full border border-white/10">
-                        <div>
-                            <p class="titan-font text-xs font-black">${s.sym}/IDR</p>
-                            <p class="text-[7px] text-yellow-500 font-black uppercase">RSI: ${s.rsi} | AI SCAN</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="titan-font text-sm ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-500'}">${pnl.toFixed(2)}%</p>
-                        <p class="text-[7px] opacity-30 font-black">PnL LIVE</p>
-                    </div>
-                </div>
-                <canvas id="chart-${s.id}" class="mini-chart"></canvas>
-                ${curF === 'active' ? `<button onclick="initLock('${s.id}')" class="w-full py-4 rounded-2xl titan-font text-[9px] uppercase bg-yellow-500 text-black font-black shadow-lg">Lock Position</button>` : ''}
-                ${curF === 'exec' ? `
-                    <div class="grid grid-cols-2 gap-2 mt-2">
-                        <button onclick="finSell('${s.id}', 'TAKE PROFIT', ${cp})" class="py-3 rounded-xl bg-emerald-500 text-black titan-font text-[8px] font-black">TP</button>
-                        <button onclick="finSell('${s.id}', 'STOP LOSS', ${cp})" class="py-3 rounded-xl bg-rose-500 text-white titan-font text-[8px] font-black">SL</button>
-                    </div>` : ''}
-                `;
-                c.appendChild(el);
-                drawMiniChart(s.id, s.spark, pnl >= 0);
-            });
-            uUI();
-        }
-
-        function drawMiniChart(id, spark, profit) {
-            const ctx = document.getElementById(`chart-${id}`).getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: { labels: spark.map((_,i)=>i), datasets: [{ data: spark, borderColor: profit ? '#10b981' : '#f43f5e', borderWidth: 2, tension: 0.4, pointRadius: 0 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
-            });
-        }
-
-        // --- PIN & TIMEOUT UTILS ---
-        function initLock(id) {
-            state.sigs[id].status = 'EXEC';
-            document.getElementById('p-over').classList.remove('hidden');
-            startTmr();
-        }
-
-        function startTmr() {
-            tRem = 300; clearInterval(tInt);
-            tInt = setInterval(() => {
-                tRem--; 
-                document.getElementById('p-tmr').innerText = `Momentum: ${Math.floor(tRem/60)}:${(tRem%60).toString().padStart(2,'0')}`;
-                if(tRem <= 0) clPin();
-            }, 1000);
-        }
-
-        function vPin() { 
-            clPin(); 
-            smartNotif("Trade Execution Verified"); 
-            f('exec'); 
-        }
-
-        function clPin() { clearInterval(tInt); document.getElementById('p-over').classList.add('hidden'); }
-
-        function uMdl() { 
-            state.ledg.b = parseInt(document.getElementById('base-input').value); 
-            state.ledg.buckets = { s: state.ledg.b*0.4, sm: state.ledg.b*0.39, m: state.ledg.b*0.21 };
-            save(); uUI(); 
-        }
-
-        function uUI() {
-            document.getElementById('v-pl').innerText = formatIDR(state.ledg.p);
-            document.getElementById('g-perc').innerText = Math.floor(state.ledg.d) + "%";
-            document.getElementById('g-bar').style.width = Math.min(state.ledg.d * 10, 100) + "%";
-            document.getElementById('q-val').innerText = state.memCount + "/1100";
-            document.getElementById('c-b').innerText = Object.values(state.sigs).filter(x => x.status === 'EXEC').length;
-            
-            document.getElementById('b-scalp').innerText = formatIDR(state.ledg.buckets.s);
-            document.getElementById('b-smart').innerText = formatIDR(state.ledg.buckets.sm);
-            document.getElementById('b-moon').innerText = formatIDR(state.ledg.buckets.m);
-
-            if(state.ledg.xp >= 150) {
-                document.getElementById('rank-badge').innerText = "ELITE MASTER 🎖️";
-                document.getElementById('rank-badge').classList.add('elite-glow');
-            }
-        }
-
-        function f(v) { 
-            curF = v; 
-            ['active','exec','hist'].forEach(k => {
-                const btn = document.getElementById(`btn-${k}`);
-                btn.classList.remove('bg-yellow-500', 'text-black');
-                btn.classList.add('bg-white/5', 'text-white/30');
-            });
-            const activeBtn = document.getElementById(`btn-${v}`);
-            activeBtn.classList.remove('bg-white/5', 'text-white/30');
-            activeBtn.classList.add('bg-yellow-500', 'text-black');
-            startEngine(); 
-        }
-
-        function lOut() { localStorage.removeItem('t_sess'); location.reload(); }
-        function triggerB() { document.getElementById('breach').classList.remove('hidden'); }
-        function showGuide() {
-            alert("TITAN V13 STRATEGY:\n1. Pantau RSI < 30 di tab Signals.\n2. Lock Position untuk pindah ke Execute.\n3. Auto-Guard mengunci profit di target 10%.\n4. Reset pukul 00:00 untuk compounding harian.");
-        }
-        function exportExcel() {
-            const ws = XLSX.utils.json_to_sheet(state.hist);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "History");
-            XLSX.writeFile(wb, "TITAN_V13_Report.xlsx");
-        }
-
-        // Midnight Compounding Reset
-        setInterval(() => {
-            const now = new Date();
-            if(now.getHours() === 0 && now.getMinutes() === 0 && now.getSeconds() === 0) {
-                state.ledg.b += state.ledg.p;
-                state.ledg.p = 0;
-                state.ledg.d = 0;
-                save(); location.reload();
-            }
-        }, 1000);
-
-        // Security: Auto-Logout & F12 Protection
-        setInterval(() => { if(Date.now() - lAct > 300000 && state.auth) lOut(); }, 60000);
-        window.addEventListener('keydown', e => { if(e.keyCode === 123) triggerB(); });
-
+        function exportExcel() { const ws = XLSX.utils.json_to_sheet(state.hist); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "History"); XLSX.writeFile(wb, "TITAN_Report.xlsx"); }
         window.onload = () => { if(localStorage.getItem('t_sess')) lgnOk(localStorage.getItem('t_sess')); };
     </script>
 </body>
