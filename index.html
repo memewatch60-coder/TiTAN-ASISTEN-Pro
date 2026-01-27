@@ -10,20 +10,37 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700;900&display=swap');
-        :root { --bg: #010204; --glass: rgba(15, 23, 42, 0.95); --accent: #8b5cf6; --emerald: #10b981; --rose: #f43f5e; }
+        :root { --bg: #010204; --glass: rgba(15, 23, 42, 0.95); --gold: #f59e0b; --accent: #8b5cf6; --emerald: #10b981; --rose: #f43f5e; }
         * { font-family: 'Space Grotesk', sans-serif; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #e2e8f0; height: 100vh; margin: 0; overflow: hidden; }
+        
+        /* Desain Glass & Gold */
         .glass-card { background: var(--glass); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.05); }
+        .gold-grad { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
         .m-grad { background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); }
+        
+        /* Animasi Blink */
         .blink-alert { animation: blink 0.8s infinite; }
         @keyframes blink { 0%, 100% { border-color: var(--rose); box-shadow: 0 0 20px var(--rose); } 50% { border-color: transparent; } }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .module-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; height: calc(100vh - 220px); }
         
-        /* MODERN CUSTOM MODAL */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .module-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; height: calc(100vh - 240px); }
+        
+        /* Modern Custom Modal */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
-        .modal-content { width: 90%; max-width: 400px; padding: 45px; border-radius: 3.5rem; border: 1px solid rgba(139, 92, 246, 0.3); box-shadow: 0 0 60px rgba(139, 92, 246, 0.2); animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .modal-content { width: 90%; max-width: 400px; padding: 45px; border-radius: 2.5rem; border: 1px solid rgba(245, 158, 11, 0.3); box-shadow: 0 0 60px rgba(245, 158, 11, 0.1); animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* Bar Navigasi Bawah (Referens Gambar 3) */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 80px; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; opacity: 0.5; transition: 0.3s; cursor: pointer; }
+        .nav-item.active { opacity: 1; color: #f59e0b; }
+        .center-action { width: 60px; height: 60px; background: var(--gold); border-radius: 50%; display: flex; items-center; justify-content: center; margin-top: -40px; box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); border: 4px solid var(--bg); }
+        
+        /* Kartu Analisis (Referens Gambar 3) */
+        .ana-card { background: rgba(255,255,255,0.03); border-radius: 2rem; border: 1px solid rgba(255,255,255,0.05); padding: 20px; }
+        .ana-card h3 { font-size: 14px; font-weight: 900; }
+        .ana-card .pnl-val { font-size: 12px; font-weight: bold; }
         
         .f-scan-overlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: none; align-items: center; justify-content: center; flex-direction: column; }
     </style>
@@ -35,135 +52,127 @@
     <div id="master-modal" class="modal-overlay">
         <div class="glass-card modal-content text-center">
             <i class="fa-solid fa-crown text-6xl text-amber-500 mb-6 drop-shadow-[0_0_15px_#f59e0b]"></i>
-            <h2 class="text-3xl font-black italic mb-2 tracking-tighter text-white">MASTER <span class="text-amber-500">IDENTITY</span></h2>
-            <p class="text-[9px] uppercase tracking-[0.4em] text-amber-500/60 font-black mb-10">Omniscient Supreme Protocol</p>
-            
-            <div class="space-y-6">
-                <input type="password" id="master-key-input" placeholder="Enter Protocol Code" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-white font-black text-center focus:border-amber-500 transition-all">
+            <h2 class="text-3xl font-black italic mb-2 tracking-tighter text-white uppercase">Enter Master Protocol</h2>
+            <div class="space-y-6 mt-8">
+                <input type="password" id="master-key-input" placeholder="••••••••" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-white font-black text-center focus:border-amber-500 transition-all">
                 <div class="grid grid-cols-2 gap-4">
                     <button onclick="closeMasterModal()" class="py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest opacity-40">Batal</button>
-                    <button onclick="confirmMasterProtocol()" class="py-4 m-grad rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl">Oke</button>
+                    <button onclick="confirmMasterProtocol()" class="py-4 gold-grad rounded-2xl text-[10px] font-black uppercase tracking-widest text-black shadow-xl">Oke</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="auth-screen" class="fixed inset-0 z-[5000] bg-black flex items-center justify-center p-8">
-        <div class="w-full max-w-md glass-card p-12 rounded-[3.5rem] border-violet-500/20 text-center shadow-2xl">
-            <i class="fa-solid fa-shield-halved text-7xl text-violet-500 mb-8 drop-shadow-[0_0_20px_#8b5cf6]"></i>
-            <h2 class="text-4xl font-black italic tracking-tighter mb-12">TITAN <span class="text-violet-500">V13</span></h2>
-            
+        <div class="w-full max-w-md glass-card p-12 rounded-[3rem] border-amber-500/20 text-center shadow-2xl">
+            <i class="fa-solid fa-shield-halved text-7xl text-amber-500 mb-8 drop-shadow-[0_0_20px_rgba(245,158,11,0.3)]"></i>
+            <h2 class="text-3xl font-black italic tracking-tighter mb-12">TITAN <span class="text-amber-500">V13</span></h2>
             <div class="space-y-5">
-                <input type="tel" id="u-phone" placeholder="Nomor Telepon (Telegram)" class="w-full bg-white/5 border border-white/10 p-5 rounded-[1.5rem] text-white font-bold placeholder:opacity-20 focus:border-violet-500 transition-all">
-                <input type="password" id="u-pass" placeholder="Password (Besar, Kecil, Angka)" class="w-full bg-white/5 border border-white/10 p-5 rounded-[1.5rem] text-white font-bold placeholder:opacity-20 focus:border-violet-500 transition-all">
-                <button onclick="handleAuth()" class="w-full py-6 m-grad rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all">Masuk / Daftar</button>
+                <input type="tel" id="u-phone" placeholder="Phone Number" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-white font-bold">
+                <input type="password" id="u-pass" placeholder="Password" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-white font-bold">
+                <button onclick="handleAuth()" class="w-full py-6 gold-grad rounded-2xl font-black text-xs uppercase tracking-[0.2em] text-black shadow-2xl active:scale-95 transition-all">Initialize Access</button>
                 <div class="flex justify-between px-4 mt-8">
-                    <button onclick="openMasterModal()" class="text-[9px] text-violet-400 font-black uppercase tracking-[0.3em]">Master Identity</button>
-                    <button onclick="startFaceScan()" class="text-[9px] text-white/20 font-black uppercase tracking-[0.3em]">Recovery Wajah</button>
+                    <button onclick="openMasterModal()" class="text-[9px] text-amber-500 font-black uppercase tracking-[0.3em]">Master Key</button>
+                    <button onclick="startFaceScan()" class="text-[9px] text-white/20 font-black uppercase tracking-[0.3em]">Face Recovery</button>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div id="f-scan" class="f-scan-overlay">
-        <div class="w-72 h-72 border-4 border-violet-500 rounded-full overflow-hidden relative shadow-[0_0_60px_#8b5cf6]">
-            <video id="v-cam" class="w-full h-full object-cover grayscale" autoplay playsinline></video>
-            <div class="absolute top-0 left-0 w-full h-1 bg-violet-500 shadow-[0_0_15px_#8b5cf6] animate-[scan_2s_infinite_linear]"></div>
-        </div>
-        <h3 class="text-white font-black italic mt-12 uppercase tracking-[0.4em] text-xs animate-pulse">Neural Face Mapping...</h3>
     </div>
 
     <div id="app" class="hidden h-full flex flex-col">
-        <header class="p-6 flex justify-between items-center bg-black/60 border-b border-white/5 backdrop-blur-2xl">
-            <div class="flex items-center gap-5">
-                <i class="fa-brands fa-telegram text-4xl text-[#229ED9] cursor-pointer hover:scale-110 transition-transform" onclick="openLink('tg')"></i>
-                <div>
-                    <h1 class="text-2xl font-black italic leading-none">TITAN <span class="text-violet-500">V13</span></h1>
-                    <div class="flex items-center gap-3 mt-1.5">
-                        <span id="mode-badge" onclick="showChecklist()" class="text-[7px] px-2.5 py-1 rounded-full bg-violet-500/20 text-violet-400 font-black uppercase border border-violet-500/30 cursor-pointer">Training Mode</span>
-                        <p class="text-[7px] text-emerald-500 font-black uppercase tracking-widest">Growth: <span id="cap-perc">0%</span></p>
-                    </div>
+        <header class="p-5 flex justify-between items-center bg-black/60 border-b border-white/5 backdrop-blur-2xl">
+            <div class="flex items-center gap-4">
+                <div class="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="text-[8px] font-black text-emerald-500 uppercase">Training Mode</span>
                 </div>
             </div>
-            <div class="flex gap-3">
-                <button onclick="showTutorial()" class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 text-violet-400 text-lg"><i class="fa-solid fa-book"></i></button>
-                <button onclick="toggleLang()" class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex flex-col items-center justify-center text-[8px] font-black">🇮🇩<span>IDR</span></button>
-                <button onclick="logout()" class="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500"><i class="fa-solid fa-power-off"></i></button>
+            <div class="flex gap-4 items-center">
+                <button onclick="toggleLang()" class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-[10px]"><span id="lang-flag">🇮🇩</span></button>
+                <i class="fa-solid fa-circle-question opacity-40 text-lg" onclick="showTutorial()"></i>
+                <i class="fa-solid fa-power-off text-rose-500 text-lg" onclick="logout()"></i>
             </div>
         </header>
 
-        <div class="px-6 py-5 flex gap-4 overflow-x-auto no-scrollbar border-b border-white/5 bg-black/30">
-            <div class="min-w-[160px] glass-card p-5 rounded-[2rem] border-white/10">
-                <p class="text-[8px] opacity-40 uppercase font-black tracking-widest mb-1.5">Capital Management</p>
-                <p id="val-cap" class="text-base font-black text-white">Rp 0</p>
-            </div>
-            <div class="min-w-[130px] bg-sky-500/5 p-5 rounded-[2rem] border border-sky-500/20">
-                <p class="text-[8px] text-sky-400/60 uppercase font-black tracking-widest mb-1.5">Scalping (40%)</p>
-                <p id="val-scalp" class="text-base font-black text-sky-400">Rp 0</p>
-            </div>
-            <div class="min-w-[130px] bg-violet-500/5 p-5 rounded-[2rem] border border-violet-500/20">
-                <p class="text-[8px] text-violet-400/60 uppercase font-black tracking-widest mb-1.5">Smart (39%)</p>
-                <p id="val-smart" class="text-base font-black text-violet-400">Rp 0</p>
-            </div>
-            <div class="min-w-[130px] bg-amber-500/5 p-5 rounded-[2rem] border border-amber-500/20">
-                <p class="text-[8px] text-amber-400/60 uppercase font-black tracking-widest mb-1.5">MoonShot (21%)</p>
-                <p id="val-moon" class="text-base font-black text-amber-400">Rp 0</p>
+        <div class="p-6">
+            <div class="glass-card p-6 rounded-[2.5rem] relative overflow-hidden">
+                <p class="text-[8px] opacity-40 uppercase font-black tracking-widest mb-2">Capital Management (0.00%)</p>
+                <h2 id="val-cap" class="text-4xl font-black text-amber-500 italic">Rp 0</h2>
+                <div class="absolute top-6 right-6 text-[9px] font-black text-amber-500/50">GOAL: 10%</div>
+                
+                <div class="grid grid-cols-3 gap-3 mt-8">
+                    <div class="bg-white/5 p-3 rounded-2xl border border-white/5">
+                        <p class="text-[7px] opacity-40 uppercase mb-1">Scalp (40%)</p>
+                        <p id="val-scalp" class="text-[10px] font-black text-emerald-400">Rp 0</p>
+                    </div>
+                    <div class="bg-white/5 p-3 rounded-2xl border border-white/5">
+                        <p class="text-[7px] opacity-40 uppercase mb-1">Smart (39%)</p>
+                        <p id="val-smart" class="text-[10px] font-black text-sky-400">Rp 0</p>
+                    </div>
+                    <div class="bg-white/5 p-3 rounded-2xl border border-white/5">
+                        <p class="text-[7px] opacity-40 uppercase mb-1">Moon (21%)</p>
+                        <p id="val-moon" class="text-[10px] font-black text-violet-400">Rp 0</p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <main class="flex-1 p-6 module-grid">
-            <section class="flex flex-col gap-4 bg-white/[0.02] p-5 rounded-[2.5rem] border border-white/5">
-                <h2 class="text-[10px] font-black uppercase tracking-[0.4em] opacity-30 text-center">Analysis Intelligence</h2>
+        <main class="flex-1 px-6 module-grid">
+            <section class="flex flex-col gap-4">
+                <h2 class="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 text-amber-500">Analysis</h2>
                 <div id="list-analysis" class="flex-1 overflow-y-auto space-y-4 no-scrollbar"></div>
             </section>
             
-            <section class="flex flex-col gap-4 bg-white/[0.03] p-5 rounded-[2.5rem] border border-violet-500/10 shadow-2xl shadow-violet-500/5">
-                <h2 class="text-[10px] font-black uppercase tracking-[0.4em] opacity-30 text-center text-violet-400">Execution Vortex</h2>
+            <section class="flex flex-col gap-4">
+                <h2 class="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 text-sky-500">Execution</h2>
                 <div id="list-execution" class="flex-1 overflow-y-auto space-y-4 no-scrollbar"></div>
             </section>
             
-            <section class="flex flex-col gap-4 bg-white/[0.02] p-5 rounded-[2.5rem] border border-white/5">
-                <div class="flex justify-between items-center px-2">
-                    <h2 class="text-[10px] font-black uppercase tracking-[0.4em] opacity-30">Log Archive</h2>
-                    <button onclick="downloadExcel()" class="text-emerald-500 text-base"><i class="fa-solid fa-file-excel"></i></button>
-                </div>
+            <section class="flex flex-col gap-4">
+                <h2 class="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 text-emerald-500">History</h2>
                 <div id="list-history" class="flex-1 overflow-y-auto space-y-4 no-scrollbar"></div>
             </section>
         </main>
+
+        <nav class="bottom-nav">
+            <div class="nav-item">
+                <i class="fa-solid fa-chart-simple text-xl"></i>
+                <span class="text-[8px] font-black uppercase">Live</span>
+            </div>
+            <div class="nav-item active" onclick="openLink('tg')">
+                <i class="fa-brands fa-telegram text-xl"></i>
+                <span class="text-[8px] font-black uppercase">Group</span>
+            </div>
+            <div class="center-action">
+                <i class="fa-solid fa-bolt text-black text-2xl"></i>
+            </div>
+            <div class="nav-item">
+                <i class="fa-solid fa-brain text-xl text-emerald-500"></i>
+                <span class="text-[8px] font-black uppercase text-emerald-500">AI Scan</span>
+            </div>
+            <div class="nav-item">
+                <i class="fa-solid fa-shield-halved text-xl"></i>
+                <span class="text-[8px] font-black uppercase">Secure</span>
+            </div>
+        </nav>
     </div>
 
     <script>
-        /* CORE DATA & LOGIC */
         const MASTER_PROTOCOL = "MahadhareV13Master";
-        const B_TOK = "8295607704:AAFdy_U8bFL-x2Ol90n8f2KDOHXztybcuj4";
-        const G_ID = "-1003254379333";
-        const LINKS = {
-            tg: "https://t.me/+8uJ78T4VDHJkOTRl",
-            idd: "https://indodax.onelink.me/qyYY/referral?deep_link_value=page:register,id:marselsalmon"
-        };
+        let state = { modal: 1000000, profit: 0, buckets: { scalp: 0, smart: 0, moon: 0 }, analysis: [], execution: [], history: [] };
 
-        let state = {
-            modal: 1000000, profit: 0, buckets: { scalp: 0, smart: 0, moon: 0 },
-            analysis: [], execution: [], history: [], hackAttempts: 0
-        };
-
-        /* 1. MASTER MODAL SYSTEM (NO LINK WEB) */
         function openMasterModal() { document.getElementById('master-modal').style.display = 'flex'; }
         function closeMasterModal() { document.getElementById('master-modal').style.display = 'none'; }
+        
         function confirmMasterProtocol() {
             const key = document.getElementById('master-key-input').value;
             if (key === MASTER_PROTOCOL) {
                 closeMasterModal();
                 loginSuccess("MASTER");
-                toast("God-Mode Authority Verified");
-            } else {
-                state.hackAttempts++;
-                if(state.hackAttempts >= 5) triggerSelfDestruct();
-                toast(`Access Rejected (${state.hackAttempts}/5)`, true);
-            }
+                toast("MASTER AUTHORITY UNLOCKED");
+            } else { toast("INVALID PROTOCOL", true); }
         }
 
-        /* 2. BUCKET SYSTEM 40:39:21 */
         function calculateBuckets() {
             state.buckets.scalp = state.modal * 0.40;
             state.buckets.smart = state.modal * 0.39;
@@ -178,15 +187,73 @@
             document.getElementById('val-moon').innerText = "Rp " + Math.floor(state.buckets.moon).toLocaleString();
         }
 
-        /* 3. MODULE LOGIC */
+        function loginSuccess(ph) {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            calculateBuckets();
+            initSignals();
+        }
+
         function initSignals() {
             const coins = ['BTC','ETH','SOL','BNB','DOGE','PEPE','LINK','SUI'];
             state.analysis = coins.map(s => ({
                 id: s, sym: s, 
                 type: Math.random() > 0.6 ? 'SCALP' : (Math.random() > 0.5 ? 'SMART' : 'MOON'),
-                price: Math.floor(Math.random() * 1000000), pnl: 0
+                price: Math.floor(Math.random() * 1000000), pnl: (Math.random() * -0.05).toFixed(2)
             }));
             renderAnalysis();
+        }
+
+        function renderAnalysis() {
+            const cont = document.getElementById('list-analysis'); cont.innerHTML = '';
+            state.analysis.forEach(c => {
+                const el = document.createElement('div');
+                el.className = `ana-card flex flex-col gap-4`;
+                el.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-brands fa-ethereum text-xl text-amber-500"></i>
+                            <h3 class="uppercase">${c.sym}/IDR</h3>
+                        </div>
+                    </div>
+                    <div class="pnl-val text-rose-500">${c.pnl}% <span class="opacity-30 ml-2">PNL</span></div>
+                    <div class="h-16 w-full"><canvas id="chart-${c.id}"></canvas></div>
+                    <button onclick="lockSignal('${c.id}')" class="w-full py-3 gold-grad rounded-xl text-black font-black uppercase text-[10px]">Lock</button>
+                `;
+                cont.appendChild(el);
+                setTimeout(() => initMiniChart(`chart-${c.id}`), 50);
+            });
+        }
+
+        function renderExecution() {
+            const cont = document.getElementById('list-execution'); cont.innerHTML = '';
+            state.execution.forEach(c => {
+                const el = document.createElement('div');
+                el.className = `ana-card border-sky-500/20 ${c.pnl > 1.5 ? 'blink-alert' : ''}`;
+                el.innerHTML = `
+                    <div class="flex justify-between mb-4">
+                        <p class="font-black italic text-xs">${c.sym}</p>
+                        <p class="text-xs font-black ${c.pnl >= 0 ? 'text-emerald-400' : 'text-rose-500'}">${c.pnl}%</p>
+                    </div>
+                    <button onclick="executeProfit('${c.id}')" class="w-full py-3 m-grad rounded-xl text-white font-black uppercase text-[10px]">Execute</button>
+                `;
+                cont.appendChild(el);
+            });
+        }
+
+        function initMiniChart(id) {
+            const ctx = document.getElementById(id).getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [1,2,3,4,5,6],
+                    datasets: [{
+                        data: Array.from({length: 6}, () => Math.floor(Math.random() * 10)),
+                        borderColor: '#f43f5e', borderWidth: 2, fill: false, pointRadius: 0, tension: 0.4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+            });
         }
 
         function lockSignal(id) {
@@ -199,83 +266,40 @@
             state.execution.push({ ...coin, cost, pnl: 0 });
             state.analysis = state.analysis.filter(x => x.id !== id);
             renderAnalysis(); renderExecution(); updateUI();
-            toast(`${coin.sym} Locked to ${coin.type} Bucket`);
         }
 
         function executeProfit(id) {
             const c = state.execution.find(x => x.id === id);
             const val = c.cost * (c.pnl / 100);
             state.modal += (c.cost + val);
-            state.profit += val;
             state.history.unshift({ ...c, final: c.pnl, time: new Date().toLocaleTimeString() });
             state.execution = state.execution.filter(x => x.id !== id);
             calculateBuckets(); renderExecution(); renderHistory();
-            toast(c.pnl >= 0 ? "Profit Secured 💰" : "Strategic Exit", c.pnl < 0);
-        }
-
-        /* 4. RENDERERS */
-        function renderAnalysis() {
-            const cont = document.getElementById('list-analysis'); cont.innerHTML = '';
-            state.analysis.forEach(c => {
-                const el = document.createElement('div');
-                el.className = `glass-card p-6 rounded-[2.5rem] border-white/5`;
-                el.innerHTML = `<h3 class="text-xl font-black italic mb-5">${c.sym}/IDR</h3>
-                               <button onclick="lockSignal('${c.id}')" class="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest">Lock Signal</button>`;
-                cont.appendChild(el);
-            });
-        }
-
-        function renderExecution() {
-            const cont = document.getElementById('list-execution'); cont.innerHTML = '';
-            state.execution.forEach(c => {
-                const el = document.createElement('div');
-                el.className = `glass-card p-6 rounded-[2.5rem] border-white/10 ${c.pnl > 1.5 ? 'blink-alert' : ''}`;
-                el.innerHTML = `<div class="flex justify-between items-center mb-6">
-                                    <p class="text-lg font-black italic">${c.sym}</p>
-                                    <p class="text-sm font-black ${c.pnl >= 0 ? 'text-emerald-400' : 'text-rose-500'}">${c.pnl}%</p>
-                                </div>
-                                <button onclick="executeProfit('${c.id}')" class="w-full py-4 m-grad rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg">Execute Profit</button>`;
-                cont.appendChild(el);
-            });
         }
 
         function renderHistory() {
             const cont = document.getElementById('list-history'); cont.innerHTML = '';
             state.history.forEach(h => {
                 const el = document.createElement('div');
-                el.className = `p-4 bg-white/5 rounded-2xl flex justify-between items-center border border-white/5`;
+                el.className = `p-4 bg-white/5 rounded-2xl flex justify-between items-center border border-white/5 mb-3`;
                 el.innerHTML = `<div><p class="text-[10px] font-black italic">${h.sym}</p><p class="text-[6px] opacity-30 uppercase font-black">${h.time}</p></div>
-                                <p class="text-sm font-black ${h.final >= 0 ? 'text-emerald-400' : 'text-rose-500'}">${h.final}%</p>`;
+                                <p class="text-xs font-black ${h.final >= 0 ? 'text-emerald-400' : 'text-rose-500'}">${h.final}%</p>`;
                 cont.appendChild(el);
             });
         }
 
-        /* UI UTILS */
         function toast(m, u = false) {
             const t = document.createElement('div');
-            t.className = `p-5 glass-card rounded-[1.5rem] border-white/10 text-[9px] font-black uppercase mb-3 shadow-2xl animate-bounce ${u ? 'text-rose-500 border-rose-500/30' : 'text-emerald-400 border-emerald-500/30'}`;
-            t.innerHTML = `<i class="fa-solid ${u?'fa-triangle-exclamation':'fa-shield-check'} mr-3"></i> ${m}`;
-            document.getElementById('toast-container').appendChild(t);
+            t.className = `p-4 glass-card rounded-2xl border-white/10 text-[9px] font-black uppercase mb-2 ${u ? 'text-rose-500' : 'text-emerald-400'}`;
+            t.innerHTML = m; document.getElementById('toast-container').appendChild(t);
             setTimeout(() => t.remove(), 3500);
         }
 
-        function loginSuccess(ph) {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
-            calculateBuckets(); initSignals();
-        }
-
-        function triggerSelfDestruct() {
-            localStorage.clear();
-            document.body.innerHTML = "<div class='h-screen flex items-center justify-center bg-black text-rose-600 text-3xl font-black uppercase'>Self-Destruct Triggered. Data Wiped.</div>";
-        }
-
-        function handleAuth() { toast("Scanning Neural Biometric...", false); setTimeout(() => loginSuccess("USER"), 2000); }
-        function openLink(k) { window.open(LINKS[k], '_blank'); }
+        function handleAuth() { toast("INITIALIZING...", false); setTimeout(() => loginSuccess("USER"), 1500); }
+        function openLink(k) { if(k==='tg') window.open("https://t.me/+8uJ78T4VDHJkOTRl", '_blank'); }
         function logout() { location.reload(); }
         function resetInactivity() {}
 
-        /* LIVE SIMULATION */
         setInterval(() => {
             state.execution.forEach(c => { c.pnl = (Math.random() * 5 - 1.8).toFixed(2); });
             renderExecution();
