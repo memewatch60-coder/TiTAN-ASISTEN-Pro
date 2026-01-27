@@ -199,11 +199,32 @@
             setTimeout(() => t.remove(), 4000);
         }
 
+        function showModal(title, bodyArr, iconClass = 'fa-circle-info', iconColor = 'text-yellow-500') {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-icon').innerHTML = `<i class="fa-solid ${iconClass} text-5xl ${iconColor}"></i>`;
+            document.getElementById('modal-body').innerHTML = bodyArr.map(line => `<div class="flex gap-2"><i class="fa-solid fa-caret-right mt-1 text-indigo-500"></i><p>${line}</p></div>`).join('');
+            document.getElementById('modal-box').style.display = 'flex';
+        }
+        function hideModal() { document.getElementById('modal-box').style.display = 'none'; }
+        function closeModal(e) { if(e.target === document.getElementById('modal-box')) hideModal(); }
+
+        function showGuide() { 
+            showModal("PANDUAN TITAN V13", [
+                "RADAR RSI: Memindai koin dengan RSI < 35 sebagai zona beli.",
+                "AUTO-LOCK: Sesi akan berakhir otomatis setelah 5 menit idle.",
+                "ELITE MASTER: Capai 150 XP untuk fitur Execute All.",
+                "TRAILING STOP: Profit diamankan jika turun 1.5% dari puncak.",
+                "AUTO STOP LOSS: Proteksi otomatis jika harga turun 3% dari modal.",
+                "DAILY GOAL: Sinyal baru terkunci jika profit harian capai 10%."
+            ], "fa-book-open", "text-yellow-500"); 
+        }
+
         // --- SECURITY ---
         function checkIdle() {
             const idle = (Date.now() - lAct) / 1000;
             const rem = Math.max(0, 300 - Math.floor(idle));
-            document.getElementById('idle-val').innerText = rem + "s";
+            const idleVal = document.getElementById('idle-val');
+            if(idleVal) idleVal.innerText = rem + "s";
             if (idle >= 300) lOut();
         }
         setInterval(checkIdle, 1000);
@@ -233,28 +254,31 @@
         }
 
         function proc(data) {
-            // Auto-Guard Logic
             if(state.ledg.d >= 10) return; 
 
             data.forEach(c => {
                 const prices = c.sparkline_in_7d.price, rsi = calculateRSI(prices.slice(-15)), cp = c.current_price;
                 
-                // Signal Generation
                 if(!state.sigs[c.id] && rsi < 35) { 
                     state.sigs[c.id] = { id: c.id, sym: c.symbol.toUpperCase(), ent: cp, tp: cp*1.15, max: cp, status: 'ANALYSIS', rsi: rsi.toFixed(0), img: c.image, spark: prices.slice(-20), date: Date.now() };
                 }
 
-                // Trailing Stop Logic
                 if(state.sigs[c.id]) {
                     let s = state.sigs[c.id];
                     s.max = Math.max(s.max, cp);
+                    
+                    // 1. Trailing Stop Logic (1.5% dari Puncak)
                     if(s.status === 'EXEC' && cp <= s.max * 0.985) finSell(c.id, "SELL (TRAILING)", cp);
+                    
+                    // 2. AUTO HARD STOP LOSS (3% dari Entry)
+                    if(s.status === 'EXEC' && cp <= s.ent * 0.97) finSell(c.id, "SELL (AUTO SL -3%)", cp);
                 }
             });
             save();
         }
 
         function finSell(id, type, cp) {
+            if(!state.sigs[id]) return;
             const s = state.sigs[id], gain = ((cp - s.ent)/s.ent)*100, profitVal = (gain/100) * (state.ledg.b * 0.1);
             state.ledg.p += profitVal; state.ledg.d = (state.ledg.p / state.ledg.b) * 100; state.ledg.xp += 15;
             state.hist.unshift({...s, type, gain, exit: cp, profit: profitVal, finalTime: new Date().toLocaleTimeString()});
@@ -265,14 +289,11 @@
         async function doLgn() {
             const ph = document.getElementById('u-phone').value, ps = document.getElementById('u-pass').value;
             if(ph === MASTER_NUM || ps === MASTER_KEY) return lgnOk(ph);
-            
             const ud = JSON.parse(localStorage.getItem(`u_${ph}`));
             if(ud) {
                 if(ud.p === ps) lgnOk(ph);
                 else smartNotif("Wrong Key", true);
-            } else {
-                startBiometric(ph, ps);
-            }
+            } else { startBiometric(ph, ps); }
         }
 
         async function startBiometric(ph, ps) {
@@ -313,14 +334,48 @@
             }
             activeSigs.forEach(s => colActive.appendChild(createCard(s, data, 'active')));
             Object.values(state.sigs).filter(x => x.status === 'EXEC').forEach(s => colExec.appendChild(createCard(s, data, 'exec')));
-            state.hist.slice(0, 5).forEach(s => colHist.appendChild(createCard(s, data, 'hist')));
+            state.hist.slice(0, 8).forEach(s => colHist.appendChild(createCard(s, data, 'hist')));
         }
 
         function createCard(s, data, type) {
-            const live = data.find(x => x.id === s.id), cp = live ? live.current_price : (s.exit || s.ent), pnl = ((cp - s.ent)/s.ent)*100, stake = state.ledg.b * 0.1;
-            const el = document.createElement('div'); el.className = `glass-premium p-3 border-white/5 shadow-lg ${pnl >= 4 ? 'hot-zone' : ''}`;
-            el.innerHTML = `<div class="flex justify-between items-start mb-1"><div class="flex gap-2 items-center"><img src="${s.img}" class="w-5 h-5 rounded-full"><div><p class="titan-font text-[8px] font-black">${s.sym}</p><p class="text-[6px] text-yellow-500 font-bold">Rp ${stake.toLocaleString()}</p></div></div><div class="text-right"><p class="titan-font text-[8px] ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-500'}">${pnl.toFixed(1)}%</p></div></div><canvas id="chart-${type}-${s.id}-${s.finalTime || ''}" class="mini-chart"></canvas>${type === 'active' ? `<button onclick="initLock('${s.id}')" class="w-full py-2 mt-1 rounded-xl titan-font text-[6px] bg-yellow-500 text-black font-black">LOCK</button>` : ''}${type === 'exec' ? `<div class="grid grid-cols-2 gap-1 mt-1"><button onclick="finSell('${s.id}', 'TP', ${cp})" class="py-2 rounded-xl bg-emerald-500 text-black titan-font text-[6px] font-black">TP</button><button onclick="finSell('${s.id}', 'SL', ${cp})" class="py-2 rounded-xl bg-rose-500 text-white titan-font text-[6px] font-black">SL</button></div>` : ''}`;
-            setTimeout(() => { drawMiniChart(document.getElementById(`chart-${type}-${s.id}-${s.finalTime || ''}`), s.spark, pnl >= 0); }, 50);
+            const live = data.find(x => x.id === s.id), 
+                  cp = live ? live.current_price : (s.exit || s.ent), 
+                  pnl = ((cp - s.ent)/s.ent)*100, 
+                  stake = state.ledg.b * 0.1;
+
+            const el = document.createElement('div');
+            el.className = `glass-premium p-4 border-white/5 shadow-lg transition-all ${pnl >= 4 ? 'hot-zone' : ''}`;
+            
+            el.innerHTML = `
+                <div class="flex justify-between items-center mb-3">
+                    <div class="flex gap-3 items-center">
+                        <img src="${s.img}" class="w-7 h-7 rounded-full border border-white/10">
+                        <div>
+                            <p class="titan-font text-[10px] font-black tracking-tighter text-white leading-none">${s.sym}</p>
+                            <p class="text-[7px] text-yellow-500 font-bold mt-1">Rp ${stake.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="pl-2">
+                        <p class="titan-font text-[10px] font-black ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-500'}">
+                            ${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}%
+                        </p>
+                    </div>
+                </div>
+                <canvas id="chart-${type}-${s.id}-${s.finalTime || ''}" class="mini-chart"></canvas>
+                ${type === 'active' ? `<button onclick="initLock('${s.id}')" class="w-full py-2.5 mt-2 rounded-xl titan-font text-[8px] bg-yellow-500 text-black font-black active:scale-95">LOCK</button>` : ''}
+                ${type === 'exec' ? `
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <button onclick="finSell('${s.id}', 'TP', ${cp})" class="py-2.5 rounded-xl bg-emerald-500 text-black titan-font text-[8px] font-black">TP</button>
+                        <button onclick="finSell('${s.id}', 'SL', ${cp})" class="py-2.5 rounded-xl bg-rose-500 text-white titan-font text-[8px] font-black">SL</button>
+                    </div>` : ''}
+                ${type === 'hist' ? `<p class="text-[6px] text-center opacity-40 font-black mt-2 uppercase">${s.type} @ ${s.finalTime}</p>` : ''}
+            `;
+            
+            setTimeout(() => { 
+                const canv = document.getElementById(`chart-${type}-${s.id}-${s.finalTime || ''}`); 
+                if(canv) drawMiniChart(canv, s.spark, pnl >= 0); 
+            }, 50);
+            
             return el;
         }
 
@@ -345,13 +400,14 @@
             document.getElementById('g-perc').innerText = Math.floor(state.ledg.d) + "%"; 
             document.getElementById('g-bar').style.width = Math.min(state.ledg.d * 10, 100) + "%";
             document.getElementById('q-val').innerText = state.memCount + "/1100"; 
-            document.getElementById('c-b').innerText = Object.values(state.sigs).filter(x => x.status === 'EXEC').length;
+            const cB = document.getElementById('c-b');
+            if(cB) cB.innerText = Object.values(state.sigs).filter(x => x.status === 'EXEC').length;
             document.getElementById('b-scalp').innerText = formatIDR(state.ledg.buckets.s); 
             document.getElementById('b-smart').innerText = formatIDR(state.ledg.buckets.sm); 
             document.getElementById('b-moon').innerText = formatIDR(state.ledg.buckets.m);
             const rank = document.getElementById('rank-badge');
-            if(state.ledg.xp >= 150) { rank.innerText = "ELITE MASTER 🎖️"; rank.className = "text-[8px] font-black uppercase tracking-widest elite-glow animate-pulse"; }
-            else { rank.innerText = `STANDARD MEMBER (${state.ledg.xp}/150 XP)`; }
+            if(state.ledg.xp >= 150) { if(rank) { rank.innerText = "ELITE MASTER 🎖️"; rank.className = "text-[8px] font-black uppercase tracking-widest elite-glow animate-pulse"; } }
+            else { if(rank) { rank.innerText = `STANDARD MEMBER (${state.ledg.xp}/150 XP)`; rank.className = "text-[8px] font-black text-emerald-500 uppercase tracking-widest"; } }
             save();
         }
 
@@ -365,7 +421,6 @@
         function lOut() { localStorage.removeItem('t_sess'); location.reload(); }
         function exportExcel() { const ws = XLSX.utils.json_to_sheet(state.hist); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "History"); XLSX.writeFile(wb, "TITAN_V13_Report.xlsx"); }
         
-        // --- AUTO-RESET 00:00 ---
         setInterval(() => {
             const now = new Date();
             if(now.getHours() === 0 && now.getMinutes() === 0 && now.getSeconds() === 0) {
