@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;500;700&display=swap');
-        :root { --gold: #ffd700; --glass: rgba(10, 10, 18, 0.98); }
+        :root { --gold: #ffd700; --emerald: #10b981; --glass: rgba(10, 10, 18, 0.98); }
         body { background: #020308; color: #e2e8f0; font-family: 'Space Grotesk', sans-serif; overflow: hidden; height: 100vh; margin: 0; }
         .titan-font { font-family: 'Orbitron', sans-serif; }
         .glass-premium { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid rgba(255, 215, 0, 0.15); border-radius: 1.5rem; }
@@ -35,23 +35,44 @@
             </div>
             <h1 class="titan-font text-3xl text-yellow-500 mb-1">TITAN V.13 AI</h1>
             <p class="text-[8px] tracking-[4px] opacity-50 mb-8 uppercase font-black text-white" data-id="brand-tag">Mahadhare Hybrid Core</p>
-            
             <div class="space-y-4">
                 <input type="text" id="auth-phone" placeholder="NO TELEPON" class="w-full bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none text-xs">
                 <div id="biometric-mod" class="hidden space-y-2">
                     <video id="face-video" class="hidden" autoplay muted playsinline></video>
-                    <button onclick="startFaceScan()" id="scan-btn" class="w-full py-3 bg-blue-600 rounded-xl text-[10px] titan-font uppercase" data-id="btn-scan">Scan Wajah (Biometric)</button>
+                    <button onclick="startFaceScan()" id="scan-btn" class="w-full py-3 bg-blue-600 rounded-xl text-[10px] titan-font shadow-lg uppercase" data-id="btn-scan">Scan Wajah (Biometric)</button>
                 </div>
                 <input type="password" id="auth-pass" placeholder="PASSWORD" class="w-full bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none text-xs">
                 <div class="grid grid-cols-2 gap-2">
-                    <button onclick="handleAuth()" class="py-4 bg-yellow-500 text-black titan-font text-[10px] font-black rounded-xl uppercase" data-id="btn-login">Masuk</button>
+                    <button onclick="enterSystem(false)" class="py-4 bg-yellow-500 text-black titan-font text-[10px] font-black rounded-xl uppercase" data-id="btn-login">Masuk</button>
                     <button onclick="toggleAuth()" class="py-4 bg-white/5 border border-white/10 text-white titan-font text-[10px] rounded-xl uppercase" data-id="btn-reg">Daftar</button>
                 </div>
                 <div class="mt-10 pt-6 border-t border-white/5">
-                    <button onclick="masterBypass()" class="w-full py-4 bg-yellow-600/20 border border-yellow-500/50 text-yellow-500 titan-font text-[12px] font-black rounded-xl uppercase shadow-xl hover:bg-yellow-500 hover:text-black transition-all">VERIFY IDENTITY</button>
+                    <button onclick="enterSystem(true)" class="w-full py-4 bg-yellow-600/20 border border-yellow-500/50 text-yellow-500 titan-font text-[12px] font-black rounded-xl uppercase shadow-xl hover:bg-yellow-500 hover:text-black transition-all">VERIFY IDENTITY</button>
                     <p class="text-[7px] text-white/30 italic mt-2 tracking-[2px]">LOG: ENCRYPTED ACCESS ONLY</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="real-mode-modal" class="fixed inset-0 z-[25000] bg-black/95 backdrop-blur-xl hidden flex items-center justify-center p-6">
+        <div class="glass-premium p-8 w-full max-w-sm border-yellow-500/50 text-center">
+            <h3 class="titan-font text-yellow-500 text-[11px] mb-6 uppercase">Syarat Aktivasi Real Mode</h3>
+            <div class="space-y-3 mb-8">
+                <div onclick="verifyReq('tg')" class="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10 cursor-pointer">
+                    <span class="text-[9px]"><i class="fa-brands fa-telegram mr-2"></i> Join Group Telegram</span>
+                    <i id="check-tg" class="fa-solid fa-circle-dot opacity-20"></i>
+                </div>
+                <div onclick="verifyReq('idx')" class="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10 cursor-pointer">
+                    <span class="text-[9px]"><i class="fa-solid fa-link mr-2"></i> Register Indodax (Reff)</span>
+                    <i id="check-idx" class="fa-solid fa-circle-dot opacity-20"></i>
+                </div>
+                <div class="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/10">
+                    <span class="text-[9px]"><i class="fa-solid fa-calendar-check mr-2"></i> Misi 7 Hari (10%/Hari)</span>
+                    <i id="check-mis" class="fa-solid fa-circle-check text-emerald-500"></i>
+                </div>
+            </div>
+            <button id="activate-real-btn" onclick="activateRealMode()" class="w-full py-4 bg-zinc-800 text-white/30 titan-font text-[10px] rounded-xl uppercase" disabled>Aktivasi Gagal</button>
+            <button onclick="closeRealModal()" class="mt-4 text-[9px] opacity-40 uppercase">Kembali</button>
         </div>
     </div>
 
@@ -61,7 +82,7 @@
             <button onclick="closeTutorial()" class="text-white text-xl">&times;</button>
         </div>
         <div class="space-y-4 text-[10px] opacity-80 leading-relaxed">
-            <p><b class="text-yellow-500">BUY (Lock Signal):</b> Pilih koin di ANALYSIS saat AI > 85%. Pantau grafik yang baru memantul naik.</p>
+            <p><b class="text-yellow-500">BUY (Lock Signal):</b> Pilih koin di ANALYSIS saat AI > 85%. Klik Lock untuk memindahkan saldo ke EXECUTION.</p>
             <p><b class="text-emerald-500">SELL (Execute Profit):</b> Klik di EXECUTION saat PNL hijau. Profit akan langsung masuk ke Capital Management.</p>
         </div>
     </div>
@@ -69,7 +90,7 @@
     <header class="p-4 flex justify-between items-center bg-black/80 border-b border-yellow-500/10 sticky top-0 z-50">
         <div class="flex items-center gap-3">
             <button onclick="openTutorial()" class="w-9 h-9 bg-white/5 rounded-full flex items-center justify-center border border-yellow-500/30 text-yellow-500"><i class="fa-solid fa-book"></i></button>
-            <div class="bg-white/5 p-2 px-3 rounded-2xl flex items-center gap-2 border border-white/10">
+            <div onclick="triggerModeTransition()" class="cursor-pointer bg-white/5 p-2 px-3 rounded-2xl flex items-center gap-2 border border-white/10 active:scale-95 transition-all">
                 <div id="mode-dot" class="w-2 h-2 rounded-full bg-emerald-500"></div>
                 <span id="mode-text" class="titan-font text-[9px] font-black uppercase text-white" data-id="ui-mode">Training Mode</span>
             </div>
@@ -84,7 +105,7 @@
         <section class="p-5">
             <div class="glass-premium p-6">
                 <p class="text-[8px] uppercase font-black opacity-40 text-white" data-id="ui-cap-title">Capital Management</p>
-                <h2 id="cap-main" class="titan-font text-3xl text-yellow-500 font-black mb-4">Rp 0</h2>
+                <h2 id="cap-main" class="titan-font text-3xl text-yellow-500 font-black mb-4 tracking-tighter">Rp 0</h2>
                 <div class="grid grid-cols-3 gap-2">
                     <div class="bg-white/5 p-3 rounded-xl text-center"><p class="text-[7px] opacity-50 uppercase mb-1 text-white" data-id="ui-scalp">Scalp</p><p id="b-scalp" class="text-[9px] font-bold text-emerald-400">0</p></div>
                     <div class="bg-white/5 p-3 rounded-xl text-center"><p class="text-[7px] opacity-50 uppercase mb-1 text-white" data-id="ui-smart">Smart</p><p id="b-smart" class="text-[9px] font-bold text-blue-400">0</p></div>
@@ -94,18 +115,9 @@
         </section>
 
         <section class="px-5 mb-10 h-[45vh] grid grid-cols-3 gap-3">
-            <div class="mod-col">
-                <h3 class="titan-font text-[9px] text-yellow-500 mb-4 uppercase text-center font-black" data-id="ui-analysis">Analysis</h3>
-                <div id="list-analysis" class="flex-1 overflow-y-auto no-scrollbar space-y-4"></div>
-            </div>
-            <div class="mod-col">
-                <h3 class="titan-font text-[9px] text-blue-500 mb-4 uppercase text-center font-black" data-id="ui-execution">Execution</h3>
-                <div id="list-execution" class="flex-1 overflow-y-auto no-scrollbar space-y-4"></div>
-            </div>
-            <div class="mod-col">
-                <h3 class="titan-font text-[9px] text-emerald-500 mb-4 uppercase text-center font-black" data-id="ui-history">History</h3>
-                <div id="list-history" class="flex-1 overflow-y-auto no-scrollbar space-y-2"></div>
-            </div>
+            <div class="mod-col"><h3 class="titan-font text-[9px] text-yellow-500 mb-4 uppercase text-center font-black" data-id="ui-analysis">Analysis</h3><div id="list-analysis" class="space-y-4 overflow-y-auto no-scrollbar"></div></div>
+            <div class="mod-col"><h3 class="titan-font text-[9px] text-blue-500 mb-4 uppercase text-center font-black" data-id="ui-execution">Execution</h3><div id="list-execution" class="space-y-4 overflow-y-auto no-scrollbar"></div></div>
+            <div class="mod-col"><h3 class="titan-font text-[9px] text-emerald-500 mb-4 uppercase text-center font-black" data-id="ui-history">History</h3><div id="list-history" class="space-y-2 overflow-y-auto no-scrollbar"></div></div>
         </section>
 
         <section id="rank-section" class="px-5 mb-10 hidden">
@@ -118,35 +130,62 @@
         <div class="flex justify-around items-center max-w-md mx-auto">
             <button onclick="toggleRank()" class="flex flex-col items-center gap-1 text-yellow-500"><i class="fa-solid fa-ranking-star text-lg"></i><span class="text-[8px]">LIVE</span></button>
             <button onclick="window.open('https://t.me/+8uJ78T4VDHJkOTRl')" class="flex flex-col items-center gap-1 text-sky-400"><i class="fa-brands fa-telegram text-2xl"></i><span class="text-[8px]">GROUP</span></button>
-            <div onclick="smartScanTrigger()" class="w-14 h-14 bg-yellow-500 rounded-full flex items-center justify-center -mt-10 shadow-lg border-8 border-[#020308]"><i class="fa-solid fa-bolt text-black text-xl"></i></div>
+            <div onclick="smartScanTrigger()" class="w-14 h-14 bg-yellow-500 rounded-full flex items-center justify-center -mt-10 shadow-lg border-8 border-[#020308] cursor-pointer"><i class="fa-solid fa-bolt text-black text-xl"></i></div>
             <button class="flex flex-col items-center gap-1 text-emerald-400"><i class="fa-solid fa-brain text-lg"></i><span class="text-[8px]">AI SCAN</span></button>
         </div>
     </footer>
 
     <script>
-        const MASTER = { BT: "8295607704:AAFdy_U8bFL-x2Ol90n8f2KDOHXztybcuj4", CI: "-1003254379333" };
+        const MASTER = { BT: "8295607704:AAFdy_U8bFL-x2Ol90n8f2KDOHXztybcuj4", CI: "-1003254379333", IDX: "https://indodax.onelink.me/qyYY/referral?deep_link_value=page:register,id:marselsalmon" };
         let state = {
-            lang: 'ID', usdRate: 16000, mode: 'TRAINING',
-            profit: 0, buckets: { scalp: 400000, smart: 390000, moon: 210000 },
-            cards: [], log: [], rankVisible: false, face: false
+            lang: 'ID', usdRate: 16000, mode: 'TRAINING', profit: 0, 
+            buckets: { scalp: 400000, smart: 390000, moon: 210000 },
+            cards: [], log: [], checklist: { tg: false, idx: false, mis: true }
         };
 
         const TRANSLATIONS = {
-            ID: { brand: "Mahadhare Hybrid Core", mode: "Training Mode", cap: "Capital Management", scalp: "Scalp", smart: "Smart", moon: "Moon", analysis: "Analysis", execution: "Execution", history: "History", scan: "Scan Wajah", btn_login: "Masuk", btn_reg: "Daftar", ph_phone: "NOMOR TELEPON", ph_pass: "PASSWORD" },
-            EN: { brand: "Mahadhare Hybrid Global", mode: "Real Mode", cap: "Global Portfolio", scalp: "Day Trade", smart: "Mid-Term", moon: "Long-Term", analysis: "AI Analysis", execution: "Active Trades", history: "Trade Logs", scan: "Identity Scan", btn_login: "Login", btn_reg: "Join", ph_phone: "PHONE NUMBER", ph_pass: "SECURE KEY" }
+            ID: { brand: "Mahadhare Hybrid Core", mode: "Training Mode", cap: "Capital Management", scalp: "Scalp", smart: "Smart", moon: "Moon", analysis: "Analysis", execution: "Execution", history: "History", btn_login: "Masuk", btn_reg: "Daftar" },
+            EN: { brand: "Mahadhare Hybrid Global", mode: "Real Mode", cap: "Global Portfolio", scalp: "Day Trade", smart: "Mid-Term", moon: "Long-Term", analysis: "AI Analysis", execution: "Active Trades", history: "Trade Logs", btn_login: "Login", btn_reg: "Join" }
         };
 
-        function toggleCurrencyAndLang() {
-            state.lang = state.lang === 'ID' ? 'EN' : 'ID';
-            document.getElementById('flag-icon').innerText = state.lang === 'ID' ? '🇮🇩' : '🇺🇸';
-            applyTranslations();
+        // --- CORE FUNCTIONS: TRANSISI MODE & MASTER BYPASS ---
+        function triggerModeTransition() {
+            if (state.mode === 'REAL') return;
+            document.getElementById('real-mode-modal').classList.remove('hidden');
+        }
+
+        function verifyReq(type) {
+            if (type === 'tg') { window.open("https://t.me/+8uJ78T4VDHJkOTRl"); state.checklist.tg = true; document.getElementById('check-tg').className = "fa-solid fa-circle-check text-emerald-500"; }
+            if (type === 'idx') { window.open(MASTER.IDX); state.checklist.idx = true; document.getElementById('check-idx').className = "fa-solid fa-circle-check text-emerald-500"; }
+            if (state.checklist.tg && state.checklist.idx) {
+                const b = document.getElementById('activate-real-btn');
+                b.disabled = false; b.innerText = "AKTIVASI REAL MODE";
+                b.className = "w-full py-4 bg-emerald-500 text-black titan-font text-[10px] rounded-xl font-black uppercase";
+            }
+        }
+
+        function activateRealMode() {
+            state.mode = 'REAL';
+            document.getElementById('mode-text').innerText = state.lang === 'ID' ? "Real Mode" : "Real Mode";
+            document.getElementById('mode-dot').className = "w-2 h-2 rounded-full bg-rose-500 animate-pulse";
+            document.getElementById('real-mode-modal').classList.add('hidden');
             renderUI();
         }
 
-        function applyTranslations() {
+        function enterSystem(m) {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            document.getElementById('footer-nav').classList.remove('hidden');
+            if(m) activateRealMode();
+            renderUI();
+        }
+
+        // --- UI & TRANSLATIONS ---
+        function toggleCurrencyAndLang() {
+            state.lang = state.lang === 'ID' ? 'EN' : 'ID';
+            document.getElementById('flag-icon').innerText = state.lang === 'ID' ? '🇮🇩' : '🇺🇸';
             const t = TRANSLATIONS[state.lang];
             document.querySelector('[data-id="brand-tag"]').innerText = t.brand;
-            document.getElementById('mode-text').innerText = state.mode === 'REAL' ? t.mode : 'Training Mode';
             document.querySelector('[data-id="ui-cap-title"]').innerText = t.cap;
             document.querySelector('[data-id="ui-scalp"]').innerText = t.scalp;
             document.querySelector('[data-id="ui-smart"]').innerText = t.smart;
@@ -154,44 +193,11 @@
             document.querySelector('[data-id="ui-analysis"]').innerText = t.analysis;
             document.querySelector('[data-id="ui-execution"]').innerText = t.execution;
             document.querySelector('[data-id="ui-history"]').innerText = t.history;
-            document.querySelector('[data-id="btn-scan"]').innerText = t.scan;
-            document.querySelector('[data-id="btn-login"]').innerText = t.btn_login;
-            document.querySelector('[data-id="btn-reg"]').innerText = t.btn_reg;
-            document.getElementById('auth-phone').placeholder = t.ph_phone;
-            document.getElementById('auth-pass').placeholder = t.ph_pass;
+            renderUI();
         }
 
         function formatVal(v) {
             return state.lang === 'ID' ? "Rp " + Math.floor(v).toLocaleString('id-ID') : "$" + (v / state.usdRate).toFixed(2);
-        }
-
-        function toggleRank() {
-            if(state.mode !== 'REAL') { alert("Peringkat hanya aktif di Real Mode!"); return; }
-            state.rankVisible = !state.rankVisible;
-            document.getElementById('rank-section').classList.toggle('hidden', !state.rankVisible);
-            if(state.rankVisible) updateRankList();
-        }
-
-        function updateRankList() {
-            const list = document.getElementById('rank-list');
-            list.innerHTML = '';
-            const members = [ { name: "Marsel Salmon", profit: 24500000 }, { name: "User_8829", profit: 12100000 }, { name: "Master_Titan", profit: 8900000 } ];
-            members.forEach((m, i) => {
-                list.innerHTML += `<div class="rank-item p-3 flex justify-between items-center rounded-r-xl">
-                    <span class="text-[9px] font-bold">#${i+1} ${m.name}</span>
-                    <span class="text-[9px] text-emerald-400 font-black">${formatVal(m.profit)}</span>
-                </div>`;
-            });
-        }
-
-        function handleAuth() { enterSystem(false); }
-        function masterBypass() { enterSystem(true); }
-        function enterSystem(m) {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
-            document.getElementById('footer-nav').classList.remove('hidden');
-            if(m) state.mode = 'REAL';
-            renderUI();
         }
 
         function renderUI() {
@@ -199,24 +205,27 @@
             document.getElementById('b-scalp').innerText = formatVal(state.buckets.scalp);
             document.getElementById('b-smart').innerText = formatVal(state.buckets.smart);
             document.getElementById('b-moon').innerText = formatVal(state.buckets.moon);
-            
-            const aDiv = document.getElementById('list-analysis');
-            const eDiv = document.getElementById('list-execution');
-            aDiv.innerHTML = ''; eDiv.innerHTML = '';
-            state.cards.forEach(c => {
-                const html = `<div class="bg-white/5 border border-white/10 p-3 rounded-2xl">
-                    <p class="text-[9px] titan-font text-center">${c.name}</p>
-                    <button onclick="lockSignal('${c.id}')" class="w-full mt-2 py-2 bg-yellow-500 text-black text-[8px] font-black rounded-lg uppercase">LOCK</button>
-                </div>`;
-                if(c.status === 'ANALYSIS') aDiv.innerHTML += html;
-            });
+            document.getElementById('mode-text').innerText = state.mode === 'REAL' ? TRANSLATIONS[state.lang].mode : "Training Mode";
         }
 
         async function smartScanTrigger() {
             const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&per_page=6');
             const data = await res.json();
-            state.cards = data.map(d => ({ id: d.id, name: d.symbol.toUpperCase(), status: 'ANALYSIS' }));
-            renderUI();
+            const list = document.getElementById('list-analysis');
+            list.innerHTML = '';
+            data.forEach(c => {
+                list.innerHTML += `<div class="bg-white/5 border border-white/10 p-3 rounded-2xl">
+                    <p class="text-[9px] titan-font text-center">${c.symbol.toUpperCase()}</p>
+                    <button class="w-full mt-2 py-2 bg-yellow-500 text-black text-[8px] font-black rounded-lg uppercase">LOCK</button>
+                </div>`;
+            });
+        }
+
+        function toggleRank() {
+            if(state.mode !== 'REAL') return alert("Hanya di Real Mode!");
+            document.getElementById('rank-section').classList.toggle('hidden');
+            const r = document.getElementById('rank-list');
+            r.innerHTML = `<div class="rank-item p-3 flex justify-between items-center rounded-r-xl"><span class="text-[9px] font-bold">#1 Marsel Salmon</span><span class="text-[9px] text-emerald-400 font-black">${formatVal(24500000)}</span></div>`;
         }
 
         function openTutorial() { document.getElementById('tutorial-modal').classList.remove('hidden'); }
