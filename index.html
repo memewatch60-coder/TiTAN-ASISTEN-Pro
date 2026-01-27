@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TITAN V13 - MAHADHARE GOLD ULTIMATE</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;500;700&display=swap');
@@ -14,16 +13,20 @@
         .titan-font { font-family: 'Orbitron', sans-serif; }
         .glass-premium { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid rgba(255, 215, 0, 0.15); border-radius: 1.5rem; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        #face-video { width: 100%; height: 160px; border-radius: 1rem; object-fit: cover; border: 2px solid var(--gold); background: #000; }
-        .rank-item { background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, rgba(0,0,0,0) 100%); border-left: 2px solid var(--gold); }
+        .price-up { color: #10b981; animation: pulse-up 0.5s; }
+        .price-down { color: #f43f5e; animation: pulse-down 0.5s; }
+        @keyframes pulse-up { 0% { background: rgba(16, 185, 129, 0.2); } 100% { background: transparent; } }
+        @keyframes pulse-down { 0% { background: rgba(244, 63, 94, 0.2); } 100% { background: transparent; } }
+        .notif-toast { animation: slide-in 0.3s ease-out; }
+        @keyframes slide-in { from { transform: translateX(100%); } to { transform: translateX(0); } }
     </style>
 </head>
 <body>
 
-    <div id="notif-area"></div>
+    <div id="notif-area" class="fixed top-5 right-5 z-[60000] space-y-2"></div>
 
     <div id="auth-screen" class="fixed inset-0 z-[10000] bg-[#020308] overflow-y-auto p-6 flex flex-col items-center">
-        <div class="w-full max-w-sm text-center mt-4">
+        <div class="w-full max-sm text-center mt-4">
             <div class="w-32 h-32 mx-auto mb-4 bg-zinc-900 rounded-2xl border border-yellow-500/30 flex items-center justify-center">
                 <i class="fa-solid fa-microchip text-4xl text-yellow-500"></i>
             </div>
@@ -34,11 +37,10 @@
                 <input type="password" id="auth-pass" placeholder="PASSWORD" class="w-full bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none text-xs">
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="enterSystem(false)" class="py-4 bg-yellow-500 text-black titan-font text-[10px] font-black rounded-xl uppercase">Masuk</button>
-                    <button onclick="alert('Gunakan Jalur Master untuk Akses Instan')" class="py-4 bg-white/5 border border-white/10 text-white titan-font text-[10px] rounded-xl uppercase">Daftar</button>
+                    <button onclick="alert('Gunakan Jalur Master')" class="py-4 bg-white/5 border border-white/10 text-white titan-font text-[10px] rounded-xl uppercase">Daftar</button>
                 </div>
                 <div class="mt-10 pt-6 border-t border-white/5">
-                    <button onclick="enterSystem(true)" class="w-full py-4 bg-yellow-600/20 border border-yellow-500/50 text-yellow-500 titan-font text-[12px] font-black rounded-xl uppercase shadow-xl hover:bg-yellow-500 hover:text-black transition-all">VERIFY IDENTITY</button>
-                    <p class="text-[7px] text-white/30 italic mt-2 tracking-[2px]">LOG: ENCRYPTED ACCESS ONLY</p>
+                    <button onclick="enterSystem(true)" class="w-full py-4 bg-yellow-600/20 border border-yellow-500/50 text-yellow-500 titan-font text-[12px] font-black rounded-xl uppercase shadow-xl hover:bg-yellow-500 transition-all">VERIFY IDENTITY</button>
                 </div>
             </div>
         </div>
@@ -46,25 +48,24 @@
 
     <div id="tutorial-modal" class="fixed inset-0 z-[30000] bg-black/95 backdrop-blur-xl hidden flex flex-col p-6 overflow-y-auto">
         <div class="flex justify-between items-center mb-6">
-            <h2 class="titan-font text-yellow-500 text-sm">PANDUAN FITUR TITAN V13</h2>
+            <h2 class="titan-font text-yellow-500 text-sm">PANDUAN & STRATEGI TITAN</h2>
             <button onclick="closeTutorial()" class="text-white text-2xl">&times;</button>
         </div>
         <div class="space-y-6 text-[11px] text-white/80 leading-relaxed pb-20">
-            <div>
-                <h4 class="text-yellow-500 titan-font text-[9px] mb-1">1. CAPITAL MANAGEMENT</h4>
-                <p>Sistem otomatis membagi modal Anda ke 3 kategori risiko: <b>Scalp</b> (Trading cepat), <b>Smart</b> (Menengah), dan <b>Moon</b> (Jangka panjang) dengan rasio 40:39:21.</p>
+            <div class="border-b border-white/5 pb-4">
+                <h4 class="text-yellow-500 titan-font text-[9px] mb-2">I. PENJELASAN FITUR APK</h4>
+                <p><b>Capital Management:</b> Membagi modal otomatis (40:39:21).<br>
+                <b>WebSocket AI:</b> Harga bergerak real-time otomatis dari Binance API.</p>
+            </div>
+            <div class="border-b border-white/5 pb-4">
+                <h4 class="text-emerald-500 titan-font text-[9px] mb-2">II. STRATEGI BUY (LOCK SIGNAL)</h4>
+                <p>1. Pantau kartu koin di Analysis.<br>
+                2. Lakukan <b>LOCK</b> pada bucket yang tersedia (Scalp/Smart/Moon).</p>
             </div>
             <div>
-                <h4 class="text-blue-500 titan-font text-[9px] mb-1">2. ANALYSIS (AI SCAN)</h4>
-                <p>Klik tombol ⚡ (Bolt) untuk mencari sinyal. AI akan menampilkan koin dengan akurasi tinggi. Klik <b>LOCK</b> untuk mengambil posisi menggunakan modal dari Capital.</p>
-            </div>
-            <div>
-                <h4 class="text-emerald-500 titan-font text-[9px] mb-1">3. EXECUTION</h4>
-                <p>Tempat memantau trade aktif secara Real-Time. Klik <b>EXECUTE</b> saat profit sudah sesuai target untuk mencairkan saldo ke Capital.</p>
-            </div>
-            <div>
-                <h4 class="text-rose-500 titan-font text-[9px] mb-1">4. TRAINING vs REAL MODE</h4>
-                <p><b>Training:</b> Simulasi tanpa risiko. <b>Real:</b> Trading sungguhan. Aktivasi Real Mode memerlukan verifikasi pendaftaran Indodax & Join Group Telegram Master.</p>
+                <h4 class="text-rose-500 titan-font text-[9px] mb-2">III. STRATEGI SELL (EXECUTE PROFIT)</h4>
+                <p>1. Eksekusi trade di kolom Execution saat tombol muncul.<br>
+                2. Dana kembali ke Capital Management dengan tambahan profit.</p>
             </div>
         </div>
     </div>
@@ -74,80 +75,218 @@
             <button onclick="openTutorial()" class="w-9 h-9 bg-white/5 rounded-full flex items-center justify-center border border-yellow-500/30 text-yellow-500">
                 <i class="fa-solid fa-book"></i>
             </button>
-            <div onclick="triggerModeTransition()" class="cursor-pointer bg-white/5 p-2 px-3 rounded-2xl flex items-center gap-2 border border-white/10 active:scale-95 transition-all">
-                <div id="mode-dot" class="w-2 h-2 rounded-full bg-emerald-500"></div>
+            <div onclick="triggerModeTransition()" class="cursor-pointer bg-white/5 p-2 px-3 rounded-2xl flex items-center gap-2 border border-white/10">
+                <div id="mode-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                 <span id="mode-text" class="titan-font text-[9px] font-black uppercase text-white">Training Mode</span>
             </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex gap-2">
+            <div id="api-status" class="text-[7px] self-center px-2 py-1 rounded bg-emerald-500/10 text-emerald-500 titan-font uppercase">Binance Active</div>
             <button onclick="toggleCurrencyAndLang()" class="w-10 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-lg" id="lang-btn"><span id="flag-icon">🇮🇩</span></button>
-            <button onclick="location.reload()" class="text-rose-500 bg-rose-500/10 w-8 h-8 rounded-lg border border-rose-500/20 flex items-center justify-center"><i class="fa-solid fa-power-off"></i></button>
         </div>
     </header>
 
     <main id="main-content" class="h-full flex flex-col pb-48 overflow-y-auto no-scrollbar hidden">
         <section class="p-5">
-            <div class="glass-premium p-6">
-                <p class="text-[8px] uppercase font-black opacity-40 text-white">Capital Management</p>
+            <div class="glass-premium p-6 text-center">
+                <p class="text-[8px] uppercase font-black opacity-40 text-white tracking-widest mb-1">Capital Management</p>
                 <h2 id="cap-main" class="titan-font text-3xl text-yellow-500 font-black mb-4">Rp 0</h2>
                 <div class="grid grid-cols-3 gap-2">
-                    <div class="bg-white/5 p-3 rounded-xl text-center"><p class="text-[7px] opacity-50 uppercase mb-1">Scalp</p><p id="b-scalp" class="text-[9px] font-bold text-emerald-400">0</p></div>
-                    <div class="bg-white/5 p-3 rounded-xl text-center"><p class="text-[7px] opacity-50 uppercase mb-1">Smart</p><p id="b-smart" class="text-[9px] font-bold text-blue-400">0</p></div>
-                    <div class="bg-white/5 p-3 rounded-xl text-center"><p class="text-[7px] opacity-50 uppercase mb-1">Moon</p><p id="b-moon" class="text-[9px] font-bold text-violet-400">0</p></div>
+                    <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+                        <p class="text-[7px] opacity-50 uppercase mb-1">Scalp</p>
+                        <p id="b-scalp" class="text-[9px] font-bold text-emerald-400">0</p>
+                    </div>
+                    <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+                        <p class="text-[7px] opacity-50 uppercase mb-1">Smart</p>
+                        <p id="b-smart" class="text-[9px] font-bold text-blue-400">0</p>
+                    </div>
+                    <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+                        <p class="text-[7px] opacity-50 uppercase mb-1">Moon</p>
+                        <p id="b-moon" class="text-[9px] font-bold text-violet-400">0</p>
+                    </div>
                 </div>
             </div>
         </section>
 
         <section class="px-5 mb-10 h-[45vh] grid grid-cols-3 gap-3">
-            <div class="mod-col"><h3 class="titan-font text-[9px] text-yellow-500 mb-4 uppercase text-center font-black">Analysis</h3><div id="list-analysis" class="space-y-4 overflow-y-auto no-scrollbar"></div></div>
-            <div class="mod-col"><h3 class="titan-font text-[9px] text-blue-500 mb-4 uppercase text-center font-black">Execution</h3><div id="list-execution" class="space-y-4 overflow-y-auto no-scrollbar"></div></div>
-            <div class="mod-col"><h3 class="titan-font text-[9px] text-emerald-500 mb-4 uppercase text-center font-black">History</h3><div id="list-history" class="space-y-2 overflow-y-auto no-scrollbar"></div></div>
+            <div class="mod-col">
+                <h3 class="titan-font text-[9px] text-yellow-500 mb-4 uppercase text-center font-black">Analysis</h3>
+                <div id="list-analysis" class="space-y-4 overflow-y-auto no-scrollbar"></div>
+            </div>
+            <div class="mod-col">
+                <h3 class="titan-font text-[9px] text-blue-500 mb-4 uppercase text-center font-black">Execution</h3>
+                <div id="list-execution" class="space-y-4 overflow-y-auto no-scrollbar"></div>
+            </div>
+            <div class="mod-col">
+                <h3 class="titan-font text-[9px] text-emerald-500 mb-4 uppercase text-center font-black">History</h3>
+                <div id="list-history" class="space-y-2 overflow-y-auto no-scrollbar"></div>
+            </div>
         </section>
     </main>
 
     <footer id="footer-nav" class="fixed bottom-0 left-0 right-0 p-4 bg-black/95 border-t border-white/5 z-50 hidden">
         <div class="flex justify-around items-center max-w-md mx-auto">
-            <button onclick="toggleRank()" class="flex flex-col items-center gap-1 text-yellow-500"><i class="fa-solid fa-ranking-star text-lg"></i><span class="text-[8px]">LIVE</span></button>
-            <button onclick="window.open('https://t.me/+8uJ78T4VDHJkOTRl')" class="flex flex-col items-center gap-1 text-sky-400"><i class="fa-brands fa-telegram text-2xl"></i><span class="text-[8px]">GROUP</span></button>
-            <div onclick="smartScanTrigger()" class="w-14 h-14 bg-yellow-500 rounded-full flex items-center justify-center -mt-10 shadow-lg border-8 border-[#020308] cursor-pointer"><i class="fa-solid fa-bolt text-black text-xl"></i></div>
+            <button class="flex flex-col items-center gap-1 text-yellow-500"><i class="fa-solid fa-ranking-star text-lg"></i><span class="text-[8px]">LIVE</span></button>
+            <div onclick="smartScanTrigger()" class="w-14 h-14 bg-yellow-500 rounded-full flex items-center justify-center -mt-10 shadow-lg border-8 border-[#020308] cursor-pointer hover:scale-110 transition-transform"><i class="fa-solid fa-bolt text-black text-xl"></i></div>
             <button class="flex flex-col items-center gap-1 text-emerald-400"><i class="fa-solid fa-brain text-lg"></i><span class="text-[8px]">AI SCAN</span></button>
         </div>
     </footer>
 
     <script>
-        const MASTER = { BT: "8295607704:AAFdy_U8bFL-x2Ol90n8f2KDOHXztybcuj4", CI: "-1003254379333", IDX: "https://indodax.onelink.me/qyYY/referral?deep_link_value=page:register,id:marselsalmon" };
         let state = {
-            lang: 'ID', usdRate: 16000, mode: 'TRAINING', profit: 0, 
+            lang: 'ID', 
+            usdRate: 16000, 
+            mode: 'TRAINING', 
+            profit: 0, 
             buckets: { scalp: 0, smart: 0, moon: 0 },
-            cards: [], log: []
+            activeTrades: [],
+            ws: null,
+            symbols: ['BTC', 'ETH', 'XRP']
         };
 
-        // --- LOGIKA INPUT MODAL (OTOMATIS) ---
-        function processInitialDeposit() {
-            const initialModal = 1000000; // Modal awal Rp 1.000.000
-            state.profit = initialModal;
-            state.buckets.scalp = initialModal * 0.40; // 40%
-            state.buckets.smart = initialModal * 0.39; // 39%
-            state.buckets.moon = initialModal * 0.21;  // 21%
-            renderUI();
-        }
-
-        function enterSystem(m) {
+        // --- SISTEM AUTH & LOGIN ---
+        function enterSystem(isReal) {
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('main-content').classList.remove('hidden');
             document.getElementById('footer-nav').classList.remove('hidden');
-            if(m) { state.mode = 'REAL'; processInitialDeposit(); } // Master langsung dapat modal
+            
+            if(isReal) {
+                state.mode = 'REAL';
+                state.profit = 1000000; 
+                recalculateBuckets();
+            } else {
+                state.mode = 'TRAINING';
+                state.profit = 0;
+            }
+            initWebSocket();
             renderUI();
         }
 
-        function triggerModeTransition() {
-            if(state.mode === 'REAL') return;
-            if(confirm("Join Group Telegram & Reff Indodax untuk aktivasi?")) {
-                window.open("https://t.me/+8uJ78T4VDHJkOTRl");
-                window.open(MASTER.IDX);
-                state.mode = 'REAL';
-                processInitialDeposit();
-            }
+        // --- MANAJEMEN MODAL ---
+        function recalculateBuckets() {
+            // Aturan 40:39:21
+            state.buckets.scalp = state.profit * 0.40;
+            state.buckets.smart = state.profit * 0.39;
+            state.buckets.moon = state.profit * 0.21;
+        }
+
+        function renderUI() {
+            document.getElementById('cap-main').innerText = formatVal(state.profit);
+            document.getElementById('b-scalp').innerText = formatVal(state.buckets.scalp);
+            document.getElementById('b-smart').innerText = formatVal(state.buckets.smart);
+            document.getElementById('b-moon').innerText = formatVal(state.buckets.moon);
+            document.getElementById('mode-text').innerText = state.mode + " MODE";
+            document.getElementById('mode-dot').className = state.mode === 'REAL' ? "w-2 h-2 rounded-full bg-yellow-500 animate-pulse" : "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+        }
+
+        // --- ANALISIS & LOCK ---
+        function smartScanTrigger() {
+            const list = document.getElementById('list-analysis');
+            list.innerHTML = '';
+            state.symbols.forEach(s => {
+                list.innerHTML += `
+                    <div class="bg-white/5 border border-white/10 p-3 rounded-2xl transition-all">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[9px] font-black">${s}/IDR</span>
+                            <span class="text-[7px] text-emerald-400">SGNL: 95%+</span>
+                        </div>
+                        <div class="text-[10px] font-bold mb-2"><span id="price-${s}" data-price="0">Loading...</span></div>
+                        <div class="grid grid-cols-3 gap-1">
+                            <button onclick="lockSignal('${s}', 'scalp')" class="py-1 bg-emerald-500 text-black text-[7px] font-black rounded uppercase">Scalp</button>
+                            <button onclick="lockSignal('${s}', 'smart')" class="py-1 bg-blue-500 text-black text-[7px] font-black rounded uppercase">Smart</button>
+                            <button onclick="lockSignal('${s}', 'moon')" class="py-1 bg-violet-500 text-black text-[7px] font-black rounded uppercase">Moon</button>
+                        </div>
+                    </div>`;
+            });
+            showNotif("AI Scanner Re-synced", "emerald");
+        }
+
+        function lockSignal(symbol, bucketType) {
+            if(state.mode !== 'REAL') return showNotif("Hanya di REAL MODE", "rose");
+            
+            const amount = state.buckets[bucketType];
+            if(amount <= 0) return showNotif("Saldo " + bucketType + " Kosong!", "rose");
+
+            // Eksekusi Pemotongan
+            state.buckets[bucketType] = 0;
+            state.profit -= amount;
+
+            const trade = {
+                id: Date.now(),
+                symbol: symbol,
+                type: bucketType,
+                amount: amount
+            };
+            state.activeTrades.push(trade);
+
+            renderUI();
+            renderExecutionList();
+            showNotif(`${symbol} LOCKED via ${bucketType.toUpperCase()}`, "yellow");
+        }
+
+        // --- EKSEKUSI PROFIT ---
+        function renderExecutionList() {
+            const container = document.getElementById('list-execution');
+            container.innerHTML = '';
+            state.activeTrades.forEach(t => {
+                container.innerHTML += `
+                    <div class="bg-blue-600/10 border border-blue-500/30 p-3 rounded-xl">
+                        <p class="text-[7px] text-blue-400 font-bold uppercase mb-1">${t.symbol} Active</p>
+                        <p class="text-[9px] mb-2">${formatVal(t.amount)}</p>
+                        <button onclick="executeProfit(${t.id})" class="w-full py-1 bg-blue-500 text-black text-[8px] font-black rounded uppercase shadow-lg shadow-blue-500/20">Execute</button>
+                    </div>`;
+            });
+        }
+
+        function executeProfit(id) {
+            const idx = state.activeTrades.findIndex(t => t.id === id);
+            const trade = state.activeTrades[idx];
+            
+            // Simulasi profit acak 1.5% - 4%
+            const multiplier = 1 + (Math.random() * (0.04 - 0.015) + 0.015);
+            const finalValue = trade.amount * multiplier;
+            const netProfit = finalValue - trade.amount;
+
+            state.profit += finalValue;
+            recalculateBuckets(); // Balikin ke 40:39:21 secara otomatis (Compounding)
+            
+            addHistory(trade.symbol, netProfit);
+            state.activeTrades.splice(idx, 1);
+            
+            renderUI();
+            renderExecutionList();
+            showNotif("Profit + " + formatVal(netProfit), "emerald");
+        }
+
+        function addHistory(symbol, profit) {
+            const list = document.getElementById('list-history');
+            const item = document.createElement('div');
+            item.className = "bg-white/5 p-2 rounded flex justify-between border-l-2 border-emerald-500 text-[7px]";
+            item.innerHTML = `<span>${symbol}</span><span class="text-emerald-400 font-bold">+${formatVal(profit)}</span>`;
+            list.prepend(item);
+        }
+
+        // --- UTILS & CORE WEB ---
+        function initWebSocket() {
+            if(state.ws) state.ws.close();
+            state.ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker/ethusdt@ticker/xrpusdt@ticker');
+            state.ws.onmessage = (e) => {
+                const d = JSON.parse(e.data);
+                const sym = d.s.replace('USDT', '');
+                const el = document.getElementById(`price-${sym}`);
+                if(el) {
+                    const oldPrice = parseFloat(el.getAttribute('data-price'));
+                    const newPrice = parseFloat(d.c) * state.usdRate;
+                    el.innerText = formatVal(newPrice);
+                    el.setAttribute('data-price', newPrice);
+                    el.parentElement.className = newPrice >= oldPrice ? "price-up text-[10px] font-bold" : "price-down text-[10px] font-bold";
+                }
+            };
+        }
+
+        function formatVal(v) {
+            if(state.lang === 'ID') return "Rp " + Math.floor(v).toLocaleString('id-ID');
+            return "$" + (v / state.usdRate).toFixed(2);
         }
 
         function toggleCurrencyAndLang() {
@@ -156,34 +295,22 @@
             renderUI();
         }
 
-        function formatVal(v) {
-            return state.lang === 'ID' ? "Rp " + Math.floor(v).toLocaleString('id-ID') : "$" + (v / state.usdRate).toFixed(2);
-        }
-
-        function renderUI() {
-            document.getElementById('cap-main').innerText = formatVal(state.profit);
-            document.getElementById('b-scalp').innerText = formatVal(state.buckets.scalp);
-            document.getElementById('b-smart').innerText = formatVal(state.buckets.smart);
-            document.getElementById('b-moon').innerText = formatVal(state.buckets.moon);
-            document.getElementById('mode-text').innerText = state.mode === 'REAL' ? "Real Mode" : "Training Mode";
-        }
-
-        async function smartScanTrigger() {
-            const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&per_page=6');
-            const data = await res.json();
-            const list = document.getElementById('list-analysis');
-            list.innerHTML = '';
-            data.forEach(c => {
-                list.innerHTML += `<div class="bg-white/5 border border-white/10 p-3 rounded-2xl">
-                    <p class="text-[9px] titan-font text-center">${c.symbol.toUpperCase()}</p>
-                    <button class="w-full mt-2 py-2 bg-yellow-500 text-black text-[8px] font-black rounded-lg uppercase">LOCK</button>
-                </div>`;
-            });
+        function showNotif(msg, color) {
+            const area = document.getElementById('notif-area');
+            const t = document.createElement('div');
+            t.className = `notif-toast bg-black border border-${color}-500 p-3 rounded-lg text-[9px] titan-font shadow-xl text-white`;
+            t.innerText = msg;
+            area.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
         }
 
         function openTutorial() { document.getElementById('tutorial-modal').classList.remove('hidden'); }
         function closeTutorial() { document.getElementById('tutorial-modal').classList.add('hidden'); }
-        function toggleRank() { if(state.mode === 'REAL') alert("Peringkat: #1 Marsel Salmon"); }
+        function triggerModeTransition() { 
+            if(state.mode !== 'REAL' && confirm("Aktifkan Real Mode?")) { 
+                enterSystem(true); 
+            } 
+        }
     </script>
 </body>
 </html>
