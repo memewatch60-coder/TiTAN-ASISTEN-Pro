@@ -18,16 +18,26 @@
         .glass-premium { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid rgba(255, 215, 0, 0.15); border-radius: 1.5rem; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
+        /* Layout Tiga Kolom V13 */
+        .titan-grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 0 10px;
+        }
+        .column-title { text-align: center; font-size: 8px; letter-spacing: 1px; margin-bottom: 10px; text-transform: uppercase; font-weight: 900; opacity: 0.6; }
+
         /* Animasi Hot Zone (V13 Update) */
         .hot-zone-pulse { animation: hot-pulse 0.8s infinite cubic-bezier(0.4, 0, 0.6, 1); border: 2px solid #ff4444 !important; }
         @keyframes hot-pulse { 0%, 100% { background: rgba(255, 68, 68, 0.1); box-shadow: 0 0 5px rgba(255, 68, 68, 0.2); } 50% { background: rgba(255, 68, 68, 0.3); box-shadow: 0 0 20px rgba(255, 68, 68, 0.5); } }
 
         .blink-execute { animation: blink-gold 1s infinite; }
         @keyframes blink-gold { 0%, 100% { border-color: rgba(255,215,0,0.1); } 50% { border-color: var(--gold); box-shadow: 0 0 15px rgba(255,215,0,0.3); } }
+        
         .floating-msg { position: fixed; top: 110px; right: 20px; z-index: 9999; background: rgba(0,0,0,0.9); padding: 12px; border-radius: 12px; border: 1px solid var(--gold); max-width: 220px; font-size: 9px; animation: slideIn 0.3s ease-out; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         #face-video { width: 100%; height: 180px; border-radius: 1rem; object-fit: cover; border: 2px solid var(--gold); background: #000; }
-        canvas.mini-chart { height: 60px !important; width: 100% !important; }
+        canvas.mini-chart { height: 50px !important; width: 100% !important; }
     </style>
 </head>
 <body>
@@ -113,19 +123,24 @@
             </div>
         </section>
 
-        <div class="px-5 space-y-10 pb-40">
-            <section><h3 class="titan-font text-[10px] text-yellow-500 mb-4 flex items-center gap-2 uppercase tracking-widest"><i class="fa-solid fa-eye"></i> Mata Dewa Analysis</h3><div id="list-analysis" class="space-y-4"></div></section>
-            <section>
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="titan-font text-[10px] text-blue-500 flex items-center gap-2 uppercase tracking-widest"><i class="fa-solid fa-bolt"></i> Execution Hot Zone</h3>
-                    <button id="execute-all" onclick="massExecute()" class="hidden text-[8px] bg-yellow-500 text-black px-2 py-1 rounded font-black uppercase">Execute All (Elite)</button>
+        <div class="titan-grid-container mt-4">
+            <div>
+                <div class="column-title">Analysis</div>
+                <div id="list-analysis" class="space-y-3"></div>
+            </div>
+            
+            <div>
+                <div class="column-title">Execution</div>
+                <div id="list-execution" class="space-y-3"></div>
+            </div>
+
+            <div>
+                <div class="column-title">History</div>
+                <div class="flex justify-center mb-2">
+                    <button onclick="exportExcel()" class="text-[6px] bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2 py-0.5 rounded uppercase font-bold">XLSX</button>
                 </div>
-                <div id="list-execution" class="space-y-4"></div>
-            </section>
-            <section>
-                <div class="flex justify-between items-center mb-4"><h3 class="titan-font text-[10px] text-emerald-500 flex items-center gap-2 uppercase tracking-widest"><i class="fa-solid fa-database"></i> History & Log</h3><button onclick="exportExcel()" class="text-[8px] bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2 py-1 rounded uppercase font-bold tracking-widest">Excel</button></div>
                 <div id="list-history" class="space-y-2"></div>
-            </section>
+            </div>
         </div>
     </main>
 
@@ -133,8 +148,12 @@
         <div class="flex justify-around items-center max-w-md mx-auto relative">
             <button class="flex flex-col items-center gap-1 opacity-40"><i class="fa-solid fa-ranking-star"></i><span class="text-[8px]">LIVE</span></button>
             <button id="tg-group-btn" class="flex flex-col items-center gap-1 text-sky-400"><i class="fa-brands fa-telegram text-2xl"></i><span class="text-[8px]">GROUP</span></button>
-            <div class="w-14 h-14 bg-yellow-500 rounded-full flex items-center justify-center -mt-10 shadow-lg shadow-yellow-500/30 border-8 border-[#020308]"><i class="fa-solid fa-bolt text-black text-xl"></i></div>
-            <button class="flex flex-col items-center gap-1 text-emerald-400" onclick="alert('Sentiment AI Roadmap V14: Scraping X Tren...')"><i class="fa-solid fa-brain"></i><span class="text-[8px]">AI SCAN</span></button>
+            <div id="execute-all-container" class="w-14 h-14 bg-yellow-500 rounded-full flex items-center justify-center -mt-10 shadow-lg shadow-yellow-500/30 border-8 border-[#020308] cursor-pointer" onclick="massExecute()">
+                <i class="fa-solid fa-bolt text-black text-xl"></i>
+            </div>
+            <button class="flex flex-col items-center gap-1 text-emerald-400" onclick="alert('Sentiment AI Roadmap V14: Scraping X Tren...')">
+                <i class="fa-solid fa-brain"></i><span class="text-[8px]">AI SCAN</span>
+            </button>
             <button class="flex flex-col items-center gap-1 opacity-40"><i class="fa-solid fa-shield-check"></i><span class="text-[8px]">SECURE</span></button>
         </div>
     </footer>
@@ -164,21 +183,19 @@
             }
         };
 
-        // Firebase Sync Logic (V14 Placeholder)
-        const firebaseConfig = { /* Sync logic enabled for V14 */ };
-
         let dbUsers = JSON.parse(localStorage.getItem('titan_db')) || {};
         let state = {
             authMode: 'LOGIN', xp: 0, rank: 'Standard Member',
             failed: 0, blocked: false, face: false,
             mode: 'TRAINING', target: 0.10, hack: 0,
             initCap: 0, capProfit: 0, buckets: { scalp: 0, smart: 0, moon: 0 },
-            cards: [], log: [], btcDrop: false, goalReached: false
+            cards: [], log: [], btcDrop: false, goalReached: false,
+            lang: 'ID'
         };
 
         // --- ANTI-BREACH (GATEKEEPER) ---
         window.addEventListener('keydown', (e) => {
-            if(e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73)) {
+            if(e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74))) {
                 state.hack++;
                 if(state.hack >= 3) {
                     localStorage.clear();
@@ -227,6 +244,12 @@
             }
         }
 
+        function masterBypass() {
+            const ps = document.getElementById('auth-pass').value;
+            if(ps === MASTER_CONFIG.MK) autoEnter('Master');
+            else showCustomAlert("Master Key Salah.");
+        }
+
         function autoEnter(u) {
             sessionStorage.setItem('titan_auth', 'true');
             document.getElementById('auth-screen').style.display = 'none';
@@ -234,7 +257,7 @@
             startEngine();
         }
 
-        // --- ENGINE & MATA DEWA LOGIC ---
+        // --- ENGINE LOGIC ---
         function finalizeCapital() {
             const v = parseInt(document.getElementById('vault-input').value);
             state.initCap = v;
@@ -245,25 +268,23 @@
 
         async function startEngine() {
             try {
-                // BTC Guard Protocol
                 const btcRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&include_24hr_change=true');
                 const btcData = await btcRes.json();
                 state.btcDrop = btcData.bitcoin.idr_24h_change < -2.0;
                 document.getElementById('btc-guard').classList.toggle('hidden', !state.btcDrop);
 
                 if (!state.btcDrop && !state.goalReached) {
-                    const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=15&sparkline=true');
+                    const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=12&sparkline=true');
                     const data = await res.json();
                     processSignals(data);
                 }
             } catch (e) { console.warn("API Sync Delay"); }
-            setTimeout(startEngine, 10000); // 10s Monitoring Interval
+            setTimeout(startEngine, 10000);
         }
 
         function processSignals(coins) {
             coins.forEach(coin => {
-                // Mata Dewa Logic: RSI < 35 (Simulasi)
-                if(Math.random() > 0.85 && state.cards.length < 10) {
+                if(Math.random() > 0.85 && state.cards.length < 9) {
                     if(!state.cards.find(c => c.coinId === coin.id)) {
                         state.cards.push({
                             id: Date.now() + Math.random(), coinId: coin.id, name: coin.symbol.toUpperCase(),
@@ -279,8 +300,6 @@
                     if(card) {
                         card.current = coin.current_price;
                         if(card.current > card.peak) card.peak = card.current;
-                        
-                        // Smart Trailing Stop Logic (1.5%)
                         if(card.status === 'EXECUTION' && (card.peak - card.current) / card.peak >= 0.015) {
                             handleCardAction(card.id, 'TP', true);
                         }
@@ -296,41 +315,39 @@
 
             if(type === 'LOCK') {
                 card.status = 'EXECUTION';
-                smartNotif(`${card.name} In Hot Zone Monitor`);
+                smartNotif(`${card.name} Locked in Hot Zone`);
             } else {
                 const win = type === 'TP';
-                const pnl = win ? Math.random() * 50000 : -(Math.random() * 20000);
-                state.capProfit += pnl;
+                const pnlValue = win ? Math.random() * 50000 : -(Math.random() * 20000);
+                state.capProfit += pnlValue;
                 
-                // XP Rank System
                 if(win) {
                     state.xp += 15;
                     if(state.xp >= 150) {
                         state.rank = "Elite Master";
-                        document.getElementById('execute-all').classList.remove('hidden');
+                        document.getElementById('execute-all-container').style.boxShadow = "0 0 20px #ffd700";
                     }
                 }
 
-                state.log.push({...card, result: type, pnl, finalTime: new Date().toLocaleTimeString()});
+                state.log.push({...card, result: type, pnl: pnlValue, finalTime: new Date().toLocaleTimeString()});
                 state.cards = state.cards.filter(c => c.id !== id);
                 
-                // Goal Lock 10%
                 if((state.capProfit / state.initCap) >= 0.10) {
                     state.goalReached = true;
                     showCustomAlert("DAILY GOAL 10% TERKONFIRMASI. Profit Dikunci.");
                 }
-
                 if(auto) smartNotif(`Trailing Stop: ${card.name} Closed`);
             }
             renderUI();
         }
 
         function massExecute() {
+            if(state.rank !== "Elite Master") return smartNotif("Hanya untuk Elite Master (150 XP)");
             state.cards.forEach(c => { if(c.status === 'EXECUTION') handleCardAction(c.id, 'TP'); });
             smartNotif("Elite Action: Mass Execution Complete");
         }
 
-        // --- RENDER & UI UPDATES ---
+        // --- RENDER UI (TIGA KOLOM) ---
         function renderUI() {
             document.getElementById('cap-main').innerText = formatIDR(state.initCap + state.capProfit);
             document.getElementById('b-scalp').innerText = formatIDR(state.buckets.scalp);
@@ -341,58 +358,64 @@
 
             const aDiv = document.getElementById('list-analysis');
             const eDiv = document.getElementById('list-execution');
-            aDiv.innerHTML = ''; eDiv.innerHTML = '';
+            const hDiv = document.getElementById('list-history');
+            
+            aDiv.innerHTML = ''; eDiv.innerHTML = ''; hDiv.innerHTML = '';
 
             state.cards.forEach(c => {
                 const pnl = ((c.current / c.entry) - 1) * 100;
-                // Disiplin Hot Zone Pulse (V13)
-                const isHotZone = (pnl >= 2.0) ? 'hot-zone-pulse' : '';
+                const isHot = pnl > 2.0 ? 'hot-zone-pulse' : '';
                 
-                const html = `
-                    <div class="glass-premium p-4 flex flex-col gap-2 ${isHotZone} ${c.status === 'EXECUTION' ? 'blink-execute' : ''}">
+                const cardHtml = `
+                    <div class="glass-premium p-3 flex flex-col gap-2 ${isHot} ${c.status === 'EXECUTION' ? 'blink-execute' : ''}" style="min-height: 140px;">
                         <div class="flex justify-between items-center">
-                            <div class="flex gap-3 items-center">
-                                <img src="${c.img}" class="w-8 h-8 rounded-full">
-                                <div><h4 class="text-[10px] titan-font">${c.name}/IDR</h4><p class="text-[7px] opacity-40 uppercase">${c.strat}</p></div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-[10px] titan-font ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${pnl.toFixed(2)}%</p>
-                                <p class="text-[7px] opacity-40">SIGNAL PNL</p>
-                            </div>
+                            <img src="${c.img}" class="w-5 h-5">
+                            <span class="text-[8px] ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${pnl.toFixed(2)}%</span>
                         </div>
+                        <div class="titan-font text-[7px] text-center">${c.name}</div>
                         <canvas id="chart-${c.id}" class="mini-chart"></canvas>
-                        <div class="flex justify-end gap-2">
+                        <div class="flex justify-center mt-auto">
                             ${c.status === 'ANALYSIS' ? 
-                                `<button onclick="handleCardAction(${c.id}, 'LOCK')" class="px-4 py-2 bg-yellow-500 text-black text-[8px] font-black rounded uppercase">Lock</button>` :
-                                `<button onclick="handleCardAction(${c.id}, 'TP')" class="px-3 py-2 bg-emerald-500 text-[8px] font-bold rounded">TP</button>
-                                 <button onclick="handleCardAction(${c.id}, 'SL')" class="px-3 py-2 bg-rose-500 text-[8px] font-bold rounded">SL</button>`
-                            }
+                            `<button onclick="handleCardAction(${c.id}, 'LOCK')" class="w-full py-1 bg-yellow-500 text-black text-[7px] font-black rounded uppercase">LOCK</button>` :
+                            `<div class="flex gap-1 w-full">
+                                <button onclick="handleCardAction(${c.id}, 'TP')" class="flex-1 py-1 bg-emerald-500 text-[6px] rounded">TP</button>
+                                <button onclick="handleCardAction(${c.id}, 'SL')" class="flex-1 py-1 bg-rose-500 text-[6px] rounded">SL</button>
+                            </div>`}
                         </div>
                     </div>`;
-                if(c.status === 'ANALYSIS') aDiv.innerHTML += html; else eDiv.innerHTML += html;
-                setTimeout(() => drawMiniChart(c.id, c.spark, pnl >= 0), 100);
+
+                if(c.status === 'ANALYSIS') aDiv.innerHTML += cardHtml;
+                else eDiv.innerHTML += cardHtml;
+                
+                setTimeout(() => drawMiniChart(c.id, c.spark, pnl >= 0), 50);
             });
 
-            // Log History
-            const hDiv = document.getElementById('list-history');
-            hDiv.innerHTML = '';
             state.log.slice(-5).reverse().forEach(l => {
-                hDiv.innerHTML += `<div class="bg-white/5 p-3 rounded-xl flex justify-between border border-white/5"><span class="text-[9px] titan-font">${l.name}</span><span class="text-[8px] ${l.result === 'TP' ? 'text-emerald-400' : 'text-rose-400'}">${l.result} (${formatIDR(l.pnl)})</span></div>`;
+                hDiv.innerHTML += `
+                    <div class="bg-white/5 p-2 rounded-lg border border-white/5 text-center">
+                        <div class="text-[7px] titan-font">${l.name}</div>
+                        <div class="text-[6px] ${l.result === 'TP' ? 'text-emerald-400' : 'text-rose-400'}">${l.result}</div>
+                    </div>`;
             });
         }
 
-        // --- UTILS & CORE ---
+        // --- CORE UTILS ---
         function formatIDR(v) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v); }
         function showCustomAlert(c) { document.getElementById('alert-content').innerHTML = c; document.getElementById('custom-alert').classList.remove('hidden'); }
         function closeAlert() { document.getElementById('custom-alert').classList.add('hidden'); }
         function smartNotif(t) { const area = document.getElementById('notif-area'); const el = document.createElement('div'); el.className = "floating-msg titan-font text-yellow-500"; el.innerHTML = t; area.appendChild(el); setTimeout(()=>el.remove(), 4000); }
         function notifyTelegram(t) { fetch(`https://api.telegram.org/bot${MASTER_CONFIG.BT}/sendMessage?chat_id=${MASTER_CONFIG.CI}&text=${encodeURIComponent(t)}&parse_mode=Markdown`); }
-        function drawMiniChart(id, data, profit) {
-            const ctx = document.getElementById(`chart-${id}`).getContext('2d');
-            new Chart(ctx, { type: 'line', data: { labels: data.map((_,i)=>i), datasets: [{ data: data, borderColor: profit ? '#10b981' : '#f43f5e', borderWidth: 1.5, pointRadius: 0 }] }, options: { scales: { x:{display:false}, y:{display:false} }, plugins:{legend:{display:false}} } });
+        function drawMiniChart(id, data, p) {
+            const canvas = document.getElementById(`chart-${id}`);
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            new Chart(ctx, { type: 'line', data: { labels: data.map((_,i)=>i), datasets: [{ data: data, borderColor: p?'#10b981':'#f43f5e', borderWidth: 1, fill: false, pointRadius: 0 }] }, options: { scales: { x:{display:false}, y:{display:false} }, plugins:{legend:{display:false}} } });
         }
+        function exportExcel() { const ws = XLSX.utils.json_to_sheet(state.log); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Titan_Log"); XLSX.writeFile(wb, "TITAN_V13_Report.xlsx"); }
+        function showHowItWorks() { showCustomAlert("<div class='text-left text-[8px] uppercase'><p class='text-yellow-500 font-black mb-2'>Logic V13:</p><p>1. Modal dibagi 40:39:21.</p><p>2. Mata Dewa Scan setiap 10 detik.</p><p>3. Trailing Stop otomatis di 1.5%.</p><p>4. Capai 150 XP untuk fitur Mass TP.</p></div>"); }
+        function toggleLang() { state.lang = state.lang === 'ID' ? 'EN' : 'ID'; document.getElementById('ui-flag').innerText = state.lang === 'ID' ? '🇮🇩' : '🇺🇸'; smartNotif("Language Switched"); }
 
-        // Auto-Compounding & Reset at 00:00
+        // --- MIDNIGHT COMPOUNDING ---
         setInterval(() => {
             const now = new Date();
             if(now.getHours() === 0 && now.getMinutes() === 0 && now.getSeconds() === 0) {
@@ -400,11 +423,13 @@
                 state.initCap = total; state.capProfit = 0;
                 state.buckets = { scalp: total*0.4, smart: total*0.39, moon: total*0.21 };
                 state.goalReached = false;
-                smartNotif("00:00 - Daily Profit Compounded Successfully.");
+                smartNotif("Cycle Reset: Profit Compounded.");
                 renderUI();
             }
         }, 1000);
 
+        document.getElementById('tg-group-btn').onclick = () => window.open(MASTER_CONFIG.TG);
+        window.onload = () => { if(sessionStorage.getItem('titan_auth')) autoEnter('User'); };
     </script>
 </body>
 </html>
