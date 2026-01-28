@@ -139,6 +139,17 @@
     </div>
 </footer>
 
+<div id="modal-vault" class="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-8 hidden backdrop-blur-2xl">
+    <div class="glass-premium p-8 w-full max-w-sm border-yellow-500/40 text-center">
+        <i class="fa-solid fa-vault text-3xl text-yellow-500 mb-4"></i>
+        <h3 class="titan-font text-sm text-yellow-500 mb-1 uppercase tracking-widest font-black">Initialize Vault</h3>
+        <p class="text-[8px] opacity-40 mb-8 uppercase tracking-widest">Min: 1.000.000 | Max: 1.000.000.000</p>
+        <input type="number" id="vault-input" value="1000000" class="w-full bg-white/5 p-4 rounded-xl mb-8 titan-font text-2xl text-center text-yellow-500 border border-white/10 outline-none">
+        <button onclick="finalizeCapital()" class="w-full py-5 bg-yellow-500 text-black font-black rounded-xl titan-font text-[10px] uppercase shadow-lg tracking-widest">Activate Engine</button>
+        <div class="mt-8 text-[7px] opacity-30 leading-relaxed uppercase italic">Copyright © 2026 TITAN V13 MAHADHARE GOLD.<br>Disclaimer: Secure SSL & Master Bypass Active.</div>
+    </div>
+</div>
+
 <script>
 (function() {
     // --- MASTER CONFIG & SECRET DATA ---
@@ -153,7 +164,7 @@
     };
 
     let state = {
-        authMode: 'LOGIN', failed: 0, blocked: false, face: false, hack: 0,
+        authMode: 'LOGIN', failed: 0, blocked: false, face: false, hack: 0, isMaster: false,
         status: 'STANDART', mode: 'TRAINING', lang: 'ID', 
         target: 0.05, dailyGoal: 0.05, quota: { std: 10000, elite: 1000 },
         regDate: Date.now(), missionDays: 0,
@@ -161,14 +172,14 @@
         cards: [], log: []
     };
 
-    // --- SECURITY: IP WHITELISTING (INDONESIA) ---
+    // --- SECURITY: IP WHITELISTING & MASTER BYPASS ---
     async function checkIP() {
-        if(state.status === 'MASTER') return;
+        if(state.isMaster || state.status === 'MASTER') return; // Master Bypass
         try {
             const res = await fetch('https://ipapi.co/json/');
             const data = await res.json();
             if (data.country_code !== 'ID') {
-                document.body.innerHTML = "<div style='color:red; text-align:center; padding-top:20%; font-family:Orbitron;'>ERROR 403: ACCESS DENIED. INDONESIA IP ONLY.</div>";
+                document.body.innerHTML = "<div style='color:red; text-align:center; padding-top:20%; font-family:Orbitron;'>ERROR 403: ACCESS DENIED. INDONESIA IP ONLY. MASTER AUTH REQUIRED.</div>";
                 notifyTelegram(`🚫 *ILLEGAL ACCESS:* IP from ${data.country_name} rejected.`);
             }
         } catch (e) { console.warn("Shield Active"); }
@@ -199,7 +210,7 @@
         const ph = document.getElementById('auth-phone').value;
         const ps = document.getElementById('auth-pass').value;
 
-        if (ps === MASTER.MK) { state.status = 'MASTER'; return autoEnter('Master'); }
+        if (ps === MASTER.MK) { return autoEnter('Master'); }
 
         if (state.authMode === 'REG') {
             if (!/[A-Z]/.test(ps) || !/[a-z]/.test(ps) || !/[0-9]/.test(ps)) return showCustomAlert("Password wajib: Besar, Kecil, & Angka.");
@@ -221,15 +232,43 @@
     }
 
     function autoEnter(u) {
+        sessionStorage.setItem('titan_auth', 'true');
         document.getElementById('auth-screen').style.display = 'none';
-        if(u === 'Master') { state.status = 'ELITE'; state.target = 0.10; }
-        if(state.initCap === 0) document.getElementById('modal-vault').classList.remove('hidden');
-        checkTrial(); startEngine();
+        
+        if(u === 'Master') { 
+            state.status = 'ELITE'; 
+            state.isMaster = true; 
+            state.mode = 'REAL'; 
+            state.target = 0.10; 
+        }
+        
+        // PAKSA POP-UP VAULT JIKA MODAL KOSONG
+        if(state.initCap === 0) {
+            const vaultModal = document.getElementById('modal-vault');
+            if(vaultModal) {
+                vaultModal.classList.remove('hidden');
+                vaultModal.style.zIndex = "10002";
+            }
+        }
+        startEngine();
     }
 
-    window.masterBypass = function() { showCustomAlert("Authority Bypass Active."); autoEnter('Master'); }
+    window.masterBypass = function() { state.isMaster = true; showCustomAlert("Authority Bypass Active."); autoEnter('Master'); }
 
-    // --- ENGINE & MATA DEWA ---
+    // --- ENGINE & BUCKET LOGIC ---
+    window.finalizeCapital = function() {
+        const v = parseInt(document.getElementById('vault-input').value);
+        if(isNaN(v) || v < 1000000) return showCustomAlert("Modal Minimal 1JT IDR.");
+        
+        state.initCap = v; 
+        state.capProfit = 0; // Reset Capital ke 0
+        state.buckets = { scalp: v*0.4, smart: v*0.39, moon: v*0.21 };
+        
+        document.getElementById('modal-vault').classList.add('hidden');
+        smartNotif("Mesin TITAN V13 Aktif. Saldo terpecah ke strategi.");
+        renderUI();
+    }
+
     async function startEngine() {
         try {
             const limit = (state.status === 'ELITE') ? 45 : 12;
@@ -254,31 +293,22 @@
                         platform: (state.status === 'ELITE') ? 'REAL/INDODAX' : 'SIMULASI',
                         time: new Date().toLocaleTimeString()
                     });
-                    smartNotif(`Radar Mata Dewa: ${coin.symbol.toUpperCase()} detected.`);
                 }
             } else {
                 let card = state.cards.find(c => c.coinId === coin.id);
                 if(card) {
                     card.current = coin.current_price;
                     if(card.current > card.high) card.high = card.current;
-                    if(state.status === 'ELITE') checkTSL(card);
                 }
             }
         });
         renderUI();
     }
 
-    function checkTSL(card) {
-        if(card.status !== 'EXECUTION') return;
-        const drop = (card.high - card.current) / card.high;
-        if(drop >= 0.02) { handleAction(card.id, 'TP'); smartNotif(`TSL Active: Profit Locked on ${card.name}`); }
-    }
-
     window.handleAction = function(id, type) {
         const card = state.cards.find(c => c.id === id);
         if(!card) return;
         if(type === 'LOCK') {
-            if(checkDailyTarget()) return showCustomAlert("Target Harian Tercapai. Sinyal dikunci.");
             const ded = card.strat === 'SMART' ? state.buckets.smart*0.1 : (card.strat === 'SCALP' ? state.buckets.scalp*0.1 : state.buckets.moon*0.1);
             if(card.strat === 'SMART') state.buckets.smart -= ded;
             else if(card.strat === 'SCALP') state.buckets.scalp -= ded;
@@ -295,39 +325,18 @@
             }
             state.log.push({...card, res: type, pnl: profit, final: new Date().toLocaleString()});
             state.cards = state.cards.filter(c => c.id !== id);
-            checkMission();
         }
         renderUI();
     }
 
-    // --- LOGIKA BISNIS & TRIAL ---
-    function checkTrial() {
-        const diff = Date.now() - state.regDate;
-        if(state.status === 'STANDART' && diff > (30 * 24 * 60 * 60 * 1000)) wipeState(true);
-    }
+    function checkDailyTarget() { return (state.capProfit / state.initCap) >= state.dailyGoal; }
 
-    function checkMission() {
-        const todayProfit = state.capProfit / state.initCap;
-        if(todayProfit >= 0.05) {
-            state.missionDays++;
-            if(state.missionDays >= 7 && state.status === 'STANDART') {
-                showCustomAlert("MISI 7 HARI BERHASIL! Konfirmasi Upgrade Elite Otomatis?");
-                state.status = 'ELITE'; state.target = 0.10;
-            }
-        }
-    }
-
-    function checkDailyTarget() {
-        return (state.capProfit / state.initCap) >= state.dailyGoal;
-    }
-
-    // --- UI RENDERER ---
     function renderUI() {
         document.getElementById('cap-main').innerText = formatIDR(state.capProfit);
         document.getElementById('b-scalp').innerText = formatIDR(state.buckets.scalp);
         document.getElementById('b-smart').innerText = formatIDR(state.buckets.smart);
         document.getElementById('b-moon').innerText = formatIDR(state.buckets.moon);
-        document.getElementById('perc-stat').innerText = ((state.capProfit/state.initCap)*100).toFixed(2) + "%";
+        document.getElementById('perc-stat').innerText = state.initCap > 0 ? ((state.capProfit/state.initCap)*100).toFixed(2) + "%" : "0.00%";
         
         const aDiv = document.getElementById('list-analysis');
         const eDiv = document.getElementById('list-execution');
@@ -340,7 +349,7 @@
                 <div class="glass-premium p-4 flex flex-col gap-2 animate-fade-in ${c.status === 'EXECUTION' ? 'blink-execute' : ''}">
                     <div class="flex justify-between items-center">
                         <img src="${c.img}" class="w-6 h-6 rounded-full border border-white/10">
-                        <div class="text-right"><p class="text-[9px] titan-font">${c.name}/IDR</p><p class="text-[6px] opacity-40 uppercase">${c.strat}</p></div>
+                        <div class="text-right"><p class="text-[9px] titan-font">${c.name}/IDR</p></div>
                     </div>
                     <div class="text-center">
                         <p class="text-[10px] titan-font ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${pnl.toFixed(2)}%</p>
@@ -362,17 +371,12 @@
         state.log.slice(-10).forEach(l => {
             hDiv.innerHTML += `<div class="bg-white/5 p-2 rounded-xl border border-white/10 flex justify-between items-center animate-fade-in"><span class="text-[8px] titan-font">${l.name}</span><span class="text-[7px] font-black ${l.res === 'TP' ? 'text-emerald-400' : 'text-rose-400'}">${l.res}</span></div>`;
         });
-
-        document.getElementById('excel-btn').classList.toggle('hidden', state.status !== 'ELITE');
     }
 
-    // --- UTILS ---
     window.showCustomAlert = function(c) { document.getElementById('alert-content').innerHTML = c; document.getElementById('custom-alert').classList.remove('hidden'); }
     window.closeAlert = function() { document.getElementById('custom-alert').classList.add('hidden'); }
-    window.wipeState = function(hard) {
-        if(hard) { localStorage.clear(); sessionStorage.clear(); location.reload(); }
-    }
-    window.smartScanTrigger = function() { smartNotif("AI Mata Dewa Re-Syncing..."); startEngine(); }
+    window.wipeState = function(hard) { if(hard) { localStorage.clear(); sessionStorage.clear(); location.reload(); } }
+    window.smartScanTrigger = function() { startEngine(); }
     function smartNotif(t) { const el = document.createElement('div'); el.className = "floating-msg titan-font text-yellow-500"; el.innerHTML = t; document.getElementById('notif-area').appendChild(el); setTimeout(()=>el.remove(), 4000); }
     function formatIDR(v) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v); }
     function drawMiniChart(id, data, profit) {
@@ -384,7 +388,6 @@
         });
     }
 
-    window.scrollToSec = function(id) { document.getElementById(id).scrollIntoView({ behavior: 'smooth' }); }
     window.onload = () => { checkIP(); }
 })();
 </script>
