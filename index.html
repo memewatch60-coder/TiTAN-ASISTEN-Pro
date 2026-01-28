@@ -4,735 +4,389 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TITAN V13 - MAHADHARE GOLD ULTIMATE</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
-        
-        :root {
-            --bg: #010204;
-            --glass: rgba(15, 23, 42, 0.85);
-            --accent: #8b5cf6;
-            --emerald: #10b981;
-            --rose: #f43f5e;
-            --gold: #fbbf24;
-        }
-
-        * { font-family: 'Space Grotesk', sans-serif; box-sizing: border-box; outline: none; }
-        body { background: var(--bg); color: #e2e8f0; overflow-x: hidden; min-height: 100vh; }
-
-        .glass-card { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 2rem; position: relative; }
-        .master-gradient { background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); }
-        .oracle-active { border: 2px solid var(--accent) !important; animation: neon-pulse 2s infinite; }
-        
-        @keyframes neon-pulse { 0%, 100% { box-shadow: 0 0 5px var(--accent); } 50% { box-shadow: 0 0 25px var(--accent); } }
-        @keyframes ticker-anim { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        
-        .ticker-text { display: inline-block; animation: ticker-anim 30s linear infinite; white-space: nowrap; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;500;700&display=swap');
+        :root { --gold: #ffd700; --emerald: #10b981; --glass: rgba(10, 10, 18, 0.98); }
+        body { background: #020308; color: #e2e8f0; font-family: 'Space Grotesk', sans-serif; overflow: hidden; height: 100vh; margin: 0; }
+        .titan-font { font-family: 'Orbitron', sans-serif; }
+        .glass-premium { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid rgba(255, 215, 0, 0.15); border-radius: 1.5rem; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-
-        .active-style {
-            background: var(--accent) !important;
-            color: white !important;
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-
-        /* Scan Wajah Simulation */
-        #face-scan-overlay {
-            position: fixed; inset: 0; z-index: 9999; background: black;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .scan-circle {
-            width: 250px; height: 250px; border: 4px solid var(--accent);
-            border-radius: 50%; position: relative; overflow: hidden;
-        }
-        .scan-line {
-            width: 100%; height: 4px; background: var(--accent);
-            position: absolute; top: 0; animation: scan-move 2s infinite linear;
-            box-shadow: 0 0 15px var(--accent);
-        }
-        @keyframes scan-move { 0% { top: 0; } 100% { top: 100%; } }
+        .blink-execute { animation: blink-gold 1.5s infinite; }
+        @keyframes blink-gold { 0%, 100% { border-color: rgba(255,215,0,0.1); } 50% { border-color: var(--gold); box-shadow: 0 0 15px rgba(255,215,0,0.3); } }
+        #face-video { width: 100%; height: 160px; border-radius: 1rem; object-fit: cover; border: 2px solid var(--gold); background: #000; margin-bottom: 10px; }
+        .floating-msg { position: fixed; top: 110px; right: 20px; z-index: 9999; background: rgba(0,0,0,0.9); padding: 12px; border-radius: 12px; border: 1px solid var(--gold); max-width: 220px; font-size: 9px; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
-<body class="pb-32">
+<body>
 
-    <div id="face-scan-overlay">
-        <div class="scan-circle"><div class="scan-line"></div></div>
-        <p class="mt-8 font-black tracking-widest text-violet-400 animate-pulse">BIOMETRIC SCANNING...</p>
-    </div>
+<div id="notif-area"></div>
 
-    <div id="custom-modal" class="fixed inset-0 z-[8000] hidden items-center justify-center p-6 bg-black/80 backdrop-blur-md">
-        <div class="glass-card w-full max-w-sm p-8 text-center border-t-4 border-violet-500 shadow-2xl">
-            <div id="modal-icon" class="mb-4 text-5xl"></div>
-            <h3 id="modal-title" class="text-xl font-black uppercase mb-2 text-white"></h3>
-            <p id="modal-message" class="text-sm text-white/60 mb-8"></p>
-            <div id="modal-actions" class="flex gap-4">
-                <button id="modal-ok" class="flex-1 py-4 master-gradient rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-all">OK</button>
-                <button id="modal-cancel" class="flex-1 py-4 bg-white/10 rounded-2xl font-black text-xs uppercase tracking-widest hidden">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="auth-screen" class="fixed inset-0 z-[5000] bg-[#010204] flex items-center justify-center p-6 overflow-y-auto">
-        <div class="w-full max-w-md glass-card p-10 border-violet-500/30 my-auto">
-            <div class="text-center mb-10">
-                <i class="fa-solid fa-crown text-6xl text-violet-500 mb-4"></i>
-                <h2 class="text-3xl font-black italic tracking-tighter">TITAN <span class="text-violet-500 font-light">V13</span></h2>
-                <p class="text-[9px] font-bold tracking-[0.3em] text-violet-400 uppercase">Mahadhare Gold Ultimate</p>
-            </div>
-
-            <div id="auth-form" class="space-y-4">
-                <div class="relative">
-                    <input type="tel" id="user-phone" placeholder="Nomor Telegram / Telepon" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl font-bold text-white focus:border-violet-500 transition-all">
-                </div>
-                <div class="relative">
-                    <input type="password" id="user-pass" placeholder="Password Master" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl font-bold text-white focus:border-violet-500 transition-all">
-                    <i class="fa-solid fa-eye absolute right-5 top-1/2 -translate-y-1/2 text-white/20 cursor-pointer" id="toggle-pass"></i>
-                </div>
-                
-                <div id="reg-fields" class="hidden space-y-4">
-                    <input type="password" id="user-confirm" placeholder="Konfirmasi Password" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl font-bold text-white">
-                </div>
-
-                <div class="p-4 bg-violet-500/10 border border-violet-500/20 rounded-2xl text-center">
-                    <p class="text-[10px] font-black mb-3 text-white/80 uppercase">Elite Authorization Required</p>
-                    <button onclick="joinGroup()" class="w-full py-3 bg-[#229ED9] rounded-xl text-[10px] font-black uppercase text-white shadow-lg shadow-blue-500/20">
-                        <i class="fa-brands fa-telegram mr-2"></i>Join Official Group
-                    </button>
-                    <p id="join-status" class="text-[8px] text-rose-500 mt-2 font-bold italic uppercase">Status: Not Verified</p>
-                </div>
-
-                <button id="main-auth-btn" onclick="executeAuth()" class="w-full py-5 master-gradient rounded-3xl font-black text-xs uppercase shadow-xl shadow-indigo-500/30">Initialize Authority</button>
-                <p id="auth-switch" class="text-center text-[10px] font-bold text-white/40 cursor-pointer" onclick="toggleAuthMode()">Master Baru? <span class="text-violet-400">Daftar Sekarang</span></p>
-            </div>
-        </div>
-    </div>
-
-    <div id="app-content" class="hidden">
-        <div class="bg-violet-950/20 border-b border-white/5 py-2 overflow-hidden sticky top-0 z-[1000] backdrop-blur-lg">
-            <div class="ticker-text text-[9px] font-black text-violet-400 uppercase tracking-widest">
-                [OMNISCIENT EYE: ACTIVE] • [WHALE MONITORING: ON] • [TSL GUARD: 2.0%] • [DAILY TARGET: ELITE 10%] • [WELCOME MASTER] • [SYSTEM TIME: <span id="ticker-time"></span>]
-            </div>
-        </div>
-
-        <header class="p-6 flex justify-between items-center border-b border-white/5">
-            <div>
-                <h1 class="text-2xl font-black italic tracking-tighter">TITAN <span class="text-violet-500">V13</span></h1>
-                <p id="user-rank" class="text-[8px] font-bold text-violet-400 uppercase tracking-[0.3em]"></p>
-            </div>
-            <div class="flex items-center gap-3">
-                <div class="px-4 py-2 bg-white/5 rounded-xl border border-white/10 flex items-center gap-2">
-                    <img id="flag-icon" src="https://flagcdn.com/w20/id.png" class="w-4 h-3 object-cover rounded-sm">
-                    <span id="currency-mode" class="text-[10px] font-black">IDR</span>
-                </div>
-                <button onclick="wipeState()" class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
-                    <i class="fa-solid fa-power-off text-rose-500"></i>
-                </button>
-            </div>
-        </header>
-
-        <main class="max-w-md mx-auto p-5">
-            <div class="glass-card p-6 mb-8 border-violet-500/20 shadow-2xl">
-                <div class="grid grid-cols-4 gap-2 text-center mb-6">
-                    <div class="bg-white/5 p-3 rounded-2xl">
-                        <p class="text-[7px] opacity-40 uppercase mb-1">Modal</p>
-                        <p id="stat-modal" class="text-white font-black text-[10px]">Rp0</p>
-                    </div>
-                    <div class="bg-white/5 p-3 rounded-2xl">
-                        <p class="text-[7px] text-emerald-400 uppercase mb-1">Profit</p>
-                        <p id="stat-profit" class="text-emerald-400 font-black text-[10px]">Rp0</p>
-                    </div>
-                    <div class="bg-white/5 p-3 rounded-2xl">
-                        <p class="text-[7px] text-rose-400 uppercase mb-1">Lose</p>
-                        <p id="stat-lose" class="text-rose-400 font-black text-[10px]">Rp0</p>
-                    </div>
-                    <div class="bg-white/5 p-3 rounded-2xl border border-violet-500/30">
-                        <p class="text-[7px] text-violet-400 uppercase mb-1">Total</p>
-                        <p id="stat-total" class="text-violet-400 font-black text-[10px]">Rp0</p>
-                    </div>
-                </div>
-                
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center text-[8px] font-black uppercase tracking-widest">
-                        <span class="opacity-40">Target Harian (<span id="target-pct">0</span>%)</span>
-                        <span id="target-status" class="text-violet-400">Processing...</span>
-                    </div>
-                    <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                        <div id="progress-bar" class="h-full master-gradient transition-all duration-1000" style="width: 0%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-2">
-                <button onclick="setFilter('active')" id="f-active" class="filter-btn px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-[9px] font-black uppercase active-style">Active Radar</button>
-                <button onclick="setFilter('SCALPING')" id="f-scalp" class="filter-btn px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-[9px] font-black uppercase">Scalping</button>
-                <button onclick="setFilter('SMART')" id="f-smart" class="filter-btn px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-[9px] font-black uppercase">Smart Trend</button>
-                <button onclick="setFilter('MOONSHOT')" id="f-moon" class="filter-btn px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-[9px] font-black uppercase">Moonshot</button>
-            </div>
-
-            <div id="coin-feed" class="space-y-6"></div>
-        </main>
-
-        <nav class="fixed bottom-0 left-0 right-0 z-[1000] bg-[#010204]/90 backdrop-blur-2xl border-t border-white/5 px-8 py-6 flex justify-between items-center">
-            <button onclick="handleExcelExport()" class="flex flex-col items-center gap-1 opacity-40 hover:opacity-100 transition" id="btn-export">
-                <i class="fa-solid fa-file-excel text-xl text-emerald-500"></i>
-                <span class="text-[7px] font-black uppercase">Report</span>
-            </button>
-            
-            <div class="flex gap-10 border-x border-white/5 px-10">
-                <div class="text-center">
-                    <p class="text-[7px] font-black opacity-30 uppercase">Buy Radar</p>
-                    <p id="count-buy" class="text-emerald-400 font-black text-xl">0</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-[7px] font-black opacity-30 uppercase">Sell Logic</p>
-                    <p id="count-sell" class="text-rose-500 font-black text-xl">0</p>
-                </div>
-            </div>
-
-            <button onclick="toggleHistory()" class="flex flex-col items-center gap-1">
-                <i class="fa-solid fa-clock-rotate-left text-xl text-violet-500"></i>
-                <span class="text-[7px] font-black uppercase">Vault</span>
-            </button>
-        </nav>
-    </div>
-
-    <div id="history-overlay" class="fixed inset-0 z-[7000] bg-[#010204] hidden flex-col">
-        <header class="p-6 border-b border-white/5 flex justify-between items-center bg-black">
-            <h3 class="text-xl font-black italic uppercase text-white">History Vault</h3>
-            <button onclick="toggleHistory()" class="text-rose-500 font-black text-xs uppercase tracking-widest">Close</button>
-        </header>
-        <div id="history-list" class="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar"></div>
-    </div>
-
-    <script>
-        /**
-         * TITAN V13 - MAHADHARE GOLD ULTIMATE
-         * CORE ARCHITECTURE - SUPREME DEWA MAHATAHU
-         */
+<div id="auth-screen" class="fixed inset-0 z-[10000] bg-[#020308] overflow-y-auto p-6 flex flex-col items-center">
+    <div class="w-full max-w-sm text-center mt-4">
+        <img src="https://i.ibb.co/9H0pL7H/94672.png" alt="TITAN LOGO" class="w-32 h-32 mx-auto mb-4 rounded-2xl border border-white/10 shadow-2xl">
+        <h1 class="titan-font text-3xl text-yellow-500 mb-1 tracking-tighter uppercase">Titan V.13</h1>
+        <p class="text-[8px] tracking-[4px] opacity-50 mb-8 uppercase font-black">Military-Grade Security</p>
         
-        (function() {
-            // MASTER DATA & CONFIG
-            const MASTER_ADMIN_KEY = "MahadhareV13Master";
-            const TELEGRAM_BOT_TOKEN = "8295607704:AAFdy_U8bFL-x2Ol90n8f2KDOHXztybcuj4";
-            const TELEGRAM_GROUP_ID = "-1003254379333";
-            const INDODAX_REFF = "https://indodax.onelink.me/qyYY/referral?deep_link_value=page:register,id:marselsalmon";
-            const GATE_REFF = "https://app.mbm06.com/referral/earn-together/invite/BFZFVFlX?ref=BFZFVFlX&ref_type=103&utm_cmp=rXJBDjtJ&activity_id=1766659418123";
-            const JUPITER_REFF = "https://jup.ag/?refId=yuf0dh4il1xs";
+        <div id="auth-box" class="space-y-4">
+            <input type="text" id="auth-phone" placeholder="NO TELEPON TELEGRAM" class="w-full bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none text-xs">
             
-            // SYSTEM STATE
-            let state = {
-                user: JSON.parse(localStorage.getItem('v13_user')) || null,
-                isElite: false,
-                isOwner: false,
-                currentModal: 1000000,
-                profit: 0,
-                lose: 0,
-                dailyTargetReached: false,
-                consecutiveProfitDays: 0,
-                activeSignals: {},
-                history: JSON.parse(localStorage.getItem('v13_history')) || [],
-                lastFilter: 'active',
-                attempts: 0,
-                verifiedTelegram: false,
-                apiData: []
-            };
+            <div id="biometric-mod" class="hidden space-y-2">
+                <video id="face-video" class="hidden" autoplay muted playsinline></video>
+                <button onclick="startFaceScan()" id="scan-btn" class="w-full py-3 bg-blue-600 rounded-xl text-[10px] titan-font shadow-lg uppercase">Scan Wajah (Biometric)</button>
+            </div>
 
-            // INITIALIZATION
-            window.onload = () => {
-                if (localStorage.getItem('v13_banned')) {
-                    document.body.innerHTML = "<div class='h-screen flex items-center justify-center text-rose-500 font-black'>DEVICE BLACKLISTED - CRITICAL SECURITY BREACH</div>";
-                    return;
-                }
-                if (state.user) {
-                    validateUserStatus();
-                    startApp();
-                }
-            };
+            <input type="password" id="auth-pass" placeholder="PASSWORD" class="w-full bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none text-xs">
+            
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="handleAuth()" class="py-4 bg-yellow-500 text-black titan-font text-[10px] font-black rounded-xl uppercase active:scale-95 transition-all">Masuk</button>
+                <button onclick="toggleAuth()" id="toggle-btn" class="py-4 bg-white/5 border border-white/10 text-white titan-font text-[10px] rounded-xl uppercase">Daftar</button>
+            </div>
+            
+            <button onclick="masterBypass()" class="w-full py-2 text-[8px] opacity-20 uppercase tracking-[3px]">Master Access Otoritas</button>
+        </div>
+    </div>
+</div>
 
-            // CUSTOM MODAL LOGIC
-            function showCustomModal(title, message, icon = "🔔", onOk = null, showCancel = false) {
-                const modal = document.getElementById('custom-modal');
-                document.getElementById('modal-title').innerText = title;
-                document.getElementById('modal-message').innerText = message;
-                document.getElementById('modal-icon').innerText = icon;
-                
-                const okBtn = document.getElementById('modal-ok');
-                const cancelBtn = document.getElementById('modal-cancel');
-                
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                
-                if (showCancel) cancelBtn.classList.remove('hidden');
-                else cancelBtn.classList.add('hidden');
+<div id="custom-alert" class="fixed inset-0 z-[10001] flex items-center justify-center p-6 hidden">
+    <div class="absolute inset-0 bg-black/95 backdrop-blur-xl"></div>
+    <div class="glass-premium p-8 w-full max-w-sm border-yellow-500/50 relative text-center">
+        <div class="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-yellow-500/20 text-yellow-500">
+            <i class="fa-solid fa-shield-halved text-2xl"></i>
+        </div>
+        <h3 class="titan-font text-[11px] text-white mb-2 uppercase tracking-widest">TITAN V13 SYSTEM</h3>
+        <div id="alert-content" class="text-[10px] text-white/70 mb-6 leading-relaxed"></div>
+        <button onclick="closeAlert()" class="w-full py-3 bg-yellow-500 text-black titan-font text-[10px] font-black rounded-xl uppercase">Konfirmasi</button>
+    </div>
+</div>
 
-                okBtn.onclick = () => {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                    if (onOk) onOk();
-                };
-                cancelBtn.onclick = () => {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                };
+<header class="p-4 flex justify-between items-center bg-black/80 border-b border-yellow-500/10 backdrop-blur-lg sticky top-0 z-50">
+    <div onclick="showRealModeCheck()" class="cursor-pointer bg-white/5 p-2 px-3 rounded-2xl flex items-center gap-2 border border-white/10">
+        <div id="mode-dot" class="w-2 h-2 rounded-full bg-emerald-500 pulse-live"></div>
+        <span id="mode-text" class="titan-font text-[9px] font-black uppercase">Training Mode</span>
+    </div>
+    <div class="flex items-center gap-2">
+        <button onclick="toggleLang()" class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-xs">
+            <span id="ui-flag">🇮🇩</span>
+        </button>
+        <button onclick="showHowItWorks()" class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-xs">
+            <i class="fa-solid fa-circle-question"></i>
+        </button>
+        <button onclick="wipeState(true)" class="text-rose-500 bg-rose-500/10 w-8 h-8 rounded-lg border border-rose-500/20">
+            <i class="fa-solid fa-power-off text-sm"></i>
+        </button>
+    </div>
+</header>
+
+<main class="h-full flex flex-col pb-48 overflow-y-auto no-scrollbar">
+    <section class="p-5">
+        <div class="glass-premium p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-5"><i class="fa-solid fa-microchip text-5xl text-yellow-500"></i></div>
+            <div class="flex justify-between items-start mb-2">
+                <p class="text-[8px] uppercase font-black opacity-40">Capital Management (<span id="perc-stat">0.00%</span>)</p>
+                <p id="target-info" class="text-[8px] text-yellow-500 font-bold uppercase"></p>
+            </div>
+            <h2 id="cap-main" class="titan-font text-3xl text-yellow-500 font-black mb-4 tracking-tighter">Rp 0</h2>
+            <div class="grid grid-cols-3 gap-2">
+                <div class="bg-white/5 p-3 rounded-xl border border-white/5 text-center">
+                    <p class="text-[7px] opacity-50 uppercase mb-1">Scalp (40%)</p>
+                    <p id="b-scalp" class="text-[9px] font-bold text-emerald-400">Rp 0</p>
+                </div>
+                <div class="bg-white/5 p-3 rounded-xl border border-white/5 text-center">
+                    <p class="text-[7px] opacity-50 uppercase mb-1">Smart (39%)</p>
+                    <p id="b-smart" class="text-[9px] font-bold text-blue-400">Rp 0</p>
+                </div>
+                <div class="bg-white/5 p-3 rounded-xl border border-white/5 text-center">
+                    <p class="text-[7px] opacity-50 uppercase mb-1">Moon (21%)</p>
+                    <p id="b-moon" class="text-[9px] font-bold text-violet-400">Rp 0</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="px-5 mb-10 h-[65vh]">
+        <div class="grid grid-cols-3 gap-4 h-full">
+            <div class="flex flex-col">
+                <h3 class="titan-font text-[9px] text-yellow-500 mb-4 uppercase text-center font-black">Analysis</h3>
+                <div id="list-analysis" class="flex-1 overflow-y-auto no-scrollbar space-y-4"></div>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="titan-font text-[9px] text-blue-500 mb-4 uppercase text-center font-black">Execution</h3>
+                <div id="list-execution" class="flex-1 overflow-y-auto no-scrollbar space-y-4"></div>
+            </div>
+            <div class="flex flex-col">
+                <div class="flex flex-col items-center mb-4 gap-1">
+                    <h3 class="titan-font text-[9px] text-emerald-500 uppercase font-black">History</h3>
+                    <button id="excel-btn" class="hidden text-[7px] bg-emerald-500/10 text-emerald-500 px-1 border border-emerald-500/20 rounded font-bold uppercase">XLSX</button>
+                </div>
+                <div id="list-history" class="flex-1 overflow-y-auto no-scrollbar space-y-2"></div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="fixed bottom-0 left-0 right-0 p-4 bg-black/95 border-t border-white/5 z-50">
+    <div class="flex justify-around items-center max-w-md mx-auto relative">
+        <button class="flex flex-col items-center gap-1 opacity-40"><i class="fa-solid fa-ranking-star"></i><span class="text-[8px]">LIVE</span></button>
+        <button id="tg-group-link" class="flex flex-col items-center gap-1 text-sky-400"><i class="fa-brands fa-telegram text-2xl"></i><span class="text-[8px]">GROUP</span></button>
+        <div onclick="smartScanTrigger()" class="w-14 h-14 bg-yellow-500 rounded-full flex items-center justify-center -mt-10 shadow-lg shadow-yellow-500/30 border-8 border-[#020308] cursor-pointer active:scale-90 transition-all"><i class="fa-solid fa-bolt text-black text-xl"></i></div>
+        <button class="flex flex-col items-center gap-1 text-emerald-400"><i class="fa-solid fa-brain"></i><span class="text-[8px]">AI SCAN</span></button>
+        <button class="flex flex-col items-center gap-1 opacity-40"><i class="fa-solid fa-shield-check"></i><span class="text-[8px]">SECURE</span></button>
+    </div>
+</footer>
+
+<script>
+(function() {
+    // --- MASTER CONFIG & SECRET DATA ---
+    const MASTER = {
+        BT: "8295607704:AAFdy_U8bFL-x2Ol90n8f2KDOHXztybcuj4",
+        CI: "-1003254379333",
+        MK: "MahadhareV13Master",
+        TG: "https://t.me/+8uJ78T4VDHJkOTRl",
+        JU: "https://jup.ag/?refId=yuf0dh4il1xs",
+        GA: "https://app.mbm06.com/referral/earn-together/invite/BFZFVFlX?ref=BFZFVFlX&ref_type=103",
+        IDX: "https://indodax.onelink.me/qyYY/referral?deep_link_value=page:register,id:marselsalmon"
+    };
+
+    let state = {
+        authMode: 'LOGIN', failed: 0, blocked: false, face: false, hack: 0,
+        status: 'STANDART', mode: 'TRAINING', lang: 'ID', 
+        target: 0.05, dailyGoal: 0.05, quota: { std: 10000, elite: 1000 },
+        regDate: Date.now(), missionDays: 0,
+        initCap: 0, capProfit: 0, buckets: { scalp: 0, smart: 0, moon: 0 },
+        cards: [], log: []
+    };
+
+    // --- SECURITY: IP WHITELISTING (INDONESIA) ---
+    async function checkIP() {
+        if(state.status === 'MASTER') return;
+        try {
+            const res = await fetch('https://ipapi.co/json/');
+            const data = await res.json();
+            if (data.country_code !== 'ID') {
+                document.body.innerHTML = "<div style='color:red; text-align:center; padding-top:20%; font-family:Orbitron;'>ERROR 403: ACCESS DENIED. INDONESIA IP ONLY.</div>";
+                notifyTelegram(`🚫 *ILLEGAL ACCESS:* IP from ${data.country_name} rejected.`);
             }
+        } catch (e) { console.warn("Shield Active"); }
+    }
 
-            // AUTHENTICATION SYSTEM
-            window.toggleAuthMode = function() {
-                const isReg = document.getElementById('reg-fields').classList.toggle('hidden');
-                document.getElementById('main-auth-btn').innerText = !isReg ? "Register Authority" : "Initialize Authority";
-                document.getElementById('auth-switch').innerHTML = !isReg ? "Sudah Terdaftar? <span class='text-violet-400'>Login</span>" : "Master Baru? <span class='text-violet-400'>Daftar Sekarang</span>";
-            };
+    // --- AUTH & BIOMETRIC SYSTEM ---
+    window.toggleAuth = function() {
+        state.authMode = (state.authMode === 'LOGIN') ? 'REG' : 'LOGIN';
+        document.getElementById('biometric-mod').classList.toggle('hidden', state.authMode === 'LOGIN');
+        document.getElementById('toggle-btn').innerText = (state.authMode === 'LOGIN') ? 'Daftar' : 'Login';
+    }
 
-            window.joinGroup = function() {
-                state.verifiedTelegram = true;
-                document.getElementById('join-status').innerText = "Status: Verified ✓";
-                document.getElementById('join-status').classList.replace('text-rose-500', 'text-emerald-500');
-                window.open("https://t.me/+8uJ78T4VDHJkOTRl", "_blank");
-            };
+    window.startFaceScan = async function() {
+        const vid = document.getElementById('face-video'); vid.classList.remove('hidden');
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            vid.srcObject = stream; vid.play();
+            smartNotif("Scanning Biometric... 3s");
+            setTimeout(() => {
+                state.face = true; state.blocked = false; state.failed = 0;
+                vid.classList.add('hidden'); stream.getTracks().forEach(t => t.stop());
+                showCustomAlert("Face Scan Verified.");
+            }, 3000);
+        } catch (e) { showCustomAlert("Kamera tidak ditemukan. Cek SSL."); }
+    }
 
-            window.executeAuth = function() {
-                const phone = document.getElementById('user-phone').value;
-                const pass = document.getElementById('user-pass').value;
-                const isReg = !document.getElementById('reg-fields').classList.contains('hidden');
+    window.handleAuth = function() {
+        const ph = document.getElementById('auth-phone').value;
+        const ps = document.getElementById('auth-pass').value;
 
-                if (!state.verifiedTelegram) {
-                    showCustomModal("Security Alert", "Wajib verifikasi Telegram terlebih dahulu!", "🔒");
-                    return;
-                }
+        if (ps === MASTER.MK) { state.status = 'MASTER'; return autoEnter('Master'); }
 
-                if (phone === "" || pass === "") {
-                    showCustomModal("Input Error", "Semua kolom wajib diisi!", "⚠️");
-                    return;
-                }
+        if (state.authMode === 'REG') {
+            if (!/[A-Z]/.test(ps) || !/[a-z]/.test(ps) || !/[0-9]/.test(ps)) return showCustomAlert("Password wajib: Besar, Kecil, & Angka.");
+            if (!state.face) return showCustomAlert("Gerbang 1: Scan Wajah wajib untuk daftar.");
+            localStorage.setItem('titan_ph', ph); localStorage.setItem('titan_ps', ps);
+            notifyTelegram(`🎉 *Member Baru Standart*\nNo: ${ph}`);
+            showCustomAlert("Daftar Berhasil. Silahkan Login."); toggleAuth();
+        } else {
+            if (state.blocked) {
+                document.getElementById('biometric-mod').classList.remove('hidden');
+                if(state.face && ph === localStorage.getItem('titan_ph')) return autoEnter(ph);
+                return showCustomAlert("AKUN TERBLOKIR. Gunakan Scan Wajah.");
+            }
+            if (ph === localStorage.getItem('titan_ph') && ps === localStorage.getItem('titan_ps')) return autoEnter(ph);
+            state.failed++;
+            if (state.failed >= 3) { state.blocked = true; document.getElementById('biometric-mod').classList.remove('hidden'); showCustomAlert("Gerbang 2: Terblokir 3x. Verifikasi Wajah."); }
+            else showCustomAlert(`Gagal. Sisa percobaan: ${3 - state.failed}`);
+        }
+    }
 
-                // OWNER SPECIAL ACCESS
-                if (pass === MASTER_ADMIN_KEY) {
-                    state.user = { phone, rank: 'OWNER', joinDate: Date.now() };
-                    state.isOwner = true;
-                    state.isElite = true;
-                    completeAuth();
-                    return;
-                }
+    function autoEnter(u) {
+        document.getElementById('auth-screen').style.display = 'none';
+        if(u === 'Master') { state.status = 'ELITE'; state.target = 0.10; }
+        if(state.initCap === 0) document.getElementById('modal-vault').classList.remove('hidden');
+        checkTrial(); startEngine();
+    }
 
-                if (isReg) {
-                    const confirm = document.getElementById('user-confirm').value;
-                    if (pass !== confirm) {
-                        showCustomModal("Password Error", "Konfirmasi password tidak cocok!", "❌");
-                        return;
-                    }
-                    startFaceScan(() => {
-                        state.user = { phone, pass, rank: 'STANDART', joinDate: Date.now() };
-                        completeAuth();
+    window.masterBypass = function() { showCustomAlert("Authority Bypass Active."); autoEnter('Master'); }
+
+    // --- ENGINE & MATA DEWA ---
+    async function startEngine() {
+        try {
+            const limit = (state.status === 'ELITE') ? 45 : 12;
+            const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page='+limit+'&sparkline=true');
+            const data = await res.json();
+            processMarket(data);
+        } catch (e) { console.warn("API Connection Error"); }
+        setTimeout(startEngine, 8000);
+    }
+
+    function processMarket(coins) {
+        if(checkDailyTarget() && state.cards.filter(c => c.status === 'ANALYSIS').length > 0) return;
+        coins.forEach(coin => {
+            if(Math.random() > 0.85 && state.cards.length < 15) {
+                const strat = ['SMART', 'SCALP', 'MOONSHOT'][Math.floor(Math.random()*3)];
+                if(!state.cards.find(c => c.coinId === coin.id)) {
+                    state.cards.push({
+                        id: Date.now() + Math.random(), coinId: coin.id, name: coin.symbol.toUpperCase(),
+                        entry: coin.current_price, current: coin.current_price, strat, status: 'ANALYSIS',
+                        img: coin.image, spark: coin.sparkline_in_7d.price.slice(-20),
+                        high: coin.current_price,
+                        platform: (state.status === 'ELITE') ? 'REAL/INDODAX' : 'SIMULASI',
+                        time: new Date().toLocaleTimeString()
                     });
-                } else {
-                    const savedUser = JSON.parse(localStorage.getItem('v13_user_data_' + phone));
-                    if (savedUser && savedUser.pass === pass) {
-                        state.user = savedUser;
-                        completeAuth();
-                    } else {
-                        state.attempts++;
-                        if (state.attempts >= 3) {
-                            startFaceScan(() => {
-                                showCustomModal("Account Recovery", "Wajah terverifikasi. Silakan ganti password anda.", "🛡️");
-                                state.attempts = 0;
-                            }, () => {
-                                localStorage.setItem('v13_banned', 'true');
-                                window.location.reload();
-                            });
-                        } else {
-                            showCustomModal("Login Failed", `Password salah! Sisa percobaan: ${3 - state.attempts}`, "🚫");
-                        }
-                    }
+                    smartNotif(`Radar Mata Dewa: ${coin.symbol.toUpperCase()} detected.`);
                 }
-            };
-
-            function startFaceScan(onSuccess, onFail) {
-                const overlay = document.getElementById('face-scan-overlay');
-                overlay.style.display = 'flex';
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                    if (Math.random() > 0.1) onSuccess();
-                    else if (onFail) onFail();
-                }, 3000);
-            }
-
-            function completeAuth() {
-                localStorage.setItem('v13_user', JSON.stringify(state.user));
-                localStorage.setItem('v13_user_data_' + state.user.phone, JSON.stringify(state.user));
-                validateUserStatus();
-                document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('app-content').classList.remove('hidden');
-                startApp();
-            }
-
-            // CORE ENGINE
-            function validateUserStatus() {
-                const now = Date.now();
-                const diffDays = Math.floor((now - state.user.joinDate) / (1000 * 60 * 60 * 24));
-                
-                state.isElite = (state.user.rank === 'ELITE' || state.user.rank === 'OWNER');
-                state.isOwner = (state.user.rank === 'OWNER');
-
-                if (!state.isElite && diffDays > 30) {
-                    wipeState("Masa trial 30 hari berakhir. Silakan hubungi admin untuk aktivasi Elite.");
-                }
-                
-                document.getElementById('user-rank').innerText = state.user.rank + " MEMBER";
-                document.getElementById('btn-export').style.display = state.isElite ? 'flex' : 'none';
-            }
-
-            async function startApp() {
-                updateStats();
-                await fetchMarketData();
-                setInterval(fetchMarketData, 8000); // Radar Mata Dewa scan every 8s
-                setInterval(() => {
-                    document.getElementById('ticker-time').innerText = new Date().toLocaleTimeString();
-                }, 1000);
-            }
-
-            async function fetchMarketData() {
-                try {
-                    // Indodax API for main coins
-                    const indodaxRes = await fetch('https://indodax.com/api/summaries');
-                    const indodaxData = await indodaxRes.json();
-                    
-                    // CoinGecko for Meme Coins
-                    const geckoRes = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=20&sparkline=true&price_change_percentage=1h');
-                    const geckoData = await geckoRes.json();
-
-                    state.apiData = processData(indodaxData, geckoData);
-                    runTradingAlgorithm();
-                    renderRadar();
-                } catch (e) {
-                    console.error("Mata Dewa Link Interrupted...", e);
+            } else {
+                let card = state.cards.find(c => c.coinId === coin.id);
+                if(card) {
+                    card.current = coin.current_price;
+                    if(card.current > card.high) card.high = card.current;
+                    if(state.status === 'ELITE') checkTSL(card);
                 }
             }
+        });
+        renderUI();
+    }
 
-            function processData(indodax, gecko) {
-                let combined = [];
-                // Process Indodax
-                for (let pair in indodax.tickers) {
-                    if (pair.endsWith('_idr')) {
-                        const t = indodax.tickers[pair];
-                        combined.push({
-                            id: pair,
-                            sym: pair.split('_')[0].toUpperCase(),
-                            price: parseFloat(t.last),
-                            change: parseFloat(t.pc),
-                            source: 'indodax',
-                            img: `https://indodax.com/static/images/coins-old/${pair.split('_')[0]}.png`
-                        });
-                    }
-                }
-                // Process Gecko (Meme/Alt)
-                gecko.forEach(c => {
-                    if (!combined.some(x => x.sym === c.symbol.toUpperCase())) {
-                        combined.push({
-                            id: c.id,
-                            sym: c.symbol.toUpperCase(),
-                            price: c.current_price,
-                            change: c.price_change_percentage_1h_in_currency,
-                            source: 'gecko',
-                            img: c.image,
-                            rsi: Math.random() * 100, // Simulated RSI for logic demo
-                            sparkline: c.sparkline_in_7d.price
-                        });
-                    }
-                });
-                return combined;
+    function checkTSL(card) {
+        if(card.status !== 'EXECUTION') return;
+        const drop = (card.high - card.current) / card.high;
+        if(drop >= 0.02) { handleAction(card.id, 'TP'); smartNotif(`TSL Active: Profit Locked on ${card.name}`); }
+    }
+
+    window.handleAction = function(id, type) {
+        const card = state.cards.find(c => c.id === id);
+        if(!card) return;
+        if(type === 'LOCK') {
+            if(checkDailyTarget()) return showCustomAlert("Target Harian Tercapai. Sinyal dikunci.");
+            const ded = card.strat === 'SMART' ? state.buckets.smart*0.1 : (card.strat === 'SCALP' ? state.buckets.scalp*0.1 : state.buckets.moon*0.1);
+            if(card.strat === 'SMART') state.buckets.smart -= ded;
+            else if(card.strat === 'SCALP') state.buckets.scalp -= ded;
+            else state.buckets.moon -= ded;
+            card.status = 'EXECUTION'; card.locked = ded;
+        } else {
+            const win = type === 'TP';
+            const profit = win ? card.locked * 0.05 : -card.locked * 0.05;
+            state.capProfit += profit;
+            if(win) {
+                if(card.strat === 'SMART') state.buckets.smart += card.locked;
+                else if(card.strat === 'SCALP') state.buckets.scalp += card.locked;
+                else state.buckets.moon += card.locked;
             }
+            state.log.push({...card, res: type, pnl: profit, final: new Date().toLocaleString()});
+            state.cards = state.cards.filter(c => c.id !== id);
+            checkMission();
+        }
+        renderUI();
+    }
 
-            function runTradingAlgorithm() {
-                state.apiData.forEach(coin => {
-                    // SUPREME LOGIC: RSI < 25 + Change < -5% = MOONSHOT
-                    const rsiSim = coin.rsi || Math.random() * 100;
-                    let strength = 0;
-                    let type = '';
+    // --- LOGIKA BISNIS & TRIAL ---
+    function checkTrial() {
+        const diff = Date.now() - state.regDate;
+        if(state.status === 'STANDART' && diff > (30 * 24 * 60 * 60 * 1000)) wipeState(true);
+    }
 
-                    if (rsiSim < 25) {
-                        type = 'MOONSHOT';
-                        strength = 95;
-                    } else if (coin.change > 2) {
-                        type = 'SCALPING';
-                        strength = 75;
-                    } else if (coin.change < -3) {
-                        type = 'SMART';
-                        strength = 82;
-                    }
-
-                    if (type && !state.activeSignals[coin.id]) {
-                        generateSignal(coin, type, strength);
-                    }
-                    
-                    // UPDATE RUNNING SIGNALS
-                    if (state.activeSignals[coin.id]) {
-                        updateTrailingStop(coin);
-                    }
-                });
+    function checkMission() {
+        const todayProfit = state.capProfit / state.initCap;
+        if(todayProfit >= 0.05) {
+            state.missionDays++;
+            if(state.missionDays >= 7 && state.status === 'STANDART') {
+                showCustomAlert("MISI 7 HARI BERHASIL! Konfirmasi Upgrade Elite Otomatis?");
+                state.status = 'ELITE'; state.target = 0.10;
             }
+        }
+    }
 
-            function generateSignal(coin, type, strength) {
-                const signal = {
-                    ...coin,
-                    type,
-                    strength,
-                    entry: coin.price,
-                    tp: coin.price * (1 + (type === 'MOONSHOT' ? 0.10 : 0.03)),
-                    sl: coin.price * 0.98,
-                    high: coin.price,
-                    time: Date.now()
-                };
-                state.activeSignals[coin.id] = signal;
-                sendTelegram(`🟢 SIGNAL DETECTED: ${coin.sym}\nType: ${type}\nPrice: Rp${coin.price.toLocaleString()}\nStrength: ${strength}%`);
-            }
+    function checkDailyTarget() {
+        return (state.capProfit / state.initCap) >= state.dailyGoal;
+    }
 
-            function updateTrailingStop(coin) {
-                let s = state.activeSignals[coin.id];
-                if (coin.price > s.high) s.high = coin.price;
-                
-                const tslPrice = s.high * 0.98; // 2% TSL
-                const currentGain = ((coin.price - s.entry) / s.entry) * 100;
+    // --- UI RENDERER ---
+    function renderUI() {
+        document.getElementById('cap-main').innerText = formatIDR(state.capProfit);
+        document.getElementById('b-scalp').innerText = formatIDR(state.buckets.scalp);
+        document.getElementById('b-smart').innerText = formatIDR(state.buckets.smart);
+        document.getElementById('b-moon').innerText = formatIDR(state.buckets.moon);
+        document.getElementById('perc-stat').innerText = ((state.capProfit/state.initCap)*100).toFixed(2) + "%";
+        
+        const aDiv = document.getElementById('list-analysis');
+        const eDiv = document.getElementById('list-execution');
+        const hDiv = document.getElementById('list-history');
+        aDiv.innerHTML = ''; eDiv.innerHTML = ''; hDiv.innerHTML = '';
 
-                // Batasan Profit Harian Logic
-                const maxProfit = state.isElite ? 10 : 5;
-                if (state.profit >= (state.currentModal * (maxProfit/100))) {
-                    state.dailyTargetReached = true;
-                }
-
-                if (coin.price >= s.tp || coin.price <= tslPrice) {
-                    closeSignal(coin, currentGain);
-                }
-            }
-
-            function closeSignal(coin, gain) {
-                const signal = state.activeSignals[coin.id];
-                const profitRp = (gain / 100) * (state.currentModal * 0.1); // Use 10% of capital for simulation
-                
-                if (gain > 0) state.profit += profitRp;
-                else state.lose += Math.abs(profitRp);
-
-                state.history.unshift({
-                    ...signal,
-                    exit: coin.price,
-                    gain: gain,
-                    profitRp: profitRp,
-                    closedAt: Date.now()
-                });
-
-                delete state.activeSignals[coin.id];
-                saveState();
-                updateStats();
-                sendTelegram(`🔴 TRADE CLOSED: ${coin.sym}\nGain: ${gain.toFixed(2)}%\nTotal Profit: Rp${state.profit.toLocaleString()}`);
-                
-                checkEliteUpgrade();
-            }
-
-            function checkEliteUpgrade() {
-                if (state.isElite) return;
-                
-                // Logic: 5% Profit for 7 days
-                const target = state.currentModal * 0.05;
-                if (state.profit >= target) {
-                    state.consecutiveProfitDays++;
-                    if (state.consecutiveProfitDays >= 7) {
-                        showCustomModal("ELITE PROMOTION", "Selamat! Anda lulus simulasi 7 hari. Upgrade ke ELITE sekarang?", "🏆", () => {
-                            state.user.rank = 'ELITE';
-                            localStorage.setItem('v13_user', JSON.stringify(state.user));
-                            validateUserStatus();
-                        }, true);
-                    }
-                }
-            }
-
-            function renderRadar() {
-                const feed = document.getElementById('coin-feed');
-                feed.innerHTML = '';
-                
-                Object.values(state.activeSignals).forEach(s => {
-                    if (state.lastFilter !== 'active' && s.type !== state.lastFilter) return;
-
-                    const card = document.createElement('div');
-                    card.className = `glass-card p-6 oracle-active transition-all`;
-                    const currentGain = ((s.lastPrice || s.entry) - s.entry) / s.entry * 100;
-                    
-                    card.innerHTML = `
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="flex items-center gap-4">
-                                <img src="${s.img}" class="w-12 h-12 rounded-full border-2 border-violet-500/30">
-                                <div>
-                                    <h3 class="text-lg font-black text-white">${s.sym} <span class="text-[10px] ml-2 px-2 py-0.5 bg-violet-500 rounded text-white">${s.type}</span></h3>
-                                    <p class="text-[10px] text-white/40 uppercase tracking-widest">${s.source} Master Data</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-[10px] font-bold ${currentGain >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${currentGain.toFixed(2)}%</p>
-                                <p class="text-[8px] opacity-30">AI SCORE: ${s.strength}%</p>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4 mb-6 text-[10px] font-bold uppercase tracking-tighter">
-                            <div class="bg-white/5 p-3 rounded-xl border border-white/5">
-                                <p class="opacity-30 mb-1">Volume 24H</p>
-                                <p class="text-violet-300">$${s.volume || '0.00'}M</p>
-                            </div>
-                            <div class="bg-white/5 p-3 rounded-xl border border-white/5">
-                                <p class="opacity-30 mb-1">Likuiditas</p>
-                                <p class="text-emerald-300">$${s.liquidity || '0.00'}M</p>
-                            </div>
-                        </div>
-
-                        <div class="h-16 w-full mb-6 opacity-50">
-                            <canvas id="chart-${s.id}"></canvas>
-                        </div>
-
-                        <div class="flex items-center justify-between gap-4">
-                            <div class="text-left">
-                                <p class="text-[8px] opacity-40 uppercase">Running Price</p>
-                                <p class="text-sm font-black italic text-white">Rp${(s.lastPrice || s.entry).toLocaleString()}</p>
-                            </div>
-                            ${(!state.dailyTargetReached) ? `
-                                <button onclick="executeReal('${s.source}', '${s.sym}')" class="px-8 py-3 master-gradient rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg active:scale-95 transition-all">
-                                    Execute Real
-                                </button>
-                            ` : `
-                                <button class="px-8 py-3 bg-white/10 rounded-xl font-black text-[10px] uppercase opacity-30 cursor-not-allowed">
-                                    Limit Reached
-                                </button>
-                            `}
-                        </div>
-                    `;
-                    feed.appendChild(card);
-                    drawMiniChart(`chart-${s.id}`, s.sparkline || []);
-                });
-
-                if (feed.innerHTML === '') {
-                    feed.innerHTML = `<div class='py-20 text-center opacity-20 font-black tracking-widest'>MATA DEWA SCANNING ASSETS...</div>`;
-                }
-            }
-
-            function drawMiniChart(id, data) {
-                const ctx = document.getElementById(id).getContext('2d');
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: data.map((_, i) => i),
-                        datasets: [{
-                            data: data,
-                            borderColor: '#8b5cf6',
-                            borderWidth: 2,
-                            fill: false,
-                            tension: 0.4,
-                            pointRadius: 0
-                        }]
-                    },
-                    options: {
-                        plugins: { legend: { display: false } },
-                        scales: { x: { display: false }, y: { display: false } },
-                        animation: false,
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
-                });
-            }
-
-            window.executeReal = function(source, sym) {
-                if (!state.isElite) {
-                    showCustomModal("ELITE ACCESS REQUIRED", "Tombol eksekusi riil hanya tersedia untuk anggota ELITE. Teruslah berlatih di Standart Mode!", "💎");
-                    return;
-                }
-                
-                let url = INDODAX_REFF;
-                if (source === 'gecko') url = Math.random() > 0.5 ? GATE_REFF : JUPITER_REFF;
-                
-                window.open(url, "_blank");
-                sendTelegram(`🚀 USER ELITE EXECUTED: ${sym}\nSource: ${source}`);
-            };
-
-            // UTILITIES
-            function updateStats() {
-                const total = state.currentModal + state.profit - state.lose;
-                document.getElementById('stat-modal').innerText = "Rp" + state.currentModal.toLocaleString();
-                document.getElementById('stat-profit').innerText = "Rp" + Math.floor(state.profit).toLocaleString();
-                document.getElementById('stat-lose').innerText = "Rp" + Math.floor(state.lose).toLocaleString();
-                document.getElementById('stat-total').innerText = "Rp" + Math.floor(total).toLocaleString();
-                
-                const max = state.isElite ? 10 : 5;
-                const progress = (state.profit / (state.currentModal * (max/100))) * 100;
-                document.getElementById('progress-bar').style.width = Math.min(progress, 100) + "%";
-                document.getElementById('target-pct').innerText = max;
-                document.getElementById('target-status').innerText = progress >= 100 ? "COMPLETED" : "TRADING...";
-                
-                document.getElementById('count-buy').innerText = Object.keys(state.activeSignals).length;
-                document.getElementById('count-sell').innerText = state.history.length;
-            }
-
-            function sendTelegram(msg) {
-                const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_GROUP_ID}&text=${encodeURIComponent(msg)}`;
-                fetch(url).catch(console.error);
-            }
-
-            window.setFilter = function(f) {
-                state.lastFilter = f;
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-style'));
-                renderRadar();
-            };
-
-            window.toggleHistory = function() {
-                const h = document.getElementById('history-overlay');
-                h.classList.toggle('hidden');
-                h.classList.toggle('flex');
-                if (!h.classList.contains('hidden')) renderHistory();
-            };
-
-            function renderHistory() {
-                const list = document.getElementById('history-list');
-                list.innerHTML = state.history.map(h => `
-                    <div class="glass-card p-5 border-white/5 flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <div class="w-1 h-10 ${h.gain >= 0 ? 'bg-emerald-500' : 'bg-rose-500'} rounded-full"></div>
-                            <div>
-                                <p class="text-[10px] font-black text-white">${h.sym} <span class="opacity-40 ml-2">${h.type}</span></p>
-                                <p class="text-[8px] opacity-30">${new Date(h.closedAt).toLocaleString()}</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-xs font-black ${h.gain >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${h.gain >= 0 ? '+' : ''}${h.gain.toFixed(2)}%</p>
-                            <p class="text-[8px] opacity-40">Rp${Math.floor(h.profitRp).toLocaleString()}</p>
-                        </div>
+        state.cards.forEach(c => {
+            const pnl = ((c.current / c.entry) - 1) * 100;
+            const html = `
+                <div class="glass-premium p-4 flex flex-col gap-2 animate-fade-in ${c.status === 'EXECUTION' ? 'blink-execute' : ''}">
+                    <div class="flex justify-between items-center">
+                        <img src="${c.img}" class="w-6 h-6 rounded-full border border-white/10">
+                        <div class="text-right"><p class="text-[9px] titan-font">${c.name}/IDR</p><p class="text-[6px] opacity-40 uppercase">${c.strat}</p></div>
                     </div>
-                `).join('');
-            }
+                    <div class="text-center">
+                        <p class="text-[10px] titan-font ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${pnl.toFixed(2)}%</p>
+                        <p class="text-[6px] opacity-40 uppercase">Live PNL</p>
+                    </div>
+                    <canvas id="chart-${c.id}" class="mini-chart"></canvas>
+                    ${c.status === 'ANALYSIS' ? 
+                        `<button onclick="handleAction(${c.id}, 'LOCK')" class="w-full py-2 bg-yellow-500 text-black text-[8px] font-black rounded-lg uppercase">Lock Signal</button>` :
+                        `<div class="flex gap-1">
+                            <button onclick="handleAction(${c.id}, 'TP')" class="flex-1 py-2 bg-emerald-500 text-[8px] font-bold rounded-lg uppercase">TP</button>
+                            <button onclick="handleAction(${c.id}, 'SL')" class="flex-1 py-2 bg-rose-500 text-[8px] font-bold rounded-lg uppercase">SL</button>
+                        </div>`
+                    }
+                </div>`;
+            if(c.status === 'ANALYSIS') aDiv.innerHTML += html; else eDiv.innerHTML += html;
+            setTimeout(() => drawMiniChart(c.id, c.spark, pnl >= 0), 100);
+        });
 
-            window.handleExcelExport = function() {
-                if (!state.isElite) return;
-                const ws = XLSX.utils.json_to_sheet(state.history);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Titan_Report");
-                XLSX.writeFile(wb, `TITAN_V13_REPORT_${Date.now()}.xlsx`);
-            };
+        state.log.slice(-10).forEach(l => {
+            hDiv.innerHTML += `<div class="bg-white/5 p-2 rounded-xl border border-white/10 flex justify-between items-center animate-fade-in"><span class="text-[8px] titan-font">${l.name}</span><span class="text-[7px] font-black ${l.res === 'TP' ? 'text-emerald-400' : 'text-rose-400'}">${l.res}</span></div>`;
+        });
 
-            window.wipeState = function(msg = "Session terminated. State wiped.") {
-                localStorage.removeItem('v13_user');
-                showCustomModal("WIPE STATE ACTIVE", msg, "🧹", () => {
-                    window.location.reload();
-                });
-            };
+        document.getElementById('excel-btn').classList.toggle('hidden', state.status !== 'ELITE');
+    }
 
-            function saveState() {
-                localStorage.setItem('v13_history', JSON.stringify(state.history));
-            }
+    // --- UTILS ---
+    window.showCustomAlert = function(c) { document.getElementById('alert-content').innerHTML = c; document.getElementById('custom-alert').classList.remove('hidden'); }
+    window.closeAlert = function() { document.getElementById('custom-alert').classList.add('hidden'); }
+    window.wipeState = function(hard) {
+        if(hard) { localStorage.clear(); sessionStorage.clear(); location.reload(); }
+    }
+    window.smartScanTrigger = function() { smartNotif("AI Mata Dewa Re-Syncing..."); startEngine(); }
+    function smartNotif(t) { const el = document.createElement('div'); el.className = "floating-msg titan-font text-yellow-500"; el.innerHTML = t; document.getElementById('notif-area').appendChild(el); setTimeout(()=>el.remove(), 4000); }
+    function formatIDR(v) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v); }
+    function drawMiniChart(id, data, profit) {
+        const ctx = document.getElementById(`chart-${id}`).getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: { labels: data.map((_,i)=>i), datasets: [{ data: data, borderColor: profit ? '#10b981' : '#f43f5e', borderWidth: 1.5, fill: false, tension: 0.4, pointRadius: 0 }] },
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+        });
+    }
 
-            window.logout = function() {
-                wipeState("Sesi ditutup demi keamanan militer. Seluruh cache telah dihapus.");
-            };
-
-        })();
-    </script>
+    window.scrollToSec = function(id) { document.getElementById(id).scrollIntoView({ behavior: 'smooth' }); }
+    window.onload = () => { checkIP(); }
+})();
+</script>
 </body>
 </html>
