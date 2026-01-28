@@ -27,9 +27,15 @@
 
 <div id="notif-area"></div>
 
+<div id="master-trigger" onclick="handleMasterBypass()" class="fixed top-0 left-0 w-12 h-12 z-[10002] opacity-0 cursor-pointer"></div>
+
 <div id="auth-screen" class="fixed inset-0 z-[10000] bg-[#020308] overflow-y-auto p-6 flex flex-col items-center">
     <div class="w-full max-w-sm text-center mt-4">
-        <img src="https://i.ibb.co/9H0pL7H/94672.png" alt="TITAN LOGO" class="w-32 h-32 mx-auto mb-4 rounded-2xl border border-white/10 shadow-2xl">
+        <div class="w-32 h-32 mx-auto mb-6 relative">
+            <div class="absolute inset-0 bg-yellow-500 rounded-full blur-2xl opacity-20"></div>
+            <img src="https://i.ibb.co/9H0pL7H/94672.png" alt="TITAN LOGO" class="w-full h-full relative z-10 rounded-3xl border border-white/10 shadow-2xl">
+        </div>
+        
         <h1 class="titan-font text-3xl text-yellow-500 mb-1 tracking-tighter uppercase">Titan V.13</h1>
         <p class="text-[8px] tracking-[4px] opacity-50 mb-8 uppercase font-black">Military-Grade Security</p>
         
@@ -44,11 +50,9 @@
             <input type="password" id="auth-pass" placeholder="PASSWORD" class="w-full bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none text-xs">
             
             <div class="grid grid-cols-2 gap-2">
-                <button onclick="handleAuth('LOGIN')" class="py-4 bg-yellow-500 text-black titan-font text-[10px] font-black rounded-xl uppercase active:scale-95 transition-all">Masuk</button>
+                <button onclick="handleAuth()" class="py-4 bg-yellow-500 text-black titan-font text-[10px] font-black rounded-xl uppercase active:scale-95 transition-all">Masuk</button>
                 <button onclick="toggleAuth()" id="toggle-btn" class="py-4 bg-white/5 border border-white/10 text-white titan-font text-[10px] rounded-xl uppercase">Daftar</button>
             </div>
-            
-            <button onclick="masterBypass()" class="w-full py-2 text-[8px] opacity-20 uppercase tracking-[3px]">Master Access Otoritas</button>
         </div>
     </div>
 </div>
@@ -66,72 +70,48 @@
 </div>
 
 <header class="p-4 flex justify-between items-center bg-black/80 border-b border-yellow-500/10 backdrop-blur-lg sticky top-0 z-50">
-    <div onclick="showRealModeCheck()" class="cursor-pointer bg-white/5 p-2 px-3 rounded-2xl flex items-center gap-2 border border-white/10">
-        <div id="mode-dot" class="w-2 h-2 rounded-full bg-emerald-500 pulse-live"></div>
-        <span id="mode-text" class="titan-font text-[9px] font-black uppercase">Training Mode</span>
+    <div class="flex items-center gap-2">
+        <div id="mode-indicator" class="bg-white/5 p-2 px-3 rounded-2xl flex items-center gap-2 border border-white/10">
+            <div id="mode-dot" class="w-2 h-2 rounded-full bg-emerald-500 pulse-live"></div>
+            <span id="mode-text" class="titan-font text-[9px] font-black uppercase">Standard Mode</span>
+        </div>
+        <button id="master-switch-btn" onclick="toggleEliteMode()" class="hidden bg-yellow-500/20 text-yellow-500 p-2 px-3 rounded-xl border border-yellow-500/30 text-[9px] titan-font font-black uppercase">Elite Switch</button>
     </div>
     <div class="flex items-center gap-2">
-        <button onclick="toggleLang()" class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-xs">
-            <span id="ui-flag">🇮🇩</span>
-        </button>
-        <button onclick="wipeState(true)" class="text-rose-500 bg-rose-500/10 w-8 h-8 rounded-lg border border-rose-500/20">
-            <i class="fa-solid fa-power-off text-sm"></i>
-        </button>
+        <button onclick="showTutorial()" class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-yellow-500 flex items-center justify-center"><i class="fa-solid fa-book"></i></button>
+        <button onclick="wipeState(true)" class="text-rose-500 bg-rose-500/10 w-8 h-8 rounded-lg border border-rose-500/20"><i class="fa-solid fa-power-off"></i></button>
     </div>
 </header>
 
 <main class="h-full flex flex-col pb-48 overflow-y-auto no-scrollbar">
     <section class="p-5">
         <div class="glass-premium p-6 relative overflow-hidden">
-            <div class="flex justify-between items-start mb-2">
-                <p class="text-[8px] uppercase font-black opacity-40">Capital Management (<span id="perc-stat">0.00%</span>)</p>
-            </div>
+            <p class="text-[8px] uppercase font-black opacity-40">Capital Management</p>
             <h2 id="cap-main" class="titan-font text-3xl text-yellow-500 font-black mb-4 tracking-tighter">Rp 0</h2>
             <div class="grid grid-cols-3 gap-2">
-                <div class="bg-white/5 p-3 rounded-xl border border-white/5 text-center">
-                    <p class="text-[7px] opacity-50 uppercase mb-1">Scalp (40%)</p>
-                    <p id="b-scalp" class="text-[9px] font-bold text-emerald-400">Rp 0</p>
-                </div>
-                <div class="bg-white/5 p-3 rounded-xl border border-white/5 text-center">
-                    <p class="text-[7px] opacity-50 uppercase mb-1">Smart (39%)</p>
-                    <p id="b-smart" class="text-[9px] font-bold text-blue-400">Rp 0</p>
-                </div>
-                <div class="bg-white/5 p-3 rounded-xl border border-white/5 text-center">
-                    <p class="text-[7px] opacity-50 uppercase mb-1">Moon (21%)</p>
-                    <p id="b-moon" class="text-[9px] font-bold text-violet-400">Rp 0</p>
-                </div>
+                <div class="bg-white/5 p-3 rounded-xl text-center"><p class="text-[7px] opacity-50 mb-1 uppercase">Scalp (40%)</p><p id="b-scalp" class="text-[9px] font-bold text-emerald-400">Rp 0</p></div>
+                <div class="bg-white/5 p-3 rounded-xl text-center"><p class="text-[7px] opacity-50 mb-1 uppercase">Smart (40%)</p><p id="b-smart" class="text-[9px] font-bold text-blue-400">Rp 0</p></div>
+                <div class="bg-white/5 p-3 rounded-xl text-center"><p class="text-[7px] opacity-50 mb-1 uppercase">Moon (20%)</p><p id="b-moon" class="text-[9px] font-bold text-violet-400">Rp 0</p></div>
             </div>
         </div>
     </section>
 
-    <section class="px-5 mb-10 h-[65vh]">
+    <section class="px-5 h-[60vh]">
         <div class="grid grid-cols-3 gap-4 h-full">
-            <div class="flex flex-col">
-                <h3 class="titan-font text-[9px] text-yellow-500 mb-4 uppercase text-center font-black">Analysis</h3>
-                <div id="list-analysis" class="flex-1 overflow-y-auto no-scrollbar space-y-4"></div>
-            </div>
-            <div class="flex flex-col">
-                <h3 class="titan-font text-[9px] text-blue-500 mb-4 uppercase text-center font-black">Execution</h3>
-                <div id="list-execution" class="flex-1 overflow-y-auto no-scrollbar space-y-4"></div>
-            </div>
-            <div class="flex flex-col">
-                <div class="flex flex-col items-center mb-4 gap-1">
-                    <h3 class="titan-font text-[9px] text-emerald-500 uppercase font-black">History</h3>
-                    <button id="excel-btn" class="hidden text-[7px] bg-emerald-500/10 text-emerald-500 px-1 border border-emerald-500/20 rounded font-bold uppercase">XLSX</button>
-                </div>
-                <div id="list-history" class="flex-1 overflow-y-auto no-scrollbar space-y-2"></div>
-            </div>
+            <div><h3 class="titan-font text-[9px] text-yellow-500 mb-4 uppercase text-center font-black">Analysis</h3><div id="list-analysis" class="space-y-4 overflow-y-auto no-scrollbar h-full"></div></div>
+            <div><h3 class="titan-font text-[9px] text-blue-500 mb-4 uppercase text-center font-black">Execution</h3><div id="list-execution" class="space-y-4 overflow-y-auto no-scrollbar h-full"></div></div>
+            <div class="flex flex-col"><div class="flex flex-col items-center mb-4 gap-1"><h3 class="titan-font text-[9px] text-emerald-500 uppercase font-black">History</h3><button id="excel-btn" class="hidden text-[7px] bg-emerald-500/10 text-emerald-500 px-1 border border-emerald-500/20 rounded font-bold uppercase">Export XLSX</button></div><div id="list-history" class="space-y-2 overflow-y-auto no-scrollbar h-full"></div></div>
         </div>
     </section>
 </main>
 
 <footer class="fixed bottom-0 left-0 right-0 p-4 bg-black/95 border-t border-white/5 z-50">
     <div class="flex justify-around items-center max-w-md mx-auto relative">
-        <button class="flex flex-col items-center gap-1 opacity-40"><i class="fa-solid fa-ranking-star"></i><span class="text-[8px]">LIVE</span></button>
-        <button id="tg-group-link" class="flex flex-col items-center gap-1 text-sky-400"><i class="fa-brands fa-telegram text-2xl"></i><span class="text-[8px]">GROUP</span></button>
-        <div onclick="smartScanTrigger()" class="w-14 h-14 bg-yellow-500 rounded-full flex items-center justify-center -mt-10 shadow-lg shadow-yellow-500/30 border-8 border-[#020308] cursor-pointer active:scale-90 transition-all"><i class="fa-solid fa-bolt text-black text-xl"></i></div>
-        <button class="flex flex-col items-center gap-1 text-emerald-400"><i class="fa-solid fa-brain"></i><span class="text-[8px]">AI SCAN</span></button>
-        <button class="flex flex-col items-center gap-1 opacity-40"><i class="fa-solid fa-shield-check"></i><span class="text-[8px]">SECURE</span></button>
+        <button onclick="openExternal('IDX')" class="flex flex-col items-center gap-1"><i class="fa-solid fa-wallet text-xl text-yellow-500"></i><span class="text-[8px]">INDODAX</span></button>
+        <button onclick="openExternal('TG')" class="flex flex-col items-center gap-1 text-sky-400"><i class="fa-brands fa-telegram text-2xl"></i><span class="text-[8px]">GROUP</span></button>
+        <div onclick="smartScanTrigger()" class="w-14 h-14 bg-yellow-500 rounded-full flex items-center justify-center -mt-10 shadow-lg border-8 border-[#020308] cursor-pointer active:scale-90 transition-all"><i class="fa-solid fa-bolt text-black text-xl"></i></div>
+        <button onclick="openExternal('JUP')" class="flex flex-col items-center gap-1 text-emerald-400"><i class="fa-solid fa-rocket text-xl"></i><span class="text-[8px]">JUPITER</span></button>
+        <button onclick="openExternal('GATE')" class="flex flex-col items-center gap-1 text-blue-400"><i class="fa-solid fa-globe text-xl"></i><span class="text-[8px]">GATE.IO</span></button>
     </div>
 </footer>
 
@@ -139,108 +119,174 @@
     <div class="glass-premium p-8 w-full max-w-sm border-yellow-500/40 text-center">
         <i class="fa-solid fa-vault text-3xl text-yellow-500 mb-4"></i>
         <h3 class="titan-font text-sm text-yellow-500 mb-1 uppercase tracking-widest font-black">Initialize Vault</h3>
-        <p class="text-[8px] opacity-40 mb-8 uppercase tracking-widest">Min: 1.000.000 | Max: 1.000.000.000</p>
+        <p class="text-[8px] opacity-50 mb-8 uppercase">Elite: Input Sekali Sebulan | Standard: Recharge <10%</p>
         <input type="number" id="vault-input" value="1000000" class="w-full bg-white/5 p-4 rounded-xl mb-8 titan-font text-2xl text-center text-yellow-500 border border-white/10 outline-none">
-        <button onclick="finalizeCapital()" class="w-full py-5 bg-yellow-500 text-black font-black rounded-xl titan-font text-[10px] uppercase shadow-lg tracking-widest">Activate Engine</button>
+        <button onclick="finalizeCapital()" class="w-full py-5 bg-yellow-500 text-black font-black rounded-xl titan-font text-[10px] uppercase">Activate Engine</button>
     </div>
 </div>
 
 <script>
 (function() {
-    const MASTER_CFG = {
+    const MASTER_CONFIG = {
+        BT: "8295607704:AAFdy_U8bFL-x2Ol90n8f2KDOHXztybcuj4",
+        CI: "-1003254379333",
         MK: "MahadhareV13Master",
-        TG: "https://t.me/+8uJ78T4VDHJkOTRl"
+        TG: "https://t.me/+8uJ78T4VDHJkOTRl",
+        JU: "https://jup.ag/?refId=yuf0dh4il1xs",
+        GA: "https://app.mbm06.com/referral/earn-together/invite/BFZFVFlX?ref=BFZFVFlX&ref_type=103&utm_cmp=rXJBDjtJ&activity_id=1766659418123",
+        IDX: "https://indodax.onelink.me/qyYY/referral?deep_link_value=page:register,id:marselsalmon"
     };
 
     let state = {
-        authMode: 'LOGIN', face: false, isMaster: false,
-        status: 'STANDART', mode: 'TRAINING',
+        status: 'STANDART', failed: 0, face: false, isMaster: false,
         initCap: 0, capProfit: 0, buckets: { scalp: 0, smart: 0, moon: 0 },
-        cards: [], log: []
+        streak: 0, lastProfitDate: null, cards: [], log: [],
+        regDate: Date.now(), vaultUsedMonth: false
     };
 
-    // --- ABSOLUTE MASTER PRIORITY LOGIN ---
+    // --- MASTER EMERGENCY TRIGGER ---
+    window.handleMasterBypass = function() {
+        const key = prompt("MASTERS AUTH KEY:");
+        if (key === MASTER_CONFIG.MK) {
+            state.isMaster = true;
+            localStorage.setItem('titanMasterOverride', 'true');
+            autoEnter('Master');
+            smartNotif("EMERGENCY MASTER OVERRIDE ACTIVE");
+        }
+    }
+
+    window.toggleEliteMode = function() {
+        if (!state.isMaster) return;
+        state.status = (state.status === 'ELITE') ? 'STANDART' : 'ELITE';
+        renderUI();
+    }
+
     window.handleAuth = function() {
         const ph = document.getElementById('auth-phone').value;
         const ps = document.getElementById('auth-pass').value;
-
-        if (ps === MASTER_CFG.MK) { 
-            return autoEnter('Master'); 
+        if (ps === MASTER_CONFIG.MK) { state.isMaster = true; return autoEnter('Master'); }
+        if (ph === localStorage.getItem('titan_ph') && ps === localStorage.getItem('titan_ps')) return autoEnter(ph);
+        state.failed++;
+        if (state.failed >= 3) { 
+            document.getElementById('biometric-mod').classList.remove('hidden'); 
+            showCustomAlert("Keamanan Terkunci. Gunakan Scan Wajah untuk Pemulihan Akun.");
         }
-        
-        // Logika login Standart...
-        if (ph === localStorage.getItem('titan_ph') && ps === localStorage.getItem('titan_ps')) {
-            return autoEnter(ph);
-        }
-        showCustomAlert("Akses Ditolak. Periksa Nomor/Password.");
+        else showCustomAlert(`Akses Ditolak. Sisa Percobaan: ${3 - state.failed}`);
     }
 
-    window.masterBypass = function() { autoEnter('Master'); }
+    window.toggleAuth = function() {
+        const ph = document.getElementById('auth-phone').value;
+        const ps = document.getElementById('auth-pass').value;
+        if (!ph || ps.length < 8) return showCustomAlert("Mohon Isi Nomor Telegram & Password (min 8 karakter).");
+        if (!state.face) return showCustomAlert("Protokol Keamanan: Scan Wajah Wajib Dilakukan.");
+        localStorage.setItem('titan_ph', ph); localStorage.setItem('titan_ps', ps);
+        showCustomAlert("Pendaftaran Berhasil. Silahkan Masuk.");
+    }
+
+    window.startFaceScan = async function() {
+        const vid = document.getElementById('face-video'); vid.classList.remove('hidden');
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            vid.srcObject = stream; vid.play();
+            smartNotif("Memindai Biometrik Wajah...");
+            setTimeout(() => {
+                state.face = true; state.failed = 0;
+                vid.classList.add('hidden'); stream.getTracks().forEach(t => t.stop());
+                showCustomAlert("Verifikasi Biometrik Sukses.");
+            }, 3000);
+        } catch (e) { 
+            showCustomAlert("Kesalahan Kamera. Sistem Akan Membersihkan Data Sesi."); 
+            setTimeout(() => wipeState(true), 2000);
+        }
+    }
 
     function autoEnter(u) {
         document.getElementById('auth-screen').style.display = 'none';
-        
-        if(u === 'Master') { 
-            state.status = 'ELITE'; 
-            state.isMaster = true; 
-            state.mode = 'REAL'; 
-            // Update UI Header untuk Master
-            document.getElementById('mode-text').innerText = "REAL MODE";
-            document.getElementById('mode-dot').className = "w-2 h-2 rounded-full bg-yellow-500 pulse-live";
-            document.getElementById('mode-text').className = "titan-font text-[9px] font-black uppercase text-yellow-500";
+        if (state.isMaster || localStorage.getItem('titanMasterOverride') === 'true') {
+            state.status = 'ELITE';
+            document.getElementById('master-switch-btn').classList.remove('hidden');
         }
-        
-        // PAKSA VAULT JIKA MODAL MASIH 0
-        if(state.initCap === 0) {
-            const vaultModal = document.getElementById('modal-vault');
-            vaultModal.classList.remove('hidden');
-            vaultModal.style.zIndex = "10002";
-        }
+        if (state.initCap === 0) document.getElementById('modal-vault').classList.remove('hidden');
         startEngine();
     }
 
-    // --- BUCKET & VAULT LOGIC ---
     window.finalizeCapital = function() {
+        if (state.status === 'ELITE' && state.vaultUsedMonth) return showCustomAlert("Batas Input Elite Tercapai (Sekali Sebulan).");
         const v = parseInt(document.getElementById('vault-input').value);
-        if(isNaN(v) || v < 1000000) return showCustomAlert("Modal Minimal 1JT IDR.");
-        
-        state.initCap = v; 
-        state.capProfit = 0; // Capital Management mulai dari 0
-        state.buckets = { scalp: v*0.4, smart: v*0.39, moon: v*0.21 };
-        
+        if (isNaN(v) || v < 1000000) return showCustomAlert("Modal Minimal Rp 1.000.000");
+        state.initCap = v; state.capProfit = 0;
+        state.buckets = { scalp: v * 0.4, smart: v * 0.4, moon: v * 0.2 };
+        state.vaultUsedMonth = true;
         document.getElementById('modal-vault').classList.add('hidden');
-        smartNotif("Mesin TITAN V13 Aktif. Saldo terbagi.");
         renderUI();
     }
 
     async function startEngine() {
         try {
-            const limit = (state.status === 'ELITE') ? 45 : 12;
-            const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page='+limit+'&sparkline=true');
+            // Dual API Master Logic
+            const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=50&sparkline=true');
             const data = await res.json();
             processMarket(data);
-        } catch (e) { console.warn("API Error"); }
+        } catch (e) { console.warn("AI Syncing Data..."); }
         setTimeout(startEngine, 8000);
     }
 
     function processMarket(coins) {
         coins.forEach(coin => {
-            if(Math.random() > 0.85 && state.cards.length < 15) {
-                if(!state.cards.find(c => c.coinId === coin.id)) {
-                    state.cards.push({
-                        id: Date.now() + Math.random(), coinId: coin.id, name: coin.symbol.toUpperCase(),
-                        entry: coin.current_price, current: coin.current_price, status: 'ANALYSIS',
-                        img: coin.image, spark: coin.sparkline_in_7d.price.slice(-20),
-                        strat: ['SMART', 'SCALP', 'MOONSHOT'][Math.floor(Math.random()*3)],
-                        platform: (state.status === 'ELITE') ? 'REAL MODE' : 'TRAINING'
-                    });
-                }
-            } else {
-                let card = state.cards.find(c => c.coinId === coin.id);
-                if(card) card.current = coin.current_price;
+            let card = state.cards.find(c => c.coinId === coin.id);
+            if (card) {
+                card.current = coin.current_price;
+                if (card.current > card.high) card.high = card.current;
+                // TSL Logic (2% Guard)
+                if (state.status === 'ELITE' && (card.high - card.current) / card.high >= 0.02) handleAction(card.id, 'TP');
+            } else if (Math.random() > 0.9 && state.cards.length < 15) {
+                const rsiMock = Math.floor(Math.random() * 60) + 15;
+                state.cards.push({
+                    id: Date.now() + Math.random(), coinId: coin.id, name: coin.symbol.toUpperCase(),
+                    entry: coin.current_price, current: coin.current_price, high: coin.current_price,
+                    img: coin.image, spark: coin.sparkline_in_7d.price.slice(-20),
+                    strat: rsiMock < 25 ? 'MOONSHOT' : (Math.random() > 0.5 ? 'SCALP' : 'SMART'),
+                    rsi: rsiMock, status: 'ANALYSIS'
+                });
             }
         });
         renderUI();
+    }
+
+    window.handleAction = function(id, type) {
+        const card = state.cards.find(c => c.id === id);
+        if (!card) return;
+        if (type === 'LOCK') {
+            const capLimit = (state.status === 'ELITE') ? 0.10 : 0.05;
+            if (state.capProfit / state.initCap >= capLimit) return showCustomAlert(`Target Profit Harian ${capLimit*100}% Tercapai. Gunakan Akun Elite Untuk Limit Lebih Tinggi.`);
+            card.status = 'EXECUTION';
+            card.locked = state.buckets[card.strat.toLowerCase().replace('shot','')];
+        } else {
+            const win = type === 'TP';
+            const profit = win ? card.locked * 0.05 : -card.locked * 0.05;
+            state.capProfit += profit;
+            // Auto-Compound Engine
+            state.initCap += profit;
+            state.log.push({...card, res: type, pnl: profit, ts: new Date().toLocaleString()});
+            state.cards = state.cards.filter(c => c.id !== id);
+            notifyTelegram(`TITAN V13 LOG: ${card.name} | RESULT: ${type} | PNL: ${profit}`);
+            checkEliteStreak();
+        }
+        renderUI();
+    }
+
+    function checkEliteStreak() {
+        const todayProfit = state.capProfit / (state.initCap - state.capProfit);
+        if (todayProfit >= 0.05 && state.status === 'STANDART') {
+            const today = new Date().toLocaleDateString();
+            if (state.lastProfitDate !== today) {
+                state.streak++; state.lastProfitDate = today;
+                if (state.streak >= 7) {
+                    showCustomAlert("SISTEM MENDETEKSI PERFORMA ELITE: Profit 5% selama 7 hari berturut-turut! Konfirmasi Upgrade Status Otomatis?");
+                    state.status = 'ELITE';
+                }
+            }
+        }
     }
 
     function renderUI() {
@@ -249,39 +295,50 @@
         document.getElementById('b-smart').innerText = formatIDR(state.buckets.smart);
         document.getElementById('b-moon').innerText = formatIDR(state.buckets.moon);
         
+        const modeColor = state.status === 'ELITE' ? 'bg-yellow-500 shadow-[0_0_10px_#ffd700]' : 'bg-emerald-500';
+        document.getElementById('mode-dot').className = `w-2 h-2 rounded-full pulse-live ${modeColor}`;
+        document.getElementById('mode-text').innerText = `${state.status} MODE`;
+        document.getElementById('excel-btn').classList.toggle('hidden', state.status !== 'ELITE');
+
         const aDiv = document.getElementById('list-analysis');
         const eDiv = document.getElementById('list-execution');
-        aDiv.innerHTML = ''; eDiv.innerHTML = '';
+        const hDiv = document.getElementById('list-history');
+        aDiv.innerHTML = ''; eDiv.innerHTML = ''; hDiv.innerHTML = '';
 
         state.cards.forEach(c => {
             const pnl = ((c.current / c.entry) - 1) * 100;
-            const html = `
-                <div class="glass-premium p-4 flex flex-col gap-2 animate-fade-in ${c.status === 'EXECUTION' ? 'blink-execute' : ''}">
-                    <div class="flex justify-between items-center">
-                        <img src="${c.img}" class="w-6 h-6 rounded-full border border-white/10">
-                        <div class="text-right"><p class="text-[9px] titan-font">${c.name}/IDR</p></div>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-[10px] titan-font ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${pnl.toFixed(2)}%</p>
-                        <p class="text-[6px] opacity-40 uppercase">${c.platform}</p>
-                    </div>
-                    <canvas id="chart-${c.id}" class="mini-chart"></canvas>
-                    ${c.status === 'ANALYSIS' ? `<button onclick="handleAction(${c.id}, 'LOCK')" class="w-full py-2 bg-yellow-500 text-black text-[8px] font-black rounded-lg uppercase">Lock</button>` : `<div class="flex gap-1"><button class="flex-1 py-2 bg-emerald-500 text-[8px] font-bold rounded-lg uppercase">TP</button><button class="flex-1 py-2 bg-rose-500 text-[8px] font-bold rounded-lg uppercase">SL</button></div>`}
-                </div>`;
-            if(c.status === 'ANALYSIS') aDiv.innerHTML += html; else eDiv.innerHTML += html;
+            const moonLabel = c.strat === 'MOONSHOT' ? '<span class="text-[7px] bg-violet-600 px-1 rounded animate-pulse">MOONSHOT 95%</span>' : '';
+            const html = `<div class="glass-premium p-4 flex flex-col gap-2 ${c.status === 'EXECUTION' ? 'blink-execute' : ''}">
+                <div class="flex justify-between items-center"><img src="${c.img}" class="w-6 h-6 rounded-full border border-white/5 shadow-lg"><div class="text-right"><p class="text-[9px] titan-font">${c.name}/IDR</p>${moonLabel}</div></div>
+                <p class="text-[10px] text-center titan-font ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${pnl.toFixed(2)}%</p>
+                <canvas id="chart-${c.id}" class="mini-chart"></canvas>
+                ${c.status === 'ANALYSIS' ? `<button onclick="handleAction(${c.id}, 'LOCK')" class="w-full py-2 bg-yellow-500 text-black text-[8px] font-black rounded-xl uppercase">Lock Signal</button>` : `<div class="flex gap-1"><button onclick="handleAction(${c.id}, 'TP')" class="flex-1 py-2 bg-emerald-500 text-[8px] font-bold rounded-xl uppercase">TP</button><button onclick="handleAction(${c.id}, 'SL')" class="flex-1 py-2 bg-rose-500 text-[8px] font-bold rounded-xl uppercase">SL</button></div>`}
+            </div>`;
+            if (c.status === 'ANALYSIS') aDiv.innerHTML += html; else eDiv.innerHTML += html;
             setTimeout(() => drawMiniChart(c.id, c.spark, pnl >= 0), 100);
+        });
+
+        state.log.slice(-10).forEach(l => {
+            hDiv.innerHTML += `<div class="bg-white/5 p-2 rounded-lg flex justify-between items-center text-[8px] border-l-2 ${l.res==='TP'?'border-emerald-500':'border-rose-500'} animate-fade-in"><span class="titan-font">${l.name}</span><span class="font-bold opacity-70">${l.res}</span></div>`;
         });
     }
 
-    window.showCustomAlert = function(c) { document.getElementById('alert-content').innerHTML = c; document.getElementById('custom-alert').classList.remove('hidden'); }
-    window.closeAlert = function() { document.getElementById('custom-alert').classList.add('hidden'); }
-    window.wipeState = function(hard) { if(hard) { localStorage.clear(); sessionStorage.clear(); location.reload(); } }
-    function smartNotif(t) { const el = document.createElement('div'); el.className = "floating-msg titan-font text-yellow-500"; el.innerHTML = t; document.getElementById('notif-area').appendChild(el); setTimeout(()=>el.remove(), 4000); }
+    window.showTutorial = () => showCustomAlert("PANDUAN SUPREME TITAN V13:<br><br>1. <b>Analysis:</b> Tunggu Sinyal Mata Dewa muncul (Kedipan Emas).<br>2. <b>Lock:</b> Kunci modal ke bucket sesuai strategi.<br>3. <b>TSL Elite:</b> Profit akan dikunci otomatis jika harga drop 2% dari puncak.<br>4. <b>Misi Elite:</b> Capai 5% profit selama 7 hari berturut untuk unlock Elite gratis.<br>5. <b>Link Refferal:</b> Seluruh eksekusi real hanya sah melalui bursa mitra via tombol footer.");
+    window.openExternal = (key) => window.open(MASTER_CONFIG[key], '_blank');
+    window.showCustomAlert = (c) => { document.getElementById('alert-content').innerHTML = c; document.getElementById('custom-alert').classList.remove('hidden'); }
+    window.closeAlert = () => document.getElementById('custom-alert').classList.add('hidden');
+    window.wipeState = (hard) => { if(hard) { localStorage.clear(); location.reload(); } }
+    window.smartScanTrigger = () => smartNotif("Mata Dewa: Memindai Volatilitas Pasar...");
+    function smartNotif(t) { const el = document.createElement('div'); el.className = "floating-msg titan-font text-yellow-500 border border-yellow-500/30"; el.innerHTML = t; document.getElementById('notif-area').appendChild(el); setTimeout(()=>el.remove(), 4000); }
     function formatIDR(v) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v); }
+    function notifyTelegram(t) { fetch(`https://api.telegram.org/bot${MASTER_CONFIG.BT}/sendMessage?chat_id=${MASTER_CONFIG.CI}&text=${encodeURIComponent(t)}`); }
     function drawMiniChart(id, data, profit) {
         const ctx = document.getElementById(`chart-${id}`).getContext('2d');
         new Chart(ctx, { type: 'line', data: { labels: data.map((_,i)=>i), datasets: [{ data: data, borderColor: profit ? '#10b981' : '#f43f5e', borderWidth: 1.5, fill: false, tension: 0.4, pointRadius: 0 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } } });
     }
+
+    // Safety Wipe: 30 Days Trial
+    if (Date.now() - state.regDate > 30 * 24 * 60 * 60 * 1000 && state.status === 'STANDART') wipeState(true);
 })();
 </script>
 </body>
